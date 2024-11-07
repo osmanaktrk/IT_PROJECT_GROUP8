@@ -1,4 +1,4 @@
-# IT_PROJECT_GROUP_8
+# IT_PROJECT_GROUP8
 
 <p>Osman Akturk</p>
 <p>Samia Almtlek</p>
