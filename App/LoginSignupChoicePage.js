@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; //Arrow icon
 
-const LoginSignupChoicePage = () => {
+const LoginSignupChoicePage = ({ navigation }) => {
   return (
     <ImageBackground
       source={require('../assets/background.png')} //photo as background 
@@ -18,6 +18,12 @@ const LoginSignupChoicePage = () => {
         <Text style={styles.title}>Don’t have an account?</Text>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Sign up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.termsButton]}
+          onPress={() => navigation.navigate('TermsConditions')}
+        >
+          <Text style={styles.buttonText}>Terms and Conditions</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -59,6 +65,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+
+  termsButton: {
+    backgroundColor: '#007AFF', // Different color for Terms and Conditions button
   },
 });
 
