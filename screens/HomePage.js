@@ -50,10 +50,18 @@ export default function App() {
       // Sluit de popup na 3 seconden
       setTimeout(() => {
         setPopupVisible(false);
-      }, 3000);
+      }, 1000);
     } catch (error) {
       Alert.alert("Fout", "Er ging iets mis bij het ophalen van de locatie.");
     }
+  };
+
+  // Functie om de popup handmatig te testen
+  const handleTestPopup = () => {
+    setPopupVisible(true);
+    setTimeout(() => {
+      setPopupVisible(false);
+    }, 2000);
   };
 
   return (
@@ -69,16 +77,21 @@ export default function App() {
         <Button title="Zoek" onPress={searchLocation} />
       </View>
 
+      {/* Test Popup Knop */}
+      <View style={styles.testButtonContainer}>
+        <Button title="Test Popup" onPress={handleTestPopup} />
+      </View>
+
       {/* Kaart */}
       <MapView style={styles.map} region={location}>
-        <Marker coordinate={location} title="Gevonden locatie" />
+        <Marker coordinate={location} title="Sucess" />
       </MapView>
 
       {/* Popup */}
       <Popup
         visible={popupVisible}
         onClose={() => setPopupVisible(false)}
-        message="Locatie succesvol gevonden!"
+        message="Thanks for your contribution!"
       />
     </View>
   );
@@ -99,6 +112,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
+    zIndex: 1,
+  },
+  testButtonContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 10,
+    right: 10,
     zIndex: 1,
   },
   searchInput: {
