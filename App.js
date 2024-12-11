@@ -1,8 +1,14 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+
+
 import FrontPage from "./src/pages/FrontPage";
-import LoginSignupChoicePage from "./src/pages/LoginSignupChoicePage";
+
+import { NavigationContainer } from '@react-navigation/native'; // For managing navigation
+import { createStackNavigator } from '@react-navigation/stack'; // For creating a navigation stack
+import LoginSignupChoiceScreen from './src/pages/LoginSignupChoiceScreen';  //Add Login/Signup choice 
+import LoginScreen from './src/pages/LoginScreen'; // Add Login screen
+
+
 
 const Stack = createStackNavigator();
 
