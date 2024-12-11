@@ -9,8 +9,8 @@ export default function App() {
   const [location, setLocation] = useState({
     latitude: 50.8503, // Standaard locatie: Brussel
     longitude: 4.3517,
-    latitudeDelta: 0.5,
-    longitudeDelta: 0.5,
+    latitudeDelta: 0.065,
+    longitudeDelta: 0.065,
   });
   const [locationName, setLocationName] = useState("Brussel"); // Locatienaam
 
@@ -101,8 +101,8 @@ export default function App() {
       const coords = {
         latitude: parseFloat(data[0].lat),
         longitude: parseFloat(data[0].lon),
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.5,
+        latitudeDelta: 0.065,
+        longitudeDelta: 0.065,
       };
 
       setLocation(coords);
@@ -161,14 +161,14 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     position: "absolute",
-    top: 10,
+    top: 70,
     left: 10,
     right: 10,
     backgroundColor: "white",
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
+    paddingRight: 10,
     zIndex: 1,
   },
   searchInput: {
