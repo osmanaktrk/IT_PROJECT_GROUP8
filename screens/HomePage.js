@@ -1,16 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {StyleSheet, View, TextInput, Button, Dimensions, Alert,} from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
-// Functie om de app te starten met een standaard locatie
+// kaart tonen met standaart locatie
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
     latitude: 52.3676, // de x en y coordinaten van de standaart locatie
     longitude: 4.9041,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+
+  // Debounce: Voer de zoekopdracht alleen uit als de gebruiker 1 seconde niet heeft getypt
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 1000); // 1000 ms = 1 seconde
+
+    return () => {
+      clearTimeout(handler); // Annuleer de vorige timer als de gebruiker opnieuw typt
+    };
+  }, [searchQuery]);
+
+  // Voer de zoekopdracht uit zodra debouncedQuery verandert
+  useEffect(() => {
+    if (debouncedQuery.trim() !== "") {
+      searchLocation(debouncedQuery);
+    }
+  }, [debouncedQuery]);
+
+
 
   // Functie om locatie op te halen
   const searchLocation = async () => {
