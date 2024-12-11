@@ -8,8 +8,8 @@ export default function SecondScreen() {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 52.3676, // Amsterdam
-          longitude: 4.9041,
+          latitude: 50.846705, // Amsterdam
+          longitude: 4.352419,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
@@ -17,11 +17,11 @@ export default function SecondScreen() {
         {/* Voeg een marker toe */}
         <Marker
           coordinate={{
-            latitude: 52.3676,
-            longitude: 4.9041,
+            latitude: 50.846705,
+            longitude: 4.352419,
           }}
-          title="Amsterdam"
-          description="Hoofdstad van Nederland"
+          title="Brussel"
+          description="Hoofdstad van België"
         />
       </MapView>
     </View>
