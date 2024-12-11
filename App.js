@@ -9,10 +9,12 @@ import LoginSignupChoiceScreen from './src/pages/LoginSignupChoiceScreen';  //Ad
 import LoginScreen from './src/pages/LoginScreen'; // Add Login screen
 
 
+import LoginSignupChoicePage from './App/LoginSignupChoicePage'; // Pas dit pad aan naar jouw bestand
+import HomePage from './App/Homepage'; // Zorg ervoor dat je een HomePage hebt
 
 const Stack = createStackNavigator();
 
-export default function App() {
+function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -28,3 +30,5 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+export default App;
