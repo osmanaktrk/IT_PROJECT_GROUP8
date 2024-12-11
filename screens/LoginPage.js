@@ -20,3 +20,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+<Button
+        title="Klik om naar een andere pagina te gaan"
+        onPress={() => navigation.navigate('Home')}
+      />
+
+
