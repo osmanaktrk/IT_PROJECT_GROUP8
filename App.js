@@ -6,7 +6,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 // Importeer de schermen
 import LoginPage from './screens/LoginPage';
 import HomePage from './screens/HomePage';
-
 const Stack = createStackNavigator();
 
 export default function App() {

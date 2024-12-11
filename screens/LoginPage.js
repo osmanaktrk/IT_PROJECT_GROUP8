@@ -10,6 +10,8 @@ export default function HomeScreen({ navigation }) {
         onPress={() => navigation.navigate('Home')}
       />
     </View>
+
+    
   );
 }
 
@@ -21,9 +23,6 @@ const styles = StyleSheet.create({
   },
 });
 
-<Button
-        title="Klik om naar een andere pagina te gaan"
-        onPress={() => navigation.navigate('Home')}
-      />
+
 
 
