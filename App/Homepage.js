@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
-import {StyleSheet, View, TextInput, Button, Dimensions, Alert, Text} from "react-native";
+import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 
-
-// kaart tonen met standaart locatie
+// Kaart tonen met standaart locatie
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
     latitude: 50.8503, // Standaard locatie: Brussel
     longitude: 4.3517,
-    latitudeDelta:  0.5,
-    longitudeDelta:  0.5,
+    latitudeDelta: 0.5,
+    longitudeDelta: 0.5,
   });
   const [locationName, setLocationName] = useState("Brussel"); // Locatienaam
 
@@ -69,15 +68,13 @@ export default function App() {
     }
   }, [debouncedQuery]);
 
-
-
   // Functie om locatie op te halen
   const searchLocation = async () => {
     if (searchQuery.trim() === "") {
       Alert.alert("Fout", "Voer een geldige locatie in.");
       return;
     }
-  
+
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
@@ -89,25 +86,25 @@ export default function App() {
           },
         }
       );
-  
+
       if (!response.ok) {
         throw new Error(`HTTP status ${response.status}`);
       }
-  
+
       const data = await response.json();
-  
+
       if (data.length === 0) {
         Alert.alert("Geen resultaten", "Probeer een andere locatie.");
         return;
       }
-  
+
       const coords = {
         latitude: parseFloat(data[0].lat),
         longitude: parseFloat(data[0].lon),
         latitudeDelta: 0.5,
         longitudeDelta: 0.5,
       };
-  
+
       setLocation(coords);
       setLocationName(data[0].display_name); // Gebruik display_name voor de locatie
     } catch (error) {
@@ -117,8 +114,7 @@ export default function App() {
       );
     }
   };
-  
-  
+
   return (
     <View style={styles.container}>
       {/* Zoekbalk */}
@@ -152,7 +148,7 @@ export default function App() {
               </View>
             </Callout>
           </Marker>
-           ))}
+        ))}
       </MapView>
     </View>
   );
