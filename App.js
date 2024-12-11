@@ -5,6 +5,7 @@ import FrontPage from './App/FrontPage';
 import LoginSignupChoiceScreen from './App/LoginSignupChoiceScreen'; // Pas dit pad aan naar jouw bestand
 import HomePage from './App/Homepage'; // Zorg ervoor dat je een HomePage hebt
 import LoginScreen from './App/LoginScreen';
+import ForgetPasswordScreen from './App/ForgetPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,9 @@ function App() {
 
         {/* Login Page */}
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
+
+        {/* ForgetPasswordScreen Page */}
+        <Stack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen} />
 
         {/* Home Page */}
         <Stack.Screen name="HomePage" component={HomePage} />
