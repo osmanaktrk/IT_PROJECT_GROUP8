@@ -10,6 +10,8 @@ export default function HomeScreen({ navigation }) {
         onPress={() => navigation.navigate('Home')}
       />
     </View>
+
+    
   );
 }
 
@@ -20,3 +22,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+
+
+
