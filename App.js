@@ -25,16 +25,10 @@ function App() {
         <Stack.Screen
           name="LoginSignupChoicePage"
           component={LoginSignupChoicePage}
-          options={{ headerShown: false }} // Verberg de header
-          />
-        <Stack.Screen
- name="HomePage"
- component={HomePage}
- options={{ headerShown: false }} // Verberg de header
-/>
-</Stack.Navigator>
-</NavigationContainer>
-);
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
 
 export default App;
