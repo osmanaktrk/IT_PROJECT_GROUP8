@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import FrontPage from './App/FrontPage';
 import LoginSignupChoiceScreen from './App/LoginSignupChoiceScreen'; // Pas dit pad aan naar jouw bestand
 import HomePage from './App/Homepage'; // Zorg ervoor dat je een HomePage hebt
+import LoginScreen from './App/LoginScreen';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,9 @@ function App() {
 
         {/* Login/Signup Choice Page */}
         <Stack.Screen name="LoginSignupChoiceScreen" component={LoginSignupChoiceScreen} />
+
+        {/* Login Page */}
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
 
         {/* Home Page */}
         <Stack.Screen name="HomePage" component={HomePage} />
