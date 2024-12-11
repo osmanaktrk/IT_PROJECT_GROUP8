@@ -7,11 +7,40 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
-    latitude: 52.3676, // de x en y coordinaten van de standaart locatie
-    longitude: 4.9041,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitude: 50.8503, // Standaard locatie: Brussel
+    longitude: 4.3517,
+    latitudeDelta:  0.5,
+    longitudeDelta:  0.5,
   });
+  const [locationName, setLocationName] = useState("Brussel"); // Locatienaam
+
+  // Lijst met extra markers (voorbeeld: populaire locaties in Brussel)
+  const markers = [
+    {
+      id: 1,
+      latitude: 50.8466,
+      longitude: 4.3528,
+      title: "Grote Markt",
+    },
+    {
+      id: 2,
+      latitude: 50.8503,
+      longitude: 4.3497,
+      title: "Manneken Pis",
+    },
+    {
+      id: 3,
+      latitude: 50.8456,
+      longitude: 4.3572,
+      title: "Koninklijke Sint-Hubertusgalerijen",
+    },
+    {
+      id: 4,
+      latitude: 50.8505,
+      longitude: 4.3488,
+      title: "Stadhuis van Brussel",
+    },
+  ];
 
   // Debounce: Voer de zoekopdracht alleen uit als de gebruiker 1 seconde niet heeft getypt
   useEffect(() => {
@@ -66,11 +95,12 @@ export default function App() {
       const coords = {
         latitude: parseFloat(data[0].lat),
         longitude: parseFloat(data[0].lon),
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.5,
       };
   
       setLocation(coords);
+      setLocationName(data[0].display_name); // Gebruik display_name voor de locatie
     } catch (error) {
       Alert.alert(
         "Fout",
@@ -95,7 +125,14 @@ export default function App() {
 
       {/* Kaart */}
       <MapView style={styles.map} region={location}>
-        <Marker coordinate={location} title="Gevonden locatie" />
+        <Marker coordinate={location} title={locationName} />
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+            title={marker.title}
+          />
+        ))}
       </MapView>
     </View>
   );
