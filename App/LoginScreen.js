@@ -2,12 +2,12 @@ import React from 'react';
 import { View, Text, TextInput,TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Switch } from 'react-native';
-
-
-
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 
 const LoginScreen = () => {
+  const navigation = useNavigation(); // Navigation function
+
   return (
     <ImageBackground
       source={require('../assets/background.png')} 
@@ -42,23 +42,33 @@ const LoginScreen = () => {
 
         {/*Another options */}
         <View style={styles.optionsContainer}>
-          <View style={styles.rememberMe}>
-          <Switch
-    value={false} 
-    onValueChange={(newValue) => console.log(newValue)}// Event on change
-    style={{ marginRight: 5 }}
-  />
-            <Text style={styles.rememberText}>Remember me</Text>
-          </View>
-          <TouchableOpacity>
-            <Text style={styles.forgetPassword}>Forget password?</Text>
-          </TouchableOpacity>
-        </View>
+  {/* Remember Me Button */}
+  <View style={styles.rememberMe}>
+    <Switch
+      value={true}
+      onValueChange={(newValue) => console.log(newValue)} 
+      style={{ marginRight: 5 }}
+    />
+    <TouchableOpacity>
+      <Text style={styles.rememberText}>Remember me</Text>
+    </TouchableOpacity>
+  </View>
+
+  {/* Forget Password Button */}
+  <TouchableOpacity onPress={() => navigation.navigate('ForgetPasswordScreen')}>
+    <Text style={styles.forgetPassword}>Forget password?</Text>
+  </TouchableOpacity>
+</View>
+
 
         {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>Log in</Text>
-        </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.loginButton}
+  onPress={() => navigation.navigate('HomePage')} 
+>
+  <Text style={styles.loginButtonText}>Log in</Text>
+</TouchableOpacity>
+
       </View>
     </ImageBackground>
   );
