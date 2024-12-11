@@ -1,6 +1,14 @@
 import React, { useState } from "react";
-import {StyleSheet, View, TextInput, Button, Dimensions, Alert,} from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Button,
+  Dimensions,
+  Alert,
+} from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import Popup from "./components/Popup"; // Importeer het popup-component
 
 // Functie om de app te starten met een standaard locatie
 export default function App() {
@@ -11,6 +19,8 @@ export default function App() {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+
+  const [popupVisible, setPopupVisible] = useState(false); // State voor popup zichtbaar
 
   // Functie om locatie op te halen
   const searchLocation = async () => {
@@ -35,6 +45,12 @@ export default function App() {
       };
 
       setLocation(coords);
+      setPopupVisible(true); // Toon de popup
+
+      // Sluit de popup na 3 seconden
+      setTimeout(() => {
+        setPopupVisible(false);
+      }, 3000);
     } catch (error) {
       Alert.alert("Fout", "Er ging iets mis bij het ophalen van de locatie.");
     }
@@ -57,6 +73,13 @@ export default function App() {
       <MapView style={styles.map} region={location}>
         <Marker coordinate={location} title="Gevonden locatie" />
       </MapView>
+
+      {/* Popup */}
+      <Popup
+        visible={popupVisible}
+        onClose={() => setPopupVisible(false)}
+        message="Locatie succesvol gevonden!"
+      />
     </View>
   );
 }
