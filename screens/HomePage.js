@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {StyleSheet, View, TextInput, Button, Dimensions, Alert,} from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import {StyleSheet, View, TextInput, Button, Dimensions, Alert, Text} from "react-native";
+import MapView, { Marker, Callout } from "react-native-maps";
 
 // kaart tonen met standaart locatie
 export default function App() {
@@ -21,24 +21,32 @@ export default function App() {
       latitude: 50.8466,
       longitude: 4.3528,
       title: "Grote Markt",
+      price: 10,
+      status: "available",
     },
     {
       id: 2,
       latitude: 50.8503,
       longitude: 4.3497,
       title: "Manneken Pis",
+      price: "free",
+      status: "unavailable",
     },
     {
       id: 3,
       latitude: 50.8456,
       longitude: 4.3572,
       title: "Koninklijke Sint-Hubertusgalerijen",
+      price: 7.5,
+      status: "available",
     },
     {
       id: 4,
       latitude: 50.8505,
       longitude: 4.3488,
       title: "Stadhuis van Brussel",
+      price: 3.5,
+      status: "available",
     },
   ];
 
@@ -123,16 +131,27 @@ export default function App() {
         <Button title="Zoek" onPress={searchLocation} />
       </View>
 
-      {/* Kaart */}
+      {/* Kaart met markers */}
       <MapView style={styles.map} region={location}>
-        <Marker coordinate={location} title={locationName} />
         {markers.map((marker) => (
           <Marker
             key={marker.id}
-            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+            coordinate={{
+              latitude: marker.latitude,
+              longitude: marker.longitude,
+            }}
             title={marker.title}
-          />
-        ))}
+            pinColor={marker.status === "available" ? "green" : "red"} // Marker kleur afhankelijk van status
+          >
+            <Callout>
+              <View style={styles.callout}>
+                <Text>{marker.title}</Text>
+                <Text>{"Status: " + marker.status}</Text>
+                <Text>{"price " + marker.price + " euro"}</Text>
+              </View>
+            </Callout>
+          </Marker>
+           ))}
       </MapView>
     </View>
   );
@@ -167,5 +186,10 @@ const styles = StyleSheet.create({
   map: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
+  },
+
+  callout: {
+    padding: 10,
+    minWidth: 150,
   },
 });
