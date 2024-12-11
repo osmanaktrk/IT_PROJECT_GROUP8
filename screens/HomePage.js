@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,11 +8,11 @@ import {
   Alert,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import Popup from "./Popup";
 
-// Functie om de app te starten met een standaard locatie
+// kaart tonen met standaart locatie
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
     latitude: 52.3676, // de x en y coordinaten van de standaart locatie
     longitude: 4.9041,
@@ -20,16 +20,47 @@ export default function App() {
     longitudeDelta: 0.0421,
   });
 
-  const [popupVisible, setPopupVisible] = useState(false); // State voor popup zichtbaar
+  // Debounce: Voer de zoekopdracht alleen uit als de gebruiker 1 seconde niet heeft getypt
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 1000); // 1000 ms = 1 seconde
+
+    return () => {
+      clearTimeout(handler); // Annuleer de vorige timer als de gebruiker opnieuw typt
+    };
+  }, [searchQuery]);
+
+  // Voer de zoekopdracht uit zodra debouncedQuery verandert
+  useEffect(() => {
+    if (debouncedQuery.trim() !== "") {
+      searchLocation(debouncedQuery);
+    }
+  }, [debouncedQuery]);
 
   // Functie om locatie op te halen
   const searchLocation = async () => {
+    if (searchQuery.trim() === "") {
+      Alert.alert("Fout", "Voer een geldige locatie in.");
+      return;
+    }
+
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
           searchQuery
-        )}&format=json&addressdetails=1&limit=1`
+        )}&format=json&addressdetails=1&limit=1`,
+        {
+          headers: {
+            "User-Agent": "ReactNativeApp/1.0 (https://example.com)", // Voeg een User-Agent toe (anders werkt het niet voor android)
+          },
+        }
       );
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.length === 0) {
@@ -45,23 +76,12 @@ export default function App() {
       };
 
       setLocation(coords);
-      setPopupVisible(true); // Toon de popup
-
-      // Sluit de popup na 3 seconden
-      setTimeout(() => {
-        setPopupVisible(false);
-      }, 1000);
     } catch (error) {
-      Alert.alert("Fout", "Er ging iets mis bij het ophalen van de locatie.");
+      Alert.alert(
+        "Fout",
+        `Er ging iets mis bij het ophalen van de locatie: ${error.message}`
+      );
     }
-  };
-
-  // Functie om de popup handmatig te testen
-  const handleTestPopup = () => {
-    setPopupVisible(true);
-    setTimeout(() => {
-      setPopupVisible(false);
-    }, 2000);
   };
 
   return (
@@ -77,22 +97,10 @@ export default function App() {
         <Button title="Zoek" onPress={searchLocation} />
       </View>
 
-      {/* Test Popup Knop */}
-      <View style={styles.testButtonContainer}>
-        <Button title="Test Popup" onPress={handleTestPopup} />
-      </View>
-
       {/* Kaart */}
       <MapView style={styles.map} region={location}>
-        <Marker coordinate={location} title="Sucess" />
+        <Marker coordinate={location} title="Gevonden locatie" />
       </MapView>
-
-      {/* Popup */}
-      <Popup
-        visible={popupVisible}
-        onClose={() => setPopupVisible(false)}
-        message="Thanks for your contribution!"
-      />
     </View>
   );
 }
@@ -112,13 +120,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
-    zIndex: 1,
-  },
-  testButtonContainer: {
-    position: "absolute",
-    bottom: 20,
-    left: 10,
-    right: 10,
     zIndex: 1,
   },
   searchInput: {
