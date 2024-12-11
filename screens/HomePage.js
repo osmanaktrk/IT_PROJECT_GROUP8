@@ -35,32 +35,51 @@ export default function App() {
 
   // Functie om locatie op te halen
   const searchLocation = async () => {
+    if (searchQuery.trim() === "") {
+      Alert.alert("Fout", "Voer een geldige locatie in.");
+      return;
+    }
+  
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
           searchQuery
-        )}&format=json&addressdetails=1&limit=1`
+        )}&format=json&addressdetails=1&limit=1`,
+        {
+          headers: {
+            "User-Agent": "ReactNativeApp/1.0 (https://example.com)", // Voeg een User-Agent toe (anders werkt het niet voor android)
+          },
+        }
       );
+  
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+  
       const data = await response.json();
-
+  
       if (data.length === 0) {
         Alert.alert("Geen resultaten", "Probeer een andere locatie.");
         return;
       }
-
+  
       const coords = {
         latitude: parseFloat(data[0].lat),
         longitude: parseFloat(data[0].lon),
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       };
-
+  
       setLocation(coords);
     } catch (error) {
-      Alert.alert("Fout", "Er ging iets mis bij het ophalen van de locatie.");
+      Alert.alert(
+        "Fout",
+        `Er ging iets mis bij het ophalen van de locatie: ${error.message}`
+      );
     }
   };
-
+  
+  
   return (
     <View style={styles.container}>
       {/* Zoekbalk */}
