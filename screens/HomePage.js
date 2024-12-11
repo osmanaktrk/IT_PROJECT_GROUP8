@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import Popup from "./components/Popup"; // Importeer het popup-component
+import Popup from "./Popup";
 
 // Functie om de app te starten met een standaard locatie
 export default function App() {
