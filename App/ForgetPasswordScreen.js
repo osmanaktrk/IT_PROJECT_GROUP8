@@ -1,7 +1,7 @@
 
 import React from 'react';
 import {View,Text,TextInput,TouchableOpacity,StyleSheet,ImageBackground,} from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Add Icons
+
 
 const ForgotPasswordScreen = ({ navigation }) => {
   return (
@@ -30,9 +30,12 @@ const ForgotPasswordScreen = ({ navigation }) => {
         </View>
 
         {/* Rest password button*/}
-        <TouchableOpacity style={styles.resetButton}>
-          <Text style={styles.resetButtonText}>Rest Password</Text>
-        </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.resetButton}
+  onPress={() => navigation.navigate('VerifyCodeScreen')} // Navigate to verfication screen
+>
+  <Text style={styles.resetButtonText}>Rest Password</Text>
+</TouchableOpacity>
       </View>
     </ImageBackground>
   );
@@ -48,13 +51,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
-  backIcon: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-  },
+  
   title: {
-    fontSize: 40,
+    fontSize: 39,
     fontWeight: "bold",
     color: "#B2DDF9",
     textAlign: "center",
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#B2DDF9',
     textAlign: 'left',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
