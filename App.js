@@ -7,6 +7,7 @@ import HomePage from './App/Homepage'; // Zorg ervoor dat je een HomePage hebt
 import LoginScreen from './App/LoginScreen';
 import ForgetPasswordScreen from './App/ForgetPasswordScreen';
 import VerifyCodeScreen from './App/VerifyCodeScreen';
+import UpdatePasswordScreen from './App/UpdatePasswordScreen';
 import SignUpScreen from "./App/SignUpScreen";
 
 const Stack = createStackNavigator();
@@ -41,6 +42,9 @@ function App() {
 
         {/* VerifyCodeScreen Page */}
         <Stack.Screen name="VerifyCodeScreen" component={VerifyCodeScreen} />
+
+        {/* UpdatePasswordScreen Page */}
+        <Stack.Screen name="UpdatePasswordScreen" component={UpdatePasswordScreen} />
 
 
         {/* Home Page */}
