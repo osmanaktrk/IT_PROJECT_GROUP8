@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 18,
-    color: "blue",
+    color: "black", // Zwart gemaakt
     marginTop: 10,
     textAlign: "center",
   },
