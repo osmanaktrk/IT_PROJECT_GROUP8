@@ -71,7 +71,7 @@ const UpdatePasswordScreen = ({ navigation }) => {
         {/* Update password button*/}
         <TouchableOpacity
           style={styles.updateButton}
-          onPress={() => navigation.navigate('VerifyCodeScreen')} 
+          onPress={() => navigation.navigate('ConfirmPasswordResetScreen')} 
         >
           <Text style={styles.updateButtonText}>Update Password</Text>
         </TouchableOpacity>
