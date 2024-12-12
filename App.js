@@ -7,26 +7,37 @@ import HomePage from './App/Homepage'; // Zorg ervoor dat je een HomePage hebt
 import LoginScreen from './App/LoginScreen';
 import ForgetPasswordScreen from './App/ForgetPasswordScreen';
 import VerifyCodeScreen from './App/VerifyCodeScreen';
-
+import SignUpScreen from "./App/SignUpScreen";
 
 const Stack = createStackNavigator();
 
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="FrontPage" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        initialRouteName="FrontPage"
+        screenOptions={{ headerShown: false }}
+      >
         {/* Front Page */}
         <Stack.Screen name="FrontPage" component={FrontPage} />
 
         {/* Login/Signup Choice Page */}
-        <Stack.Screen name="LoginSignupChoiceScreen" component={LoginSignupChoiceScreen} />
+        <Stack.Screen
+          name="LoginSignupChoiceScreen"
+          component={LoginSignupChoiceScreen}
+        />
 
         {/* Login Page */}
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
 
-        {/* ForgetPasswordScreen Page */}
-        <Stack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen} />
+        {/* VerifyCodeScreen Page */}
+        <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
 
+        {/* ForgetPasswordScreen Page */}
+        <Stack.Screen
+          name="ForgetPasswordScreen"
+          component={ForgetPasswordScreen}
+        />
 
         {/* VerifyCodeScreen Page */}
         <Stack.Screen name="VerifyCodeScreen" component={VerifyCodeScreen} />
@@ -38,6 +49,5 @@ function App() {
     </NavigationContainer>
   );
 }
-
 
 export default App;
