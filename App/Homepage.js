@@ -112,17 +112,28 @@ export default function App() {
       {/* Zijmenu voor account */}
       {showAccountMenu && (
         <View style={styles.accountMenu}>
-          <Text style={styles.accountText}>Weiam</Text>
-          <Button title="Update Profile" onPress={() => Alert.alert("Profile")} />
-          <Button title="My Points" onPress={() => Alert.alert("Points")} />
-          <Button
-            title="Terms & Conditions"
-            onPress={() => Alert.alert("Terms")}
-          />
-          <Button title="Log out" onPress={() => Alert.alert("Logged out")} />
-          <TouchableOpacity onPress={toggleAccountMenu}>
-            <Text style={styles.closeButton}>Sluit</Text>
-          </TouchableOpacity>
+          {/* Bovenaan de naam van de gebruiker */}
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>Weiam</Text>
+          </View>
+
+          {/* In het midden de knoppen */}
+          <View style={styles.middleSection}>
+            <Button title="Update Profile" onPress={() => Alert.alert("Profile")} />
+            <Button title="My Points" onPress={() => Alert.alert("Points")} />
+            <Button
+              title="Terms & Conditions"
+              onPress={() => Alert.alert("Terms")}
+            />
+          </View>
+
+          {/* Onderaan de log out en sluit knoppen */}
+          <View style={styles.bottomSection}>
+            <Button title="Log out" onPress={() => Alert.alert("Logged out")} />
+            <TouchableOpacity onPress={toggleAccountMenu}>
+              <Text style={styles.closeButton}>Sluit</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -191,10 +202,22 @@ const styles = StyleSheet.create({
     zIndex: 2,
     padding: 20,
   },
+  topSection: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  middleSection: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  bottomSection: {
+    marginTop: 20,
+    alignItems: "center",
+  },
   closeButton: {
     fontSize: 18,
     color: "blue",
-    marginTop: 20,
+    marginTop: 10,
     textAlign: "center",
   },
   accountText: {
