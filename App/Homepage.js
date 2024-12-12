@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Button,
+  Dimensions,
+  Alert,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
-import * as Location from "expo-location"; 
-
+import * as Location from "expo-location";
+import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
 
 export default function App() {
- 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
-    latitude: 50.8503, // Standaard locatie instellen
+    latitude: 50.8503,
     longitude: 4.3517,
     latitudeDelta: 0.065,
     longitudeDelta: 0.065,
   });
-  const [locationName, setLocationName] = useState("Brussel"); // standaard locatie
-  const [permissionGranted, setPermissionGranted] = useState(false); // voor jou locatie
+  const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
 
-  // enkele markeringen
   const markers = [
     {
       id: 1,
@@ -35,64 +41,11 @@ export default function App() {
       price: "free",
       status: "unavailable",
     },
-    {
-      id: 3,
-      latitude: 50.8456,
-      longitude: 4.3572,
-      title: "Koninklijke Sint-Hubertusgalerijen",
-      price: 7.5,
-      status: "available",
-    },
-    {
-      id: 4,
-      latitude: 50.8505,
-      longitude: 4.3488,
-      title: "Stadhuis van Brussel",
-      price: 3.5,
-      status: "available",
-    },
   ];
 
-  // automatisch na 1 second de search uitvoeren
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 1000);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchQuery]);
-
-  useEffect(() => {
-    if (debouncedQuery.trim() !== "") {
-      searchLocation(debouncedQuery);
-    }
-  }, [debouncedQuery]);
-
-  // Functie om huidige locatie op te halen
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {  // als locatie geweigerd wordt melding geven
-        Alert.alert(
-          "Locatietoegang geweigerd",
-          "Schakel locatietoegang in om je huidige locatie te gebruiken."
-        );
-        return;
-      }
-      setPermissionGranted(true);
-
-      let userLocation = await Location.getCurrentPositionAsync({});
-      setLocation({
-        latitude: userLocation.coords.latitude,
-        longitude: userLocation.coords.longitude,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.04,
-      });
-      setLocationName("Huidige locatie");
-    })();
-  }, []);
+  const toggleAccountMenu = () => {
+    setShowAccountMenu(!showAccountMenu); // Toggle het zijmenu
+  };
 
   const searchLocation = async () => {
     if (searchQuery.trim() === "") {
@@ -131,7 +84,6 @@ export default function App() {
       };
 
       setLocation(coords);
-      setLocationName(data[0].display_name);
     } catch (error) {
       Alert.alert(
         "Fout",
@@ -142,7 +94,11 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      {/* Zoekbalk met accounticoon */}
       <View style={styles.searchContainer}>
+        <TouchableOpacity onPress={toggleAccountMenu}>
+          <Ionicons name="person-circle-outline" size={40} color="black" />
+        </TouchableOpacity>
         <TextInput
           style={styles.searchInput}
           placeholder="Zoek een locatie"
@@ -151,6 +107,22 @@ export default function App() {
         />
         <Button title="Zoek" onPress={searchLocation} />
       </View>
+
+      {/* Zijmenu voor account */}
+      {showAccountMenu && (
+        <View style={styles.accountMenu}>
+          <Text style={styles.accountText}>Weiam</Text>
+          <Button title="Update Profile" onPress={() => Alert.alert("Profile")} />
+          <Button title="My Points" onPress={() => Alert.alert("Points")} />
+          <Button
+            title="Terms & Conditions"
+            onPress={() => Alert.alert("Terms")}
+          />
+          <Button title="Log out" onPress={() => Alert.alert("Logged out")} />
+        </View>
+      )}
+
+      {/* Kaart */}
       <MapView style={styles.map} region={location}>
         {markers.map((marker) => (
           <Marker
@@ -166,7 +138,7 @@ export default function App() {
               <View style={styles.callout}>
                 <Text>{marker.title}</Text>
                 <Text>{"Status: " + marker.status}</Text>
-                <Text>{"price " + marker.price + " euro"}</Text>
+                <Text>{"Price: " + marker.price + " euro"}</Text>
               </View>
             </Callout>
           </Marker>
@@ -198,12 +170,27 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
-    marginRight: 10,
+    marginLeft: 10,
     paddingHorizontal: 10,
   },
   map: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
+  },
+  accountMenu: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: "60%",
+    height: "100%",
+    backgroundColor: "white",
+    zIndex: 2,
+    padding: 20,
+  },
+  accountText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
   callout: {
     padding: 10,
