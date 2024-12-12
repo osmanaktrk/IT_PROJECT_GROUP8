@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
+import * as Location from "expo-location"; 
 
-// Kaart tonen met standaart locatie
+
 export default function App() {
+ 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
-    latitude: 50.8503, // Standaard locatie: Brussel
+    latitude: 50.8503, // Standaard locatie instellen
     longitude: 4.3517,
     latitudeDelta: 0.065,
     longitudeDelta: 0.065,
   });
-  const [locationName, setLocationName] = useState("Brussel"); // Locatienaam
+  const [locationName, setLocationName] = useState("Brussel"); // standaard locatie
+  const [permissionGranted, setPermissionGranted] = useState(false); // voor jou locatie
 
-  // Lijst met extra markers (voorbeeld: populaire locaties in Brussel)
+  // enkele markeringen
   const markers = [
     {
       id: 1,
@@ -50,25 +53,47 @@ export default function App() {
     },
   ];
 
-  // Debounce: Voer de zoekopdracht alleen uit als de gebruiker 1 seconde niet heeft getypt
+  // automatisch na 1 second de search uitvoeren
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-    }, 1000); // 1000 ms = 1 seconde
+    }, 1000);
 
     return () => {
-      clearTimeout(handler); // Annuleer de vorige timer als de gebruiker opnieuw typt
+      clearTimeout(handler);
     };
   }, [searchQuery]);
 
-  // Voer de zoekopdracht uit zodra debouncedQuery verandert
   useEffect(() => {
     if (debouncedQuery.trim() !== "") {
       searchLocation(debouncedQuery);
     }
   }, [debouncedQuery]);
 
-  // Functie om locatie op te halen
+  // Functie om huidige locatie op te halen
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {  // als locatie geweigerd wordt melding geven
+        Alert.alert(
+          "Locatietoegang geweigerd",
+          "Schakel locatietoegang in om je huidige locatie te gebruiken."
+        );
+        return;
+      }
+      setPermissionGranted(true);
+
+      let userLocation = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+        latitudeDelta: 0.04,
+        longitudeDelta: 0.04,
+      });
+      setLocationName("Huidige locatie");
+    })();
+  }, []);
+
   const searchLocation = async () => {
     if (searchQuery.trim() === "") {
       Alert.alert("Fout", "Voer een geldige locatie in.");
@@ -82,7 +107,7 @@ export default function App() {
         )}&format=json&addressdetails=1&limit=1`,
         {
           headers: {
-            "User-Agent": "ReactNativeApp/1.0 (https://example.com)", // Voeg een User-Agent toe (anders werkt het niet voor android)
+            "User-Agent": "ReactNativeApp/1.0 (https://example.com)",
           },
         }
       );
@@ -106,7 +131,7 @@ export default function App() {
       };
 
       setLocation(coords);
-      setLocationName(data[0].display_name); // Gebruik display_name voor de locatie
+      setLocationName(data[0].display_name);
     } catch (error) {
       Alert.alert(
         "Fout",
@@ -117,7 +142,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {/* Zoekbalk */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -127,8 +151,6 @@ export default function App() {
         />
         <Button title="Zoek" onPress={searchLocation} />
       </View>
-
-      {/* Kaart met markers */}
       <MapView style={styles.map} region={location}>
         {markers.map((marker) => (
           <Marker
@@ -138,7 +160,7 @@ export default function App() {
               longitude: marker.longitude,
             }}
             title={marker.title}
-            pinColor={marker.status === "available" ? "green" : "red"} // Marker kleur afhankelijk van status
+            pinColor={marker.status === "available" ? "green" : "red"}
           >
             <Callout>
               <View style={styles.callout}>
@@ -154,7 +176,6 @@ export default function App() {
   );
 }
 
-// basic css
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -184,7 +205,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   },
-
   callout: {
     padding: 10,
     minWidth: 150,
