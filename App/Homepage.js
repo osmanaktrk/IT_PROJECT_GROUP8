@@ -119,17 +119,22 @@ export default function App() {
 
           {/* In het midden de knoppen */}
           <View style={styles.middleSection}>
-            <Button title="Update Profile" onPress={() => Alert.alert("Profile")} />
-            <Button title="My Points" onPress={() => Alert.alert("Points")} />
-            <Button
-              title="Terms & Conditions"
-              onPress={() => Alert.alert("Terms")}
-            />
+            <TouchableOpacity style={styles.menuButton}>
+              <Text style={styles.menuButtonText}>Update Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuButton}>
+              <Text style={styles.menuButtonText}>My Points</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuButton}>
+              <Text style={styles.menuButtonText}>Terms & Conditions</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Onderaan de log out en sluit knoppen */}
           <View style={styles.bottomSection}>
-            <Button title="Log out" onPress={() => Alert.alert("Logged out")} />
+            <TouchableOpacity style={styles.logoutButton}>
+              <Text style={styles.logoutButtonText}>Log out</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={toggleAccountMenu}>
               <Text style={styles.closeButton}>Sluit</Text>
             </TouchableOpacity>
@@ -213,6 +218,32 @@ const styles = StyleSheet.create({
   bottomSection: {
     marginTop: 20,
     alignItems: "center",
+  },
+  menuButton: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    alignItems: "center",
+  },
+  menuButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  logoutButton: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    alignItems: "center",
+  },
+  logoutButtonText: {
+    color: "red",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   closeButton: {
     fontSize: 18,
