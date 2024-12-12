@@ -94,23 +94,25 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TouchableOpacity onPress={toggleAccountMenu}>
-          <Ionicons name="person-circle-outline" size={40} color="black" />
-        </TouchableOpacity>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Zoek een locatie"
-          value={searchQuery}
-          onChangeText={(text) => setSearchQuery(text)}
-        />
-        <Button title="Zoek" onPress={searchLocation} />
-      </View>
+      {!showAccountMenu && (
+        <View style={styles.searchContainer}>
+          <TouchableOpacity onPress={toggleAccountMenu}>
+            <Ionicons name="person-circle-outline" size={40} color="black" />
+          </TouchableOpacity>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Zoek een locatie"
+            value={searchQuery}
+            onChangeText={(text) => setSearchQuery(text)}
+          />
+          <Button title="Zoek" onPress={searchLocation} />
+        </View>
+      )}
 
       {/* Zijmenu voor account */}
       {showAccountMenu && (
         <View style={styles.accountMenu}>
-          <Text style={styles.accountText}>Name</Text>
+          <Text style={styles.accountText}>Weiam</Text>
           <Button title="Update Profile" onPress={() => Alert.alert("Profile")} />
           <Button title="My Points" onPress={() => Alert.alert("Points")} />
           <Button
@@ -119,7 +121,7 @@ export default function App() {
           />
           <Button title="Log out" onPress={() => Alert.alert("Logged out")} />
           <TouchableOpacity onPress={toggleAccountMenu}>
-            <Text style={styles.closeButton}>Close</Text>
+            <Text style={styles.closeButton}>Sluit</Text>
           </TouchableOpacity>
         </View>
       )}
