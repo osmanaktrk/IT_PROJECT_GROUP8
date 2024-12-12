@@ -8,6 +8,7 @@ import LoginScreen from './App/LoginScreen';
 import ForgetPasswordScreen from './App/ForgetPasswordScreen';
 import VerifyCodeScreen from './App/VerifyCodeScreen';
 import UpdatePasswordScreen from './App/UpdatePasswordScreen';
+import ConfirmPasswordResetScreen from './App/ConfirmPasswordResetScreen';
 import SignUpScreen from "./App/SignUpScreen";
 
 const Stack = createStackNavigator();
@@ -31,20 +32,21 @@ function App() {
         {/* Login Page */}
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
 
-        {/* VerifyCodeScreen Page */}
+        {/* SignUpScreen Page */}
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
 
         {/* ForgetPasswordScreen Page */}
-        <Stack.Screen
-          name="ForgetPasswordScreen"
-          component={ForgetPasswordScreen}
-        />
+        <Stack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen}/>
 
         {/* VerifyCodeScreen Page */}
         <Stack.Screen name="VerifyCodeScreen" component={VerifyCodeScreen} />
 
         {/* UpdatePasswordScreen Page */}
         <Stack.Screen name="UpdatePasswordScreen" component={UpdatePasswordScreen} />
+
+        {/* ConfirmPasswordResetScreen Page */}
+        <Stack.Screen name="ConfirmPasswordResetScreen" component={ConfirmPasswordResetScreen} />
+
 
 
         {/* Home Page */}
