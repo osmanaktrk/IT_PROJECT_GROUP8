@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     left: 0, // Zorgt ervoor dat het menu aan de linkerkant verschijnt
     width: "60%",
     height: "100%",
-    backgroundColor: "white",
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // Doorzichtig wit
     zIndex: 2,
     padding: 20,
   },
