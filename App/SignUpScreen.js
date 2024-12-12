@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 const SignUpScreen = () => {
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,11 +93,11 @@ const SignUpScreen = () => {
         </View>
 
         <TouchableOpacity
-  style={styles.button}
-  onPress={() => navigation.navigate("VerifyEmailScreen")} // Navigate to VerifyEmailScreen
->
-  <Text style={styles.buttonText}>Create Account</Text>
-</TouchableOpacity>
+          style={styles.button}
+          onPress={() => navigation.navigate("VerifyEmailScreen")} // Navigate to VerifyEmailScreen
+        >
+          <Text style={styles.buttonText}>Create Account</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Modal for Terms and Conditions */}
