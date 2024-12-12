@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {View,Text,TextInput,TouchableOpacity,StyleSheet,ImageBackground,} from 'react-native';
 
-const VerifyCodeScreen = () => {
+const VerifyCodeScreen = ({navigation}) => {
   const [code, setCode] = useState(['', '', '', '', '']); //To store the entered code
 
   const handleInputChange = (value, index) => {
@@ -42,9 +42,13 @@ const VerifyCodeScreen = () => {
         </View>
 
         {/* Verify Button */}
-        <TouchableOpacity style={styles.verifyButton}>
-          <Text style={styles.verifyButtonText}>Verify Code</Text>
-        </TouchableOpacity>
+
+        <TouchableOpacity
+  style={styles.verifyButton}
+  onPress={() => navigation.navigate('UpdatePasswordScreen')} // Navigte to UpdatePasswordScreen
+>
+  <Text style={styles.verifyButtonText}>Verify Code</Text>
+</TouchableOpacity>
 
         {/* Resend email text */}
         <Text style={styles.resendText}>
