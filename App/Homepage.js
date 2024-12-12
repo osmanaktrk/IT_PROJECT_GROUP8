@@ -94,7 +94,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {/* Zoekbalk met accounticoon */}
       <View style={styles.searchContainer}>
         <TouchableOpacity onPress={toggleAccountMenu}>
           <Ionicons name="person-circle-outline" size={40} color="black" />
@@ -180,7 +179,7 @@ const styles = StyleSheet.create({
   accountMenu: {
     position: "absolute",
     top: 0,
-    right: 0,
+    left: 0, // Zorgt ervoor dat het menu aan de linkerkant verschijnt
     width: "60%",
     height: "100%",
     backgroundColor: "white",
