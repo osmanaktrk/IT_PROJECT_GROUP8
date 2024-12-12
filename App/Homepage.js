@@ -114,7 +114,7 @@ export default function App() {
         <View style={styles.accountMenu}>
           {/* Bovenaan de naam van de gebruiker */}
           <View style={styles.topSection}>
-            <Text style={styles.accountText}>Weiam</Text>
+            <Text style={styles.accountText}>Name</Text>
           </View>
 
           {/* In het midden de knoppen */}
@@ -136,7 +136,7 @@ export default function App() {
               <Text style={styles.logoutButtonText}>Log out</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleAccountMenu}>
-              <Text style={styles.closeButton}>Sluit</Text>
+              <Text style={styles.closeButton}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
