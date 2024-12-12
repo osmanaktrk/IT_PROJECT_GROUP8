@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { StyleSheet, View, TextInput, Button,FlatList, Dimensions, Alert, Text, Image } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location"; 
 
@@ -17,6 +17,8 @@ export default function App() {
   const [locationName, setLocationName] = useState("Brussel"); 
   const [liveLocation, setLiveLocation] = useState(null); // Live location
   const [permissionGranted, setPermissionGranted] = useState(false); // your location
+
+  const mapRef = useRef(null);
 
   // some markers 
   const markers = [
@@ -146,8 +148,37 @@ export default function App() {
     }
   };
 
+  const fitAllMarkers = () => {
+    if (mapRef.current && markers.length > 0) {
+      const coordinates = markers.map((marker) => ({
+        latitude: marker.latitude,
+        longitude: marker.longitude,
+      }));
+      mapRef.current.fitToCoordinates(coordinates, {
+        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+        animated: true,
+      });
+    }
+  };
+
+  const navigateToMarker = (latitude, longitude) => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000 // Animatie duur in milliseconden
+      );
+    }
+  };
+
+
   return (
     <View style={styles.container}>
+      {/* Zoek en knop */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -155,23 +186,11 @@ export default function App() {
           value={searchQuery}
           onChangeText={(text) => setSearchQuery(text)}
         />
-        <Button title="Zoek" onPress={searchLocation} />
+        <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
       </View>
-      <MapView style={styles.map} region={location}>
-        {/* live locatie markering */}
-        {liveLocation && (
-          <Marker coordinate={liveLocation}>
-          <View style={styles.markerContainer}>
-            <Image
-              source={require("../assets/car.png")} 
-              style={styles.markerImage}
-            />
-          </View>
-            <Callout>
-              <Text>Dit ben jij!</Text>
-            </Callout>
-          </Marker>
-        )}
+
+      {/* Kaartweergave */}
+      <MapView ref={mapRef} style={styles.map} region={location}>
         {markers.map((marker) => (
           <Marker
             key={marker.id}
@@ -181,17 +200,25 @@ export default function App() {
             }}
             title={marker.title}
             pinColor={marker.status === "available" ? "green" : "red"}
-          >
-            <Callout>
-              <View style={styles.callout}>
-                <Text>{marker.title}</Text>
-                <Text>{"Status: " + marker.status}</Text>
-                <Text>{"price " + marker.price + " euro"}</Text>
-              </View>
-            </Callout>
-          </Marker>
+          />
         ))}
       </MapView>
+
+      {/* Lijst van markers */}
+      <FlatList
+        data={markers}
+        keyExtractor={(item) => item.id.toString()}
+        style={styles.list}
+        renderItem={({ item }) => (
+          <View style={styles.listItem}>
+            <Text style={styles.listText}>{item.title}</Text>
+            <Button
+              title="Zoom"
+              onPress={() => navigateToMarker(item.latitude, item.longitude)}
+            />
+          </View>
+        )}
+      />
     </View>
   );
 }
@@ -238,5 +265,23 @@ const styles = StyleSheet.create({
     width: 50, 
     height: 50, 
     resizeMode: "contain", // keep the ratio the same
+  },
+  list: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    maxHeight: 200, // Beperk de lijst tot een bepaalde hoogte
+  },
+  listItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  listText: {
+    flex: 1,
   },
 });
