@@ -14,6 +14,7 @@ export default function App() {
     latitudeDelta: 0.03,
     longitudeDelta: 0.03,
   });
+  const [locationName, setLocationName] = useState("Brussel"); 
   const [liveLocation, setLiveLocation] = useState(null); // Live location
   const [permissionGranted, setPermissionGranted] = useState(false); // your location
 
