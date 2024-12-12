@@ -9,7 +9,7 @@ import ForgetPasswordScreen from './App/ForgetPasswordScreen';
 import VerifyCodeScreen from './App/VerifyCodeScreen';
 import UpdatePasswordScreen from './App/UpdatePasswordScreen';
 import SignUpScreen from "./App/SignUpScreen";
-
+import VerifyEmailScreen from './App/VerifyEmailScreen';
 const Stack = createStackNavigator();
 
 function App() {
@@ -33,6 +33,9 @@ function App() {
 
         {/* VerifyCodeScreen Page */}
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+        
+        {/* VerifyEmailScreen Page */}
+        <Stack.Screen name="VerifyEmailScreen" component={VerifyEmailScreen} />
 
         {/* ForgetPasswordScreen Page */}
         <Stack.Screen
