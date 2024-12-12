@@ -110,7 +110,7 @@ export default function App() {
       {/* Zijmenu voor account */}
       {showAccountMenu && (
         <View style={styles.accountMenu}>
-          <Text style={styles.accountText}>Weiam</Text>
+          <Text style={styles.accountText}>Name</Text>
           <Button title="Update Profile" onPress={() => Alert.alert("Profile")} />
           <Button title="My Points" onPress={() => Alert.alert("Points")} />
           <Button
@@ -118,6 +118,9 @@ export default function App() {
             onPress={() => Alert.alert("Terms")}
           />
           <Button title="Log out" onPress={() => Alert.alert("Logged out")} />
+          <TouchableOpacity onPress={toggleAccountMenu}>
+            <Text style={styles.closeButton}>Close</Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -185,6 +188,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     zIndex: 2,
     padding: 20,
+  },
+  closeButton: {
+    fontSize: 18,
+    color: "blue",
+    marginTop: 20,
+    textAlign: "center",
   },
   accountText: {
     fontSize: 20,
