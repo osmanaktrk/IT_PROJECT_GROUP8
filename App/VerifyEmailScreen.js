@@ -1,3 +1,5 @@
+// npm install @react-native-async-storage/async-storage
+
 import React, { useRef, useState } from "react";
 import {
   View,
@@ -11,8 +13,10 @@ import {
 import { useNavigation } from "@react-navigation/native"; // For navigation
 
 const VerifyEmailScreen = () => {
+const correctCode = ["1", "2", "3", "4", "5"]; // Define the correct code here
   const [code, setCode] = useState(["", "", "", "", ""]);
-  const [isSuccessModalVisible, setSuccessModalVisible] = useState(false); // Control the success modal
+  const [isSuccessModalVisible, setSuccessModalVisible] = useState(false); // Success Modal
+  const [isErrorModalVisible, setErrorModalVisible] = useState(false); // Error Modal
   const inputs = useRef([]);
   const navigation = useNavigation(); // Navigation function
 
@@ -33,14 +37,27 @@ const VerifyEmailScreen = () => {
   };
 
   const handleVerifyCode = () => {
-    // Show the success modal
-    setSuccessModalVisible(true);
+    //     // Show the success modal
+    //     setSuccessModalVisible(true);
 
-    // Wait for 3 seconds and navigate to LoginScreen
-    setTimeout(() => {
-      setSuccessModalVisible(false); // Hide the modal
-      navigation.navigate("LoginScreen"); // Navigate to LoginScreen
-    }, 3000);
+    //     // Wait for 3 seconds and navigate to LoginScreen
+    //     setTimeout(() => {
+    //       setSuccessModalVisible(false); // Hide the modal
+    //       navigation.navigate("LoginScreen"); // Navigate to LoginScreen
+    //     }, 3000);
+    //   };
+
+    if (JSON.stringify(code) === JSON.stringify(correctCode)) {
+      // If the code matches, show success modal
+      setSuccessModalVisible(true);
+      setTimeout(() => {
+        setSuccessModalVisible(false); // Hide modal
+        navigation.navigate("LoginScreen"); // Navigate to LoginScreen
+      }, 4000);
+    } else {
+      // If the code is incorrect, show error modal
+      setErrorModalVisible(true);
+    }
   };
 
   return (
@@ -95,6 +112,28 @@ const VerifyEmailScreen = () => {
             <Text style={styles.successMessage}>
               Congrats, your account has been successfully created
             </Text>
+          </View>
+        </View>
+      </Modal>
+      {/* Error Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isErrorModalVisible}
+        onRequestClose={() => setErrorModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.errorTitle}>Error</Text>
+            <Text style={styles.errorMessage}>
+              The code you entered is incorrect. Please try again.
+            </Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setErrorModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -218,6 +257,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#424242",
     textAlign: "center",
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FF0000", // لون النص أحمر
+    marginBottom: 10,
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: "#424242",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  closeButton: {
+    backgroundColor: "#424242",
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "50%",
+  },
+  closeButtonText: {
+    color: "#B2DDF9",
+    fontWeight: "bold",
   },
 });
 
