@@ -49,7 +49,7 @@ const UpdatePasswordScreen = ({ navigation }) => {
         </View>
 
         {/* Re-enter Password*/}
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>Confirm Password</Text>
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="Re-enter password"
