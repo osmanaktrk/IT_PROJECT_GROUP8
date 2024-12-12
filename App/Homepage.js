@@ -23,6 +23,7 @@ export default function App() {
     longitudeDelta: 0.065,
   });
   const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
+  const [showUpdateProfile, setShowUpdateProfile] = useState(false); // Voor update profiel
 
   const markers = [
     {
@@ -45,6 +46,7 @@ export default function App() {
 
   const toggleAccountMenu = () => {
     setShowAccountMenu(!showAccountMenu); // Toggle het zijmenu
+    setShowUpdateProfile(false); // Sluit update profiel als het geopend is
   };
 
   const searchLocation = async () => {
@@ -110,16 +112,17 @@ export default function App() {
       )}
 
       {/* Zijmenu voor account */}
-      {showAccountMenu && (
+      {showAccountMenu && !showUpdateProfile && (
         <View style={styles.accountMenu}>
-          {/* Bovenaan de naam van de gebruiker */}
           <View style={styles.topSection}>
-            <Text style={styles.accountText}>Name</Text>
+            <Text style={styles.accountText}>Weiam</Text>
           </View>
 
-          {/* In het midden de knoppen */}
           <View style={styles.middleSection}>
-            <TouchableOpacity style={styles.menuButton}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setShowUpdateProfile(true)}
+            >
               <Text style={styles.menuButtonText}>Update Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuButton}>
@@ -130,7 +133,6 @@ export default function App() {
             </TouchableOpacity>
           </View>
 
-          {/* Onderaan de log out en sluit knoppen */}
           <View style={styles.bottomSection}>
             <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>Log out</Text>
@@ -142,7 +144,36 @@ export default function App() {
         </View>
       )}
 
-      {/* Kaart */}
+      {/* Update profiel */}
+      {showUpdateProfile && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>Update Profile</Text>
+          </View>
+
+          <View style={styles.middleSection}>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Name"
+              placeholderTextColor="gray"
+            />
+            <TextInput
+              style={styles.inputField}
+              placeholder="E-mail"
+              placeholderTextColor="gray"
+            />
+            <TextInput
+              style={styles.inputField}
+              placeholder="Number-phone"
+              placeholderTextColor="gray"
+            />
+            <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
+              <Text style={styles.menuButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
       <MapView style={styles.map} region={location}>
         {markers.map((marker) => (
           <Marker
@@ -200,10 +231,10 @@ const styles = StyleSheet.create({
   accountMenu: {
     position: "absolute",
     top: 0,
-    left: 0, // Zorgt ervoor dat het menu aan de linkerkant verschijnt
+    left: 0,
     width: "60%",
     height: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.8)", // Doorzichtig wit
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
     zIndex: 2,
     padding: 20,
   },
@@ -247,7 +278,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 18,
-    color: "black", // Zwart gemaakt
+    color: "black",
     marginTop: 10,
     textAlign: "center",
   },
@@ -259,5 +290,13 @@ const styles = StyleSheet.create({
   callout: {
     padding: 10,
     minWidth: 150,
+  },
+  inputField: {
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 5,
   },
 });
