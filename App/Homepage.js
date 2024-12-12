@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text } from "react-native";
+import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location"; 
 
@@ -9,15 +9,15 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
-    latitude: 50.8503, // Standaard locatie instellen
+    latitude: 50.8503, // standerd location
     longitude: 4.3517,
-    latitudeDelta: 0.065,
-    longitudeDelta: 0.065,
+    latitudeDelta: 0.03,
+    longitudeDelta: 0.03,
   });
-  const [locationName, setLocationName] = useState("Brussel"); // standaard locatie
-  const [permissionGranted, setPermissionGranted] = useState(false); // voor jou locatie
+  const [liveLocation, setLiveLocation] = useState(null); // Live location
+  const [permissionGranted, setPermissionGranted] = useState(false); // your location
 
-  // enkele markeringen
+  // some markers 
   const markers = [
     {
       id: 1,
@@ -53,7 +53,7 @@ export default function App() {
     },
   ];
 
-  // automatisch na 1 second de search uitvoeren
+  // automaticly enter the search after 1 second
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -70,11 +70,11 @@ export default function App() {
     }
   }, [debouncedQuery]);
 
-  // Functie om huidige locatie op te halen
+  // get the live location
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {  // als locatie geweigerd wordt melding geven
+      if (status !== "granted") {  // if the location isn't granted, give a message
         Alert.alert(
           "Locatietoegang geweigerd",
           "Schakel locatietoegang in om je huidige locatie te gebruiken."
@@ -83,14 +83,19 @@ export default function App() {
       }
       setPermissionGranted(true);
 
-      let userLocation = await Location.getCurrentPositionAsync({});
-      setLocation({
-        latitude: userLocation.coords.latitude,
-        longitude: userLocation.coords.longitude,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.04,
-      });
-      setLocationName("Huidige locatie");
+      // live locatie tracken
+      Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
+        (loc) => {
+          const { latitude, longitude } = loc.coords;
+          setLiveLocation({ latitude, longitude });
+          setLocation((prev) => ({
+            ...prev,
+            latitude,
+            longitude,
+          }));
+        }
+      );
     })();
   }, []);
 
@@ -152,6 +157,20 @@ export default function App() {
         <Button title="Zoek" onPress={searchLocation} />
       </View>
       <MapView style={styles.map} region={location}>
+        {/* live locatie markering */}
+        {liveLocation && (
+          <Marker coordinate={liveLocation}>
+          <View style={styles.markerContainer}>
+            <Image
+              source={require("../assets/car.png")} 
+              style={styles.markerImage}
+            />
+          </View>
+            <Callout>
+              <Text>Dit ben jij!</Text>
+            </Callout>
+          </Marker>
+        )}
         {markers.map((marker) => (
           <Marker
             key={marker.id}
@@ -208,5 +227,15 @@ const styles = StyleSheet.create({
   callout: {
     padding: 10,
     minWidth: 150,
+  },
+
+  markerContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  markerImage: {
+    width: 50, 
+    height: 50, 
+    resizeMode: "contain", // keep the ratio the same
   },
 });
