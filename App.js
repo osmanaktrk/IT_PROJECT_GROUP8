@@ -16,25 +16,14 @@ function App() {
       <Stack.Navigator initialRouteName="FrontPage" screenOptions={{ headerShown: false }}>
         {/* Front Page */}
         <Stack.Screen name="FrontPage" component={FrontPage} />
-
-        {/* Login/Signup Choice Page */}
-        <Stack.Screen name="LoginSignupChoiceScreen" component={LoginSignupChoiceScreen} />
-
-        {/* Login Page */}
-        <Stack.Screen name="LoginScreen" component={LoginScreen} />
-
-        {/* ForgetPasswordScreen Page */}
-        <Stack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen} />
-        
-        {/* Sign Up Page */}
-        <Stack.Screen name="SignUpScreen" component={SignUpScreen} /> 
-
-        {/* Home Page */}
-        <Stack.Screen name="HomePage" component={HomePage} />
-      </Stack.Navigator>
+     
+      <Stack.Screen
+  name="LoginSignupChoiceScreen"
+  component={LoginSignupChoiceScreen}
+/> </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-
 export default App;
+
