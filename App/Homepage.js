@@ -115,7 +115,7 @@ export default function App() {
       {showAccountMenu && !showUpdateProfile && (
         <View style={styles.accountMenu}>
           <View style={styles.topSection}>
-            <Text style={styles.accountText}>Weiam</Text>
+            <Text style={styles.accountText}>Name</Text>
           </View>
 
           <View style={styles.middleSection}>
@@ -177,7 +177,7 @@ export default function App() {
               style={styles.menuButton}
               onPress={() => setShowUpdateProfile(false)}
             >
-              <Text style={styles.menuButtonText}>Back to Account</Text>
+              <Text style={styles.menuButtonText}>Back to menu</Text>
             </TouchableOpacity>
           </View>
         </View>
