@@ -145,43 +145,43 @@ export default function App() {
       )}
 
       {/* Update profiel */}
-{showUpdateProfile && (
-  <View style={styles.accountMenu}>
-    <View style={styles.topSection}>
-      <Text style={styles.accountText}>Update Profile</Text>
-    </View>
+      {showUpdateProfile && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>Update Profile</Text>
+          </View>
 
-    <View style={styles.middleSection}>
-      <TextInput
-        style={styles.inputField}
-        placeholder="Name"
-        placeholderTextColor="gray"
-      />
-      <TextInput
-        style={styles.inputField}
-        placeholder="E-mail"
-        placeholderTextColor="gray"
-      />
-      <TextInput
-        style={styles.inputField}
-        placeholder="Number-phone"
-        placeholderTextColor="gray"
-      />
-      <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
-        <Text style={styles.menuButtonText}>Done</Text>
-      </TouchableOpacity>
+          <View style={styles.middleSection}>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Name"
+              placeholderTextColor="gray"
+            />
+            <TextInput
+              style={styles.inputField}
+              placeholder="E-mail"
+              placeholderTextColor="gray"
+            />
+            <TextInput
+              style={styles.inputField}
+              placeholder="Number-phone"
+              placeholderTextColor="gray"
+            />
+          </View>
 
-      {/* Terug naar het accountmenu */}
-      <TouchableOpacity
-        style={styles.menuButton}
-        onPress={() => setShowUpdateProfile(false)}
-      >
-        <Text style={styles.menuButtonText}>Back to menu</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-)}
-
+          <View style={styles.bottomSection}>
+            <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
+              <Text style={styles.menuButtonText}>Done</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setShowUpdateProfile(false)}
+            >
+              <Text style={styles.menuButtonText}>Back to Account</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       <MapView style={styles.map} region={location}>
         {markers.map((marker) => (
@@ -256,8 +256,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bottomSection: {
-    marginTop: 20,
     alignItems: "center",
+    marginBottom: 20,
   },
   menuButton: {
     backgroundColor: "white",
