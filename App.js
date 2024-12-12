@@ -6,6 +6,8 @@ import LoginSignupChoiceScreen from './App/LoginSignupChoiceScreen'; // Pas dit 
 import HomePage from './App/Homepage'; // Zorg ervoor dat je een HomePage hebt
 import LoginScreen from './App/LoginScreen';
 import ForgetPasswordScreen from './App/ForgetPasswordScreen';
+import VerifyCodeScreen from './App/VerifyCodeScreen';
+
 
 const Stack = createStackNavigator();
 
@@ -24,6 +26,11 @@ function App() {
 
         {/* ForgetPasswordScreen Page */}
         <Stack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen} />
+
+
+        {/* VerifyCodeScreen Page */}
+        <Stack.Screen name="VerifyCodeScreen" component={VerifyCodeScreen} />
+
 
         {/* Home Page */}
         <Stack.Screen name="HomePage" component={HomePage} />
