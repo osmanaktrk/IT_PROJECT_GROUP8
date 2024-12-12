@@ -86,7 +86,9 @@ const SignUpScreen = () => {
             trackColor={{ false: "#424242", true: "#B2DDF9" }}
             thumbColor={isChecked ? "#B2DDF9" : "#fff"}
           />
-          <Text style={styles.checkboxText}>I agree to Terms and condition</Text>
+          <Text style={styles.checkboxText}>
+            I agree to Terms and condition
+          </Text>
         </View>
 
         <TouchableOpacity style={styles.button}>
@@ -109,9 +111,9 @@ const SignUpScreen = () => {
               the use of the application's services.
             </Text>
             <Text style={styles.modalContent}>
-              By accessing the application, we assume you accept these terms
-              and conditions. Do not continue to use the application if you do
-              not agree to take all of the terms and conditions stated here.
+              By accessing the application, we assume you accept these terms and
+              conditions. Do not continue to use the application if you do not
+              agree to take all of the terms and conditions stated here.
             </Text>
             <TouchableOpacity
               style={styles.closeButton}

@@ -26,12 +26,12 @@ const LoginSignupChoiceScreen = () => {
         </TouchableOpacity>
 
         <Text style={styles.title}>Don’t have an account?</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("SignUpScreen")} // Navigate to SignUpScreen
-        >
-          <Text style={styles.buttonText}>Sign up</Text>
-        </TouchableOpacity>
+        <TouchableOpacity 
+  style={styles.button}
+  onPress={() => navigation.navigate('SignUpScreen')} // Navigate to SignUpScreen
+>
+  <Text style={styles.buttonText}>Sign up</Text>
+</TouchableOpacity>
       </View>
     </ImageBackground>
   );
