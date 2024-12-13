@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -6,17 +6,13 @@ import {
   Button,
   FlatList,
   Dimensions,
-  Alert,
   Text,
   TouchableOpacity,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
-
-
-export default function App() {
+export default function HomePage({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState({
     latitude: 50.8503, // standaard locatie
@@ -132,7 +128,7 @@ export default function App() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.menuButton}
-              onPress={() => navigation.navigate("TermsAndConditions")}
+              onPress={() => navigation.navigate("TermsConditions")}
             >
               <Text style={styles.menuButtonText}>Terms & Conditions</Text>
             </TouchableOpacity>
@@ -169,7 +165,7 @@ export default function App() {
             />
             <TextInput
               style={styles.inputField}
-              placeholder="Number-phone"
+              placeholder="Phone number"
               placeholderTextColor="gray"
             />
           </View>
