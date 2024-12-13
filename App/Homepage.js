@@ -12,6 +12,9 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+
+
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -127,7 +130,10 @@ export default function App() {
             <TouchableOpacity style={styles.menuButton}>
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => navigation.navigate("TermsAndConditions")}
+            >
               <Text style={styles.menuButtonText}>Terms & Conditions</Text>
             </TouchableOpacity>
           </View>
