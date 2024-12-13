@@ -8,16 +8,13 @@ import {
   Dimensions,
   Alert,
   Text,
-  Image,
   TouchableOpacity,
 } from "react-native";
-import MapView, { Marker, Callout } from "react-native-maps";
-import * as Location from "expo-location";
+import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
     latitude: 50.8503, // standaard locatie
     longitude: 4.3517,
@@ -26,7 +23,6 @@ export default function App() {
   });
   const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
   const [showUpdateProfile, setShowUpdateProfile] = useState(false); // Voor update profiel
-  const [liveLocation, setLiveLocation] = useState(null); // Live locatie
   const mapRef = useRef(null);
 
   const markers = [
@@ -67,52 +63,6 @@ export default function App() {
   const toggleAccountMenu = () => {
     setShowAccountMenu(!showAccountMenu);
     setShowUpdateProfile(false);
-  };
-
-  const searchLocation = async () => {
-    if (searchQuery.trim() === "") {
-      Alert.alert("Fout", "Voer een geldige locatie in.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          searchQuery
-        )}&format=json&addressdetails=1&limit=1`,
-        {
-          headers: {
-            "User-Agent": "ReactNativeApp/1.0 (https://example.com)",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP status ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.length === 0) {
-        Alert.alert("Geen resultaten", "Probeer een andere locatie.");
-        return;
-      }
-
-      const coords = {
-        latitude: parseFloat(data[0].lat),
-        longitude: parseFloat(data[0].lon),
-        latitudeDelta: 0.065,
-        longitudeDelta: 0.065,
-      };
-
-      setLocation(coords);
-      setLocationName(data[0].display_name);
-    } catch (error) {
-      Alert.alert(
-        "Fout",
-        `Er ging iets mis bij het ophalen van de locatie: ${error.message}`
-      );
-    }
   };
 
   const fitAllMarkers = () => {
@@ -248,20 +198,22 @@ export default function App() {
       </MapView>
 
       {/* Lijst van markers */}
-      <FlatList
-        data={markers}
-        keyExtractor={(item) => item.id.toString()}
-        style={styles.list}
-        renderItem={({ item }) => (
-          <View style={styles.listItem}>
-            <Text style={styles.listText}>{item.title}</Text>
-            <Button
-              title="Zoom"
-              onPress={() => navigateToMarker(item.latitude, item.longitude)}
-            />
-          </View>
-        )}
-      />
+      {!showAccountMenu && (
+        <FlatList
+          data={markers}
+          keyExtractor={(item) => item.id.toString()}
+          style={styles.list}
+          renderItem={({ item }) => (
+            <View style={styles.listItem}>
+              <Text style={styles.listText}>{item.title}</Text>
+              <Button
+                title="Zoom"
+                onPress={() => navigateToMarker(item.latitude, item.longitude)}
+              />
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -353,10 +305,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
-  },
-  callout: {
-    padding: 10,
-    minWidth: 150,
   },
   inputField: {
     backgroundColor: "white",
