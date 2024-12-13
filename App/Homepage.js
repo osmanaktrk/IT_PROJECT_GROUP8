@@ -1,26 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, TextInput, Button,FlatList, Dimensions, Alert, Text, Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Button,
+  FlatList,
+  Dimensions,
+  Alert,
+  Text,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
-import * as Location from "expo-location"; 
-
+import * as Location from "expo-location";
+import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
 
 export default function App() {
- 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
-    latitude: 50.8503, // standerd location
+    latitude: 50.8503, // standaard locatie
     longitude: 4.3517,
     latitudeDelta: 0.03,
     longitudeDelta: 0.03,
   });
-  const [locationName, setLocationName] = useState("Brussel"); 
-  const [liveLocation, setLiveLocation] = useState(null); // Live location
-  const [permissionGranted, setPermissionGranted] = useState(false); // your location
-
+  const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
+  const [showUpdateProfile, setShowUpdateProfile] = useState(false); // Voor update profiel
+  const [liveLocation, setLiveLocation] = useState(null); // Live locatie
   const mapRef = useRef(null);
 
-  // some markers 
   const markers = [
     {
       id: 1,
@@ -56,51 +64,10 @@ export default function App() {
     },
   ];
 
-  // automaticly enter the search after 1 second
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 1000);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchQuery]);
-
-  useEffect(() => {
-    if (debouncedQuery.trim() !== "") {
-      searchLocation(debouncedQuery);
-    }
-  }, [debouncedQuery]);
-
-  // get the live location
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {  // if the location isn't granted, give a message
-        Alert.alert(
-          "Locatietoegang geweigerd",
-          "Schakel locatietoegang in om je huidige locatie te gebruiken."
-        );
-        return;
-      }
-      setPermissionGranted(true);
-
-      // live locatie tracken
-      Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
-        (loc) => {
-          const { latitude, longitude } = loc.coords;
-          setLiveLocation({ latitude, longitude });
-          setLocation((prev) => ({
-            ...prev,
-            latitude,
-            longitude,
-          }));
-        }
-      );
-    })();
-  }, []);
+  const toggleAccountMenu = () => {
+    setShowAccountMenu(!showAccountMenu);
+    setShowUpdateProfile(false);
+  };
 
   const searchLocation = async () => {
     if (searchQuery.trim() === "") {
@@ -175,19 +142,95 @@ export default function App() {
     }
   };
 
-
   return (
     <View style={styles.container}>
       {/* Zoek en knop */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Zoek een locatie"
-          value={searchQuery}
-          onChangeText={(text) => setSearchQuery(text)}
-        />
-        <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
-      </View>
+      {!showAccountMenu && (
+        <View style={styles.searchContainer}>
+          <TouchableOpacity onPress={toggleAccountMenu}>
+            <Ionicons name="person-circle-outline" size={40} color="black" />
+          </TouchableOpacity>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Zoek een locatie"
+            value={searchQuery}
+            onChangeText={(text) => setSearchQuery(text)}
+          />
+          <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
+        </View>
+      )}
+
+      {/* Zijmenu voor account */}
+      {showAccountMenu && !showUpdateProfile && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>Weiam</Text>
+          </View>
+
+          <View style={styles.middleSection}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setShowUpdateProfile(true)}
+            >
+              <Text style={styles.menuButtonText}>Update Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuButton}>
+              <Text style={styles.menuButtonText}>My Points</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuButton}>
+              <Text style={styles.menuButtonText}>Terms & Conditions</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.bottomSection}>
+            <TouchableOpacity style={styles.logoutButton}>
+              <Text style={styles.logoutButtonText}>Log out</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={toggleAccountMenu}>
+              <Text style={styles.closeButton}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* Update profiel */}
+      {showUpdateProfile && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>Update Profile</Text>
+          </View>
+
+          <View style={styles.middleSection}>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Name"
+              placeholderTextColor="gray"
+            />
+            <TextInput
+              style={styles.inputField}
+              placeholder="E-mail"
+              placeholderTextColor="gray"
+            />
+            <TextInput
+              style={styles.inputField}
+              placeholder="Number-phone"
+              placeholderTextColor="gray"
+            />
+          </View>
+
+          <View style={styles.bottomSection}>
+            <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
+              <Text style={styles.menuButtonText}>Done</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setShowUpdateProfile(false)}
+            >
+              <Text style={styles.menuButtonText}>Back to menu</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* Kaartweergave */}
       <MapView ref={mapRef} style={styles.map} region={location}>
@@ -252,19 +295,76 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   },
+  accountMenu: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "60%",
+    height: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    zIndex: 2,
+    padding: 20,
+  },
+  topSection: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  middleSection: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  bottomSection: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  menuButton: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    alignItems: "center",
+  },
+  menuButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  logoutButton: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    alignItems: "center",
+  },
+  logoutButtonText: {
+    color: "red",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    fontSize: 18,
+    color: "black",
+    marginTop: 10,
+    textAlign: "center",
+  },
+  accountText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
   callout: {
     padding: 10,
     minWidth: 150,
   },
-
-  markerContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  markerImage: {
-    width: 50, 
-    height: 50, 
-    resizeMode: "contain", // keep the ratio the same
+  inputField: {
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 5,
   },
   list: {
     position: "absolute",
@@ -272,7 +372,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "white",
-    maxHeight: 200, // Beperk de lijst tot een bepaalde hoogte
+    maxHeight: 200,
   },
   listItem: {
     flexDirection: "row",
