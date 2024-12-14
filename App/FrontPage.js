@@ -80,6 +80,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     opacity: 0.8,
+    borderColor: "#B2DDF9",
+    borderWidth:1,
   },
   pressedStyle: {
     backgroundColor: "#525252",

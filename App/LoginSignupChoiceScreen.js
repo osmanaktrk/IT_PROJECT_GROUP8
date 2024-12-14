@@ -77,6 +77,8 @@ const styles = StyleSheet.create({
     paddingVertical: hp(2), // Responsive padding
     paddingHorizontal: wp(20), // Responsive width
     marginVertical: hp(1.5), // Dynamic spacing between buttons
+    borderColor: "#B2DDF9",
+    borderWidth:1,
   },
   buttonPressed: {
     backgroundColor: "#525252", // Slightly lighter background on press
