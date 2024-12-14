@@ -100,6 +100,7 @@ const TestLoginPage = ({ navigation }) => {
         <Text>Keep me logged in</Text>
         <Switch value={keepLoggedIn} onValueChange={setKeepLoggedIn} />
       </View>
+      
       <Button title="Login" onPress={handleLogin} />
       <TouchableOpacity
         onPress={() => navigation.navigate("TestForgetPasswordPage")}

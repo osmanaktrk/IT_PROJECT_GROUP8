@@ -15,6 +15,7 @@ import { firebaseAuth } from '../../FirebaseConfig';
 import { signOut } from 'firebase/auth';
 
 const TestLogoutPage = ({ navigation }) => {
+  
   const handleLogout = async () => {
     try {
       await signOut(firebaseAuth);

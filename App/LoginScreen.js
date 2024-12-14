@@ -1,4 +1,294 @@
-import React, { memo } from "react";
+// import React, { memo } from "react";
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   ImageBackground,
+//   Pressable,
+//   TextInput,
+//   Switch,
+// } from "react-native";
+// import { FontAwesome } from "@expo/vector-icons";
+// import {
+//   widthPercentageToDP as wp,
+//   heightPercentageToDP as hp,
+// } from "react-native-responsive-screen";
+
+// import { useState, useEffect } from "react";
+// import { firebaseAuth } from "../FirebaseConfig";
+// import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+
+// // PrimaryButton Component
+// const PrimaryButton = memo(
+//   ({ title, onPress, accessibilityLabel, accessibilityHint }) => (
+//     <Pressable
+//       style={({ pressed }) => [
+//         styles.button,
+//         pressed && styles.buttonPressed, // Shrink effect on press
+//       ]}
+//       onPress={onPress}
+//       accessibilityRole="button"
+//       accessibilityLabel={accessibilityLabel}
+//       accessibilityHint={accessibilityHint}
+//     >
+//       <Text style={styles.buttonText}>{title}</Text>
+//     </Pressable>
+//   )
+// );
+
+// const LoginScreen = ({ navigation }) => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [rememberMe, setRememberMe] = useState(true);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [modalVisible, setModalVisible] = useState(false);
+//   const [modalMessage, setModalMessage] = useState("");
+
+//   useEffect(() => {
+//     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+//       if (user) {
+//         Alert.alert("Welcome Back", `You are logged in as ${user.email}`);
+//         navigation.replace("TestLogoutPage");
+//       }
+//       setIsLoading(false);
+//     });
+
+//     // Cleanup
+//     return () => unsubscribe();
+//   }, [navigation]);
+
+//   const handleLogin = async () => {
+//     try {
+//       const userCredential = await signInWithEmailAndPassword(
+//         firebaseAuth,
+//         email,
+//         password
+//       );
+//       const user = userCredential.user;
+//       Alert.alert("Login Successful", `Welcome back, ${user.email}!`);
+//     } catch (error) {
+//       if (error.code === "auth/user-not-found") {
+//         setModalMessage("Email not found. Please sign up.");
+//         setModalVisible(true);
+//       } else if (error.code === "auth/invalid-credential") {
+//         setModalMessage(
+//           "Invalid credentials. Please check your email and password."
+//         );
+//         setModalVisible(true);
+//       } else {
+//         Alert.alert("Login Failed", error.message);
+//       }
+//     }
+//   };
+
+//   if (isLoading) {
+//     return (
+//       <View style={styles.loadingContainer}>
+//         <Text>Checking authentication status...</Text>
+//       </View>
+//     );
+//   }
+
+//   return (
+//     <ImageBackground
+//       source={require("../assets/background.png")}
+//       style={styles.background}
+//     >
+//       <View style={styles.container}>
+//         {/* Main Title */}
+//         <Text style={styles.title}>Log in</Text>
+
+//         {/* Email Input */}
+//         <View style={styles.inputContainer}>
+//           <FontAwesome
+//             name={"envelope"}
+//             size={hp(3)}
+//             color="#B0BEC5"
+//             style={styles.icon}
+//           />
+//           <TextInput
+//             placeholder={"Enter your email"}
+//             placeholderTextColor="#B0BEC5"
+//             style={styles.input}
+//             accessibilityLabel={`Input field for Enter your email`}
+//             value={email}
+//             onChangeText={setEmail}
+//             autoCapitalize="none"
+//             keyboardType="email-address"
+//           />
+//         </View>
+
+//         {/* Password Input */}
+
+//         <View style={styles.inputContainer}>
+//           <FontAwesome
+//             name={"lock"}
+//             size={hp(3)}
+//             color="#B0BEC5"
+//             style={styles.icon}
+//           />
+//           <TextInput
+//             placeholder="Password"
+//             placeholderTextColor="#B0BEC5"
+//             secureTextEntry
+//             style={styles.input}
+//             accessibilityLabel={`Input field for Password`}
+//             value={password}
+//             onChangeText={setPassword}
+//             autoCapitalize="none"
+//           />
+//         </View>
+
+//         {/* Options */}
+//         <View style={styles.optionsContainer}>
+//           <View style={styles.rememberMe}>
+//             <Switch
+//               value={rememberMe}
+//               onValueChange={setRememberMe}
+//               style={{ marginRight: wp(2) }}
+//             />
+//             <Text style={styles.rememberText}>Remember me</Text>
+//           </View>
+//           <Pressable
+//             onPress={() => navigation.navigate("ForgetPasswordScreen")}
+//             style={({ pressed }) => pressed && styles.linkPressed}
+//           >
+//             <Text style={styles.forgetPassword}>Forget password?</Text>
+//           </Pressable>
+//         </View>
+
+//         {/* Login Button */}
+//         <PrimaryButton
+//           title="Log in"
+//           onPress={() => navigation.navigate("HomePage")}
+//           accessibilityLabel="Log in button"
+//           accessibilityHint="Navigates to the home page after logging in"
+//         />
+
+//         {/* FrontPage Button */}
+//         <PrimaryButton
+//           title="Go to Front Page"
+//           onPress={() => navigation.navigate("FrontPage")}
+//           accessibilityLabel="Navigate to the front page"
+//           accessibilityHint="Navigates to the front page of the application"
+//         />
+//       </View>
+//     </ImageBackground>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   background: {
+//     flex: 1,
+//     resizeMode: "cover",
+//   },
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     paddingHorizontal: wp(5),
+//   },
+//   title: {
+//     fontSize: hp(5), // Adjusted for better visibility
+//     fontWeight: "bold",
+//     color: "#B2DDF9",
+//     textAlign: "center",
+//     marginBottom: hp(6),
+//     textShadowColor: "rgba(0, 0, 0, 0.6)",
+//     textShadowOffset: { width: 1, height: 1 },
+//     textShadowRadius: 4,
+//     lineHeight: hp(6),
+//     opacity: 0.9,
+//     width: "80%",
+//   },
+//   inputContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     backgroundColor: "rgba(255, 255, 255, 0.9)", // Slightly transparent white background
+//     borderRadius: wp(7),
+//     paddingHorizontal: wp(4),
+//     marginVertical: hp(1.5),
+//     width: "90%",
+//     height: hp(7),
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 4,
+//     elevation: 4, // Shadow for Android
+//   },
+//   input: {
+//     flex: 1,
+//     fontSize: hp(2),
+//     color: "#000",
+//     marginLeft: wp(3),
+//   },
+//   icon: {
+//     marginRight: wp(2),
+//   },
+//   optionsContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     width: "90%",
+//     marginVertical: hp(2),
+//   },
+//   rememberMe: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//   },
+//   rememberText: {
+//     color: "#B2DDF9",
+//     fontSize: hp(2),
+//     fontWeight: "600",
+//   },
+//   forgetPassword: {
+//     color: "#B2DDF9",
+//     textDecorationLine: "underline",
+//     fontSize: hp(2),
+//     fontWeight: "600",
+//   },
+//   linkPressed: {
+//     transform: [{ scale: 0.95 }], // Shrink effect
+//   },
+//   linkText: {
+//     color: "#B2DDF9",
+//     fontSize: hp(2),
+//     textDecorationLine: "underline",
+//     fontWeight: "600",
+//   },
+//   button: {
+//     backgroundColor: "#424242",
+//     borderRadius: wp(7),
+//     width: "90%",
+//     alignItems: "center",
+//     paddingVertical: hp(2),
+//     marginTop: hp(3),
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 4,
+//     elevation: 4,
+//   },
+//   buttonPressed: {
+//     transform: [{ scale: 0.95 }], // Shrink effect on press
+//     backgroundColor: "#525252", // Slightly lighter on press
+//   },
+//   buttonText: {
+//     color: "#B2DDF9",
+//     fontSize: hp(2.5),
+//     fontWeight: "bold",
+//     textAlign: "center",
+//   },
+
+// });
+
+// export default LoginScreen;
+
+
+
+
+
+import React, { useState, useEffect, memo } from "react";
 import {
   View,
   Text,
@@ -6,36 +296,24 @@ import {
   ImageBackground,
   Pressable,
   TextInput,
+  Switch,
+  Alert,
+  Modal,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 
-// InputField Component
-const InputField = memo(({ placeholder, iconName, secureTextEntry }) => (
-  <View style={styles.inputContainer}>
-    <FontAwesome name={iconName} size={hp(3)} color="#B0BEC5" style={styles.icon} />
-    <TextInput
-      placeholder={placeholder}
-      placeholderTextColor="#B0BEC5"
-      secureTextEntry={secureTextEntry}
-      style={styles.input}
-      accessibilityLabel={`Input field for ${placeholder}`}
-    />
-  </View>
-));
+import { firebaseAuth } from "../FirebaseConfig";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 // PrimaryButton Component
 const PrimaryButton = memo(
   ({ title, onPress, accessibilityLabel, accessibilityHint }) => (
     <Pressable
-      style={({ pressed }) => [
-        styles.button,
-        pressed && styles.buttonPressed, // Shrink effect on press
-      ]}
+      style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
@@ -46,8 +324,129 @@ const PrimaryButton = memo(
   )
 );
 
-const LoginScreen = () => {
-  const navigation = useNavigation();
+const LoginScreen = ({ navigation }) => {
+  // State variables
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
+  // Authentication check on component mount
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) {
+        Alert.alert("Welcome Back", `You are logged in as ${user.email}`);
+        navigation.replace("HomePage");
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup subscription
+  }, [navigation]);
+
+  // Login handler
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      Alert.alert("Login Successful", `Welcome back, ${user.email}!`);
+    } catch (error) {
+      switch (error.code) {
+        case "auth/user-not-found":
+          // User not found in the database
+          setModalMessage("Email not found. Please sign up.");
+          setModalVisible(true);
+          break;
+      
+        case "auth/wrong-password":
+          // Incorrect password entered by the user
+          setModalMessage("Incorrect password. Please try again.");
+          setModalVisible(true);
+          break;
+      
+        case "auth/invalid-email":
+          // Invalid email format entered
+          setModalMessage("Invalid email format. Please check your email address.");
+          setModalVisible(true);
+          break;
+      
+        case "auth/invalid-credential":
+          // Invalid authentication credentials
+          setModalMessage(
+            "Invalid credentials. Please check your email and password."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/user-disabled":
+          // The user's account has been disabled
+          setModalMessage(
+            "Your account has been disabled. Please contact support for assistance."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/too-many-requests":
+          // Too many login attempts; user is temporarily blocked
+          setModalMessage(
+            "Too many unsuccessful login attempts. Please try again later."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/network-request-failed":
+          // Network connectivity issue during the request
+          setModalMessage(
+            "Network error. Please check your internet connection and try again."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/internal-error":
+          // An unexpected internal error occurred
+          setModalMessage(
+            "An internal error occurred. Please try again later or contact support."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/requires-recent-login":
+          // User needs to log in again to perform the action
+          setModalMessage(
+            "Your session has expired. Please log in again to continue."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/email-already-in-use":
+          // Email is already associated with another account
+          setModalMessage(
+            "This email is already in use. Please use a different email or log in."
+          );
+          setModalVisible(true);
+          break;
+      
+        default:
+          // Generic fallback for unexpected errors
+          Alert.alert("Login Failed", `Unexpected error occurred: ${error.code}`);
+          break;
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Checking authentication status...</Text>
+      </View>
+    );
+  }
 
   return (
     <ImageBackground
@@ -59,34 +458,107 @@ const LoginScreen = () => {
         <Text style={styles.title}>Log in</Text>
 
         {/* Email Input */}
-        <InputField placeholder="Enter your email" iconName="envelope" />
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="envelope"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Enter your email"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            accessibilityLabel="Email Input Field"
+          />
+        </View>
 
         {/* Password Input */}
-        <InputField placeholder="Password" iconName="lock" secureTextEntry />
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="lock"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            accessibilityLabel="Password Input Field"
+          />
+        </View>
+
+        {/* Options */}
+        <View style={styles.optionsContainer}>
+          <View style={styles.rememberMe}>
+            <Switch
+              value={rememberMe}
+              onValueChange={setRememberMe}
+              style={{ marginRight: wp(2) }}
+            />
+            <Text style={styles.rememberText}>Keep me logged in</Text>
+          </View>
+          <Pressable
+            onPress={() => navigation.navigate("ForgetPasswordScreen")}
+            style={({ pressed }) => pressed && styles.linkPressed}
+          >
+            <Text style={styles.forgetPassword}>Forgot password?</Text>
+          </Pressable>
+        </View>
 
         {/* Login Button */}
         <PrimaryButton
           title="Log in"
-          onPress={() => navigation.navigate("HomePage")}
+          onPress={handleLogin}
           accessibilityLabel="Log in button"
-          accessibilityHint="Navigates to the home page after logging in"
+          accessibilityHint="Logs in to your account"
         />
-
-        {/* Forget Password */}
-        <Pressable
-          onPress={() => navigation.navigate("ForgetPasswordScreen")}
-          style={({ pressed }) => [styles.link, pressed && styles.linkPressed]}
-        >
-          <Text style={styles.linkText}>Forgot password?</Text>
-        </Pressable>
 
         {/* FrontPage Button */}
         <PrimaryButton
-          title="Go to Front Page"
+          title="Front Page"
           onPress={() => navigation.navigate("FrontPage")}
           accessibilityLabel="Navigate to the front page"
           accessibilityHint="Navigates to the front page of the application"
         />
+
+        {/* Modal for Login Errors */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>{modalMessage}</Text>
+              
+              <Pressable
+                style={({ pressed }) => [
+                  styles.modalButton,
+                  pressed && styles.buttonPressed,
+                ]}
+
+                onPress={() => setModalVisible(false)}
+                accessibilityRole="button"
+                accessibilityLabel="Close modal"
+                accessibilityHint="Closes the error modal"
+                
+              >
+                <Text style={styles.buttonText}>Close</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </View>
     </ImageBackground>
   );
@@ -104,22 +576,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
   },
   title: {
-    fontSize: hp(5), // Adjusted for better visibility
+    fontSize: hp(5),
     fontWeight: "bold",
     color: "#B2DDF9",
     textAlign: "center",
     marginBottom: hp(6),
-    textShadowColor: "rgba(0, 0, 0, 0.6)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
-    lineHeight: hp(6),
-    opacity: 0.9,
-    width: "80%",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.9)", // Slightly transparent white background
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: wp(7),
     paddingHorizontal: wp(4),
     marginVertical: hp(1.5),
@@ -129,7 +595,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 4, // Shadow for Android
+    elevation: 4,
   },
   input: {
     flex: 1,
@@ -140,6 +606,60 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: wp(2),
   },
+  optionsContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "90%",
+    marginVertical: hp(2),
+  },
+  rememberMe: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: hp(2),
+  },
+  rememberText: {
+    color: "#B2DDF9",
+    fontSize: hp(2),
+    fontWeight: "600",
+  },
+  forgetPassword: {
+    color: "#B2DDF9",
+    textDecorationLine: "underline",
+    fontSize: hp(2),
+    fontWeight: "600",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: hp(2.5),
+  },
+  modalButton: {
+    backgroundColor: "#424242",
+    borderRadius: wp(7),
+    width: "90%",
+    alignItems: "center",
+    padding: hp(2),
+    marginTop: hp(3),
+  },
   button: {
     backgroundColor: "#424242",
     borderRadius: wp(7),
@@ -147,34 +667,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: hp(2),
     marginTop: hp(3),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
   },
   buttonPressed: {
-    transform: [{ scale: 0.95 }], // Shrink effect on press
-    backgroundColor: "#525252", // Slightly lighter on press
+    backgroundColor: "#525252",
   },
   buttonText: {
     color: "#B2DDF9",
     fontSize: hp(2.5),
     fontWeight: "bold",
     textAlign: "center",
-  },
-  link: {
-    marginTop: hp(2),
-    paddingVertical: hp(0.5),
-  },
-  linkPressed: {
-    transform: [{ scale: 0.95 }], // Shrink effect
-  },
-  linkText: {
-    color: "#B2DDF9",
-    fontSize: hp(2),
-    textDecorationLine: "underline",
-    fontWeight: "600",
   },
 });
 

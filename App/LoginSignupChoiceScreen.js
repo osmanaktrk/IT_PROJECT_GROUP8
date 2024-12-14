@@ -6,7 +6,6 @@ import {
   ImageBackground,
   Pressable,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -23,8 +22,7 @@ const ChoiceButton = ({ title, onPress, accessibilityLabel, accessibilityHint })
   </Pressable>
 );
 
-const LoginSignupChoiceScreen = () => {
-  const navigation = useNavigation();
+const LoginSignupChoiceScreen = ({navigation}) => {
 
   return (
     <ImageBackground

@@ -8,9 +8,14 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
+
+import { firebaseAuth } from "../FirebaseConfig";
+import { signOut } from "firebase/auth";
 
 export default function HomePage({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -91,8 +96,36 @@ export default function HomePage({ navigation }) {
     }
   };
 
+  //Test Logout
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut(firebaseAuth);
+      Alert.alert("Success", "You have been logged out.");
+      navigation.replace("FrontPage");
+    } catch (error) {
+      Alert.alert("Logout Failed", `An error occurred: ${error.message}`);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  // Inside the render method:
+  {
+    isLoggingOut && <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
   return (
     <View style={styles.container}>
+
+      {/* Test Logout */}
+      <View style={styles.logoutContainer}>
+        <Button title="Test Logout" onPress={handleLogout} />
+      </View>
+
       {/* Zoek en knop */}
       {!showAccountMenu && (
         <View style={styles.searchContainer}>
@@ -171,7 +204,10 @@ export default function HomePage({ navigation }) {
           </View>
 
           <View style={styles.bottomSection}>
-            <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={toggleAccountMenu}
+            >
               <Text style={styles.menuButtonText}>Done</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -333,5 +369,15 @@ const styles = StyleSheet.create({
   },
   listText: {
     flex: 1,
+  },
+  logoutContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  logoutTitle: {
+    fontSize: 24,
+
+    textAlign: "center",
   },
 });

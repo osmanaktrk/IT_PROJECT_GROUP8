@@ -1,14 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 
-const FrontPage = () => {
-  const navigation = useNavigation();
+const FrontPage = ({navigation}) => {
 
   return (
     <ImageBackground
