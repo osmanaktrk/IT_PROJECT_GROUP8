@@ -1,13 +1,11 @@
-
-
 import React from "react";
 import { View, Text, StyleSheet, Image, ImageBackground, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons"; // Icon library
+import { Ionicons } from "@expo/vector-icons";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
-} from "react-native-responsive-screen"; // Responsive screen library
+} from "react-native-responsive-screen";
 
 const FrontPage = () => {
   const navigation = useNavigation();
@@ -32,11 +30,12 @@ const FrontPage = () => {
         <Pressable
           style={({ pressed }) => [
             styles.button,
-            pressed && styles.buttonPressed, // Apply pressed style dynamically
+            pressed && styles.pressedStyle, // Apply pressed style dynamically
           ]}
           onPress={() => navigation.navigate("LoginSignupChoiceScreen")}
+          accessibilityLabel="Navigate to Login or Signup choice screen"
         >
-          <Ionicons name="arrow-forward-circle" size={hp(6)} color="#B2DDF9" />
+          <Ionicons name="arrow-forward-circle" size={Math.min(wp(20), hp(8))} color="#B2DDF9" />
         </Pressable>
       </View>
     </ImageBackground>
@@ -53,39 +52,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // Dark overlay effect
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     width: "100%",
     height: "100%",
     paddingTop: hp(12),
+    paddingHorizontal: wp(5), // Add horizontal padding
   },
   logo: {
-    width: wp(50), // Dynamic width for logo
-    height: wp(50), // Dynamic height for logo
-    marginBottom: hp(8), // Add spacing below logo
+    width: wp(50),
+    height: wp(50),
+    marginBottom: hp(8),
     opacity: 0.8,
   },
   title: {
-    fontSize: hp(4.5), // Responsive font size
+    fontSize: Math.min(Math.max(hp(3), 16), 24), // Dynamic size with min/max
     fontWeight: "bold",
     color: "#B2DDF9",
     textAlign: "center",
-    marginBottom: hp(8), // Space below the title
-    lineHeight: hp(5), // Adjust line height
+    marginBottom: hp(8),
+    lineHeight: Math.min(hp(5), 30),
     opacity: 0.8,
-    width: "80%", // Ensure text fits within bounds
+    width: "80%",
   },
   button: {
-    backgroundColor: "#424242", // Button background color
-    width: wp(20), // Responsive width
-    height: wp(20), // Responsive height
-    borderRadius: wp(10), // Fully rounded button
+    backgroundColor: "#424242",
+    width: wp(50),
+    height: wp(20),
+    borderRadius: wp(10),
     justifyContent: "center",
     alignItems: "center",
-    opacity: 0.8, // Default opacity
+    opacity: 0.8,
   },
-  buttonPressed: {
-    backgroundColor: "#525252", // Slightly lighter background on press
-    opacity: 1, // Full opacity on press
+  pressedStyle: {
+    backgroundColor: "#525252",
+    opacity: 1,
   },
 });
 
