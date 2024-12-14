@@ -3,32 +3,117 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   ScrollView,
   Switch,
   ImageBackground,
   Modal,
+  Alert,
 } from "react-native";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { firebaseAuth } from "../FirebaseConfig";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signOut,
+} from "firebase/auth";
 
-
-
-
-
-
-const SignUpScreen = ({navigation}) => {
+const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordConfirmVisible, setPasswordConfirmVisible] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
   const [isChecked, setIsChecked] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false); // To control popup visibility
+  const [termsModalVisible, setTermsModalVisible] = useState(false); // To control popup visibility
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
-  const toggleSwitch = (value) => {
-    setIsChecked(value);
-    if (value) {
-      setModalVisible(true); // Show popup when switch is turned on
+  const handleSignup = async () => {
+    // Clear previous error messages
+    setModalMessage("");
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setModalMessage("Passwords do not match!");
+      return;
+    }
+
+    try {
+      // Create a new user with email and password
+      const userCredential = await createUserWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Send email verification
+      await sendEmailVerification(user);
+      Alert.alert(
+        "Success",
+        `Account created for ${user.email}. Please verify your email before logging in.`
+      );
+
+      // Sign out the user until email is verified
+      await signOut(firebaseAuth);
+      navigation.replace("VerifyEmailScreen");
+    } catch (error) {
+      if (!isChecked) {
+        setModalMessage(
+          "In order to create an account, you must read and accept the terms and conditions."
+        );
+        setModalVisible(true);
+      } else {
+        // Handle Firebase authentication errors
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            // Email is already associated with an account
+            setModalMessage(
+              "This email is already in use. Please use a different email."
+            );
+            setModalVisible(true);
+            break;
+          case "auth/invalid-email":
+            // Email format is invalid
+            setModalMessage(
+              "Invalid email format. Please enter a valid email address."
+            );
+            setModalVisible(true);
+            break;
+          case "auth/weak-password":
+            // Password is too weak
+            setModalMessage(
+              "Your password is too weak. Please use a stronger password."
+            );
+            setModalVisible(true);
+            break;
+          case "auth/network-request-failed":
+            // Network error
+            setModalMessage(
+              "Network error. Please check your internet connection and try again."
+            );
+            setModalVisible(true);
+            break;
+          case "auth/operation-not-allowed":
+            // Email/password accounts are not enabled in Firebase
+            setModalMessage(
+              "Sign up is currently not allowed. Please contact support."
+            );
+            setModalVisible(true);
+            break;
+          default:
+            // Handle unexpected errors
+            setModalMessage(`An unexpected error occurred: ${error.message}`);
+            setModalVisible(true);
+        }
+      }
     }
   };
 
@@ -40,95 +125,199 @@ const SignUpScreen = ({navigation}) => {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>SIGN-UP</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          placeholderTextColor="#B0BEC5"
-          value={username}
-          onChangeText={(text) => setUsername(text)}
-        />
+        {/* Username Input */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="user"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Enter your username"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+          />
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="E-mail"
-          placeholderTextColor="#B0BEC5"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-        />
+        {/* Email Input */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="envelope"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Enter your email"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            accessibilityLabel="Email Input Field"
+          />
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#B0BEC5"
-          secureTextEntry
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-        />
+        {/* Password Input with Visibility Toggle */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="lock"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!passwordVisible}
+            autoCapitalize="none"
+            accessibilityLabel="Password Input Field"
+          />
+          <Pressable
+            onPress={() => setPasswordVisible(!passwordVisible)}
+            style={styles.eyeIcon}
+            accessibilityLabel="Toggle Password Visibility"
+          >
+            <Ionicons
+              name={passwordVisible ? "eye-off" : "eye"}
+              size={hp(3)}
+              color="#B0BEC5"
+            />
+          </Pressable>
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#B0BEC5"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={(text) => setConfirmPassword(text)}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Mobile number"
-          placeholderTextColor="#B0BEC5"
-          keyboardType="phone-pad"
-          value={mobileNumber}
-          onChangeText={(text) => setMobileNumber(text)}
-        />
+        {/* Confirm Password Input with Visibility Toggle */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="lock"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Confirm Password"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={!passwordConfirmVisible}
+            autoCapitalize="none"
+            accessibilityLabel="Password Input Field"
+          />
+          <Pressable
+            onPress={() => setPasswordConfirmVisible(!passwordConfirmVisible)}
+            style={styles.eyeIcon}
+            accessibilityLabel="Toggle Password Visibility"
+          >
+            <Ionicons
+              name={passwordConfirmVisible ? "eye-off" : "eye"}
+              size={hp(3)}
+              color="#B0BEC5"
+            />
+          </Pressable>
+        </View>
 
         <View style={styles.checkboxContainer}>
           <Switch
             value={isChecked}
-            onValueChange={toggleSwitch}
+            onValueChange={(value) => {
+              setIsChecked(value);
+              setTermsModalVisible(value);
+            }}
             trackColor={{ false: "#424242", true: "#B2DDF9" }}
             thumbColor={isChecked ? "#B2DDF9" : "#fff"}
           />
           <Text style={styles.checkboxText}>
-            I agree to Terms and condition
+            I agree to Terms and Conditions
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("VerifyEmailScreen")} // Navigate to VerifyEmailScreen
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={handleSignup} // Navigate to VerifyEmailScreen
         >
           <Text style={styles.buttonText}>Create Account</Text>
-        </TouchableOpacity>
+        </Pressable>
       </ScrollView>
 
       {/* Modal for Terms and Conditions */}
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)} // Close the modal when the user presses back
+        visible={termsModalVisible}
+        onRequestClose={() => setTermsModalVisible(false)} // Close the modal when the user presses back
       >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Terms and Condition</Text>
-            <Text style={styles.modalContent}>
+        <View style={styles.termsModalBackground}>
+          <View style={styles.termsModalContainer}>
+            <Text style={styles.termsModalTitle}>Terms and Conditions</Text>
+            <Text style={styles.termsModalContent}>
               These terms and conditions outline the rules and regulations for
               the use of the application's services.
             </Text>
-            <Text style={styles.modalContent}>
+            <Text style={styles.termsModalContent}>
               By accessing the application, we assume you accept these terms and
               conditions. Do not continue to use the application if you do not
               agree to take all of the terms and conditions stated here.
             </Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)} // Close the modal
+
+            <View style={styles.termsModalButtons}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.agreeButton,
+                  pressed && styles.buttonPressed,
+                ]}
+                onPress={() => {
+                  setTermsModalVisible(false);
+                  setIsChecked(true);
+                }} // Close the modal
+              >
+                <Text style={styles.termsButtonsText}>Agree</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.disagreeButton,
+                  pressed && styles.buttonPressed,
+                ]}
+                onPress={() => {
+                  setTermsModalVisible(false);
+                  setIsChecked(false);
+                }} // Close the modal
+              >
+                <Text style={styles.termsButtonsText}>Disagree</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>{modalMessage}</Text>
+            <Pressable
+              style={[styles.modalButton]}
+              onPress={() => setModalVisible(!modalVisible)}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+              <Text style={styles.textStyle}>Close</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -145,90 +334,166 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: wp(5),
   },
   title: {
-    fontSize: 36,
+    fontSize: hp(4),
     fontWeight: "bold",
     color: "#B2DDF9",
-    marginBottom: 20,
+    marginBottom: hp(2),
   },
-  input: {
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: wp(7),
+    paddingHorizontal: wp(4),
+    marginVertical: hp(1.5),
     width: "90%",
-    backgroundColor: "#FFFFFF",
-    color: "#000",
-    borderRadius: 50,
-    padding: 20,
-    marginVertical: 10,
+    height: hp(7),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  input: {
+    flex: 1,
+    fontSize: hp(2),
+    color: "#000",
+    marginLeft: wp(3),
+  },
+  icon: {
+    marginRight: wp(2),
   },
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: hp(2),
   },
   checkboxText: {
     color: "#B2DDF9",
-    marginLeft: 10,
+    marginLeft: wp(2),
+    fontSize: hp(2),
   },
   button: {
     backgroundColor: "#424242",
-    padding: 15,
-    borderRadius: 25,
-    width: "100%",
+    paddingVertical: hp(2),
+    borderRadius: wp(7),
+    width: "90%",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: hp(2),
     borderColor: "#B2DDF9",
-    borderWidth:1,
+    borderWidth: 1,
+  },
+  buttonPressed: {
+    backgroundColor: "#525252",
   },
   buttonText: {
     color: "#B2DDF9",
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: hp(2.5),
   },
-  modalBackground: {
+  termsModalBackground: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
     justifyContent: "center",
     alignItems: "center",
   },
-  modalContainer: {
+  termsModalContainer: {
     backgroundColor: "#424242",
     width: "90%",
-    borderRadius: 15,
-    padding: 20,
+    borderRadius: wp(5),
+    padding: wp(5),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
   },
-  modalTitle: {
-    fontSize: 24,
+  termsModalTitle: {
+    fontSize: hp(3),
     fontWeight: "bold",
     color: "#B2DDF9",
-    marginBottom: 10,
+    marginBottom: hp(2),
   },
-  modalContent: {
-    fontSize: 16,
+  termsModalContent: {
+    fontSize: hp(2),
     color: "#B0BEC5",
-    marginBottom: 15,
+    marginBottom: hp(2),
     textAlign: "left",
   },
-  closeButton: {
-    backgroundColor: "#B2DDF9",
-    padding: 10,
-    borderRadius: 10,
+  termsModalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
     alignItems: "center",
   },
-  closeButtonText: {
-    color: "#424242",
+  agreeButton: {
+    flex: 1,
+    backgroundColor: "#008000",
+    paddingVertical: hp(1.5),
+    borderRadius: wp(5),
+    alignItems: "center",
+    marginTop: hp(2),
+    marginRight: 10,
+  },
+  disagreeButton: {
+    flex: 1,
+    backgroundColor: "#FF0000",
+    paddingVertical: hp(1.5),
+    borderRadius: wp(5),
+    alignItems: "center",
+    marginTop: hp(2),
+  },
+  termsButtonsText: {
+    color: "#B2DDF9",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: hp(2),
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalButton: {
+    paddingHorizontal: wp(7),
+    elevation: 2,
+    backgroundColor: "#424242",
+    paddingVertical: hp(2),
+    borderRadius: wp(7),
+    width: "90%",
+    alignItems: "center",
+    marginTop: hp(2),
+    borderColor: "#B2DDF9",
+    paddingVertical: hp(2),
+    borderWidth: 1,
+  },
+
+  textStyle: {
+    color: "#B2DDF9",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 18,
   },
 });
 
