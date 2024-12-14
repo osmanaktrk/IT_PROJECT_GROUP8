@@ -61,6 +61,7 @@ function App() {
 
         {/* Home Page */}
         <Stack.Screen name="HomePage" component={HomePage} />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

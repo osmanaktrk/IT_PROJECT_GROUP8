@@ -284,10 +284,6 @@
 
 // export default LoginScreen;
 
-
-
-
-
 import React, { useState, useEffect, memo } from "react";
 import {
   View,
@@ -300,51 +296,56 @@ import {
   Alert,
   Modal,
 } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseAuth } from "../FirebaseConfig";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-
-// PrimaryButton Component
-const PrimaryButton = memo(
-  ({ title, onPress, accessibilityLabel, accessibilityHint }) => (
-    <Pressable
-      style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint={accessibilityHint}
-    >
-      <Text style={styles.buttonText}>{title}</Text>
-    </Pressable>
-  )
-);
 
 const LoginScreen = ({ navigation }) => {
   // State variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  // Authentication check on component mount
+
+  
+  // Check if the user is already logged in when the app starts
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-      if (user) {
-        Alert.alert("Welcome Back", `You are logged in as ${user.email}`);
-        navigation.replace("HomePage");
+    const checkUserStatus = async () => {
+      const savedEmail = await AsyncStorage.getItem("userEmail");
+      const savedPassword = await AsyncStorage.getItem("userPassword");
+      const keepLoggedIn = await AsyncStorage.getItem("keepLoggedIn");
+
+      if (keepLoggedIn === "true" && savedEmail && savedPassword) {
+        try {
+          const userCredential = await signInWithEmailAndPassword(
+            firebaseAuth,
+            savedEmail,
+            savedPassword
+          );
+          const user = userCredential.user;
+          Alert.alert("Welcome Back", `You are logged in as ${user.email}`);
+          navigation.replace("HomePage");
+        } catch (error) {
+          console.error("Auto-login failed:", error.message);
+        }
       }
       setIsLoading(false);
-    });
+    };
 
-    return () => unsubscribe(); // Cleanup subscription
+    checkUserStatus();
   }, [navigation]);
+
+
+
 
   // Login handler
   const handleLogin = async () => {
@@ -354,91 +355,95 @@ const LoginScreen = ({ navigation }) => {
         email,
         password
       );
+
+      if (rememberMe) {
+        // Save login credentials to AsyncStorage
+        await AsyncStorage.setItem("userEmail", email);
+        await AsyncStorage.setItem("userPassword", password);
+        await AsyncStorage.setItem("keepLoggedIn", "true");
+      } else {
+        // Clear login credentials if "Keep me logged in" is not selected
+        await AsyncStorage.removeItem("userEmail");
+        await AsyncStorage.removeItem("userPassword");
+        await AsyncStorage.setItem("keepLoggedIn", "false");
+      }
+
+
       const user = userCredential.user;
       Alert.alert("Login Successful", `Welcome back, ${user.email}!`);
+
+
+      navigation.replace("HomePage");
+
+
+
     } catch (error) {
-      switch (error.code) {
-        case "auth/user-not-found":
-          // User not found in the database
-          setModalMessage("Email not found. Please sign up.");
-          setModalVisible(true);
-          break;
-      
-        case "auth/wrong-password":
-          // Incorrect password entered by the user
-          setModalMessage("Incorrect password. Please try again.");
-          setModalVisible(true);
-          break;
-      
-        case "auth/invalid-email":
-          // Invalid email format entered
-          setModalMessage("Invalid email format. Please check your email address.");
-          setModalVisible(true);
-          break;
-      
-        case "auth/invalid-credential":
-          // Invalid authentication credentials
-          setModalMessage(
-            "Invalid credentials. Please check your email and password."
-          );
-          setModalVisible(true);
-          break;
-      
-        case "auth/user-disabled":
-          // The user's account has been disabled
-          setModalMessage(
-            "Your account has been disabled. Please contact support for assistance."
-          );
-          setModalVisible(true);
-          break;
-      
-        case "auth/too-many-requests":
-          // Too many login attempts; user is temporarily blocked
-          setModalMessage(
-            "Too many unsuccessful login attempts. Please try again later."
-          );
-          setModalVisible(true);
-          break;
-      
-        case "auth/network-request-failed":
-          // Network connectivity issue during the request
-          setModalMessage(
-            "Network error. Please check your internet connection and try again."
-          );
-          setModalVisible(true);
-          break;
-      
-        case "auth/internal-error":
-          // An unexpected internal error occurred
-          setModalMessage(
-            "An internal error occurred. Please try again later or contact support."
-          );
-          setModalVisible(true);
-          break;
-      
-        case "auth/requires-recent-login":
-          // User needs to log in again to perform the action
-          setModalMessage(
-            "Your session has expired. Please log in again to continue."
-          );
-          setModalVisible(true);
-          break;
-      
-        case "auth/email-already-in-use":
-          // Email is already associated with another account
-          setModalMessage(
-            "This email is already in use. Please use a different email or log in."
-          );
-          setModalVisible(true);
-          break;
-      
-        default:
-          // Generic fallback for unexpected errors
-          Alert.alert("Login Failed", `Unexpected error occurred: ${error.code}`);
-          break;
+      if (error.code === "auth/wrong-password") {
+        // Incorrect password entered by the user
+        setModalMessage("Incorrect password. Please try again.");
+        setModalVisible(true);
+      } else if (error.code === "auth/user-not-found") {
+        // User not found in the database
+        setModalMessage("Email not found. Please sign up.");
+        setModalVisible(true);
+      } else if (error.code === "auth/invalid-email") {
+        // Invalid email format entered
+        setModalMessage(
+          "Invalid email format. Please check your email address."
+        );
+        setModalVisible(true);
+      } else if (error.code === "auth/too-many-requests") {
+        // Too many login attempts; user is temporarily blocked
+        setModalMessage(
+          "Too many unsuccessful login attempts. Please try again later."
+        );
+        setModalVisible(true);
+      } else if (error.code === "auth/network-request-failed") {
+        // Network connectivity issue during the request
+        setModalMessage(
+          "Network error. Please check your internet connection and try again."
+        );
+        setModalVisible(true);
+      } else if (error.code === "auth/invalid-credential") {
+        // Invalid authentication credentials
+        setModalMessage(
+          "Invalid credentials. Please check your email and password."
+        );
+        setModalVisible(true);
+      } else if (error.code === "auth/user-disabled") {
+        // The user's account has been disabled
+        setModalMessage(
+          "Your account has been disabled. Please contact support for assistance."
+        );
+        setModalVisible(true);
+      } else if (error.code === "auth/internal-error") {
+        // An unexpected internal error occurred
+        setModalMessage(
+          "An internal error occurred. Please try again later or contact support."
+        );
+        setModalVisible(true);
+      } else if (error.code === "auth/requires-recent-login") {
+        // User needs to log in again to perform the action
+        setModalMessage(
+          "Your session has expired. Please log in again to continue."
+        );
+        setModalVisible(true);
+      } else if (error.code === "auth/email-already-in-use") {
+        // Email is already associated with another account
+        setModalMessage(
+          "This email is already in use. Please use a different email or log in."
+        );
+        setModalVisible(true);
+      } else {
+        // Generic fallback for unexpected errors
+        Alert.alert("Login Failed", `Unexpected error occurred: ${error.code}`);
       }
     }
   };
+
+
+
+
 
   if (isLoading) {
     return (
@@ -455,7 +460,7 @@ const LoginScreen = ({ navigation }) => {
     >
       <View style={styles.container}>
         {/* Main Title */}
-        <Text style={styles.title}>Log in</Text>
+        <Text style={styles.title}>Log In</Text>
 
         {/* Email Input */}
         <View style={styles.inputContainer}>
@@ -477,7 +482,7 @@ const LoginScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* Password Input */}
+        {/* Password Input with Visibility Toggle */}
         <View style={styles.inputContainer}>
           <FontAwesome
             name="lock"
@@ -491,10 +496,21 @@ const LoginScreen = ({ navigation }) => {
             style={styles.input}
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            secureTextEntry={!passwordVisible}
             autoCapitalize="none"
             accessibilityLabel="Password Input Field"
           />
+          <Pressable
+            onPress={() => setPasswordVisible(!passwordVisible)}
+            style={styles.eyeIcon}
+            accessibilityLabel="Toggle Password Visibility"
+          >
+            <Ionicons
+              name={passwordVisible ? "eye-off" : "eye"}
+              size={hp(3)}
+              color="#B0BEC5"
+            />
+          </Pressable>
         </View>
 
         {/* Options */}
@@ -516,20 +532,34 @@ const LoginScreen = ({ navigation }) => {
         </View>
 
         {/* Login Button */}
-        <PrimaryButton
-          title="Log in"
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
           onPress={handleLogin}
+          accessibilityRole="button"
           accessibilityLabel="Log in button"
           accessibilityHint="Logs in to your account"
-        />
+        >
+          <Text style={styles.buttonText}>Log In</Text>
+        </Pressable>
 
         {/* FrontPage Button */}
-        <PrimaryButton
-          title="Front Page"
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
           onPress={() => navigation.navigate("FrontPage")}
           accessibilityLabel="Navigate to the front page"
           accessibilityHint="Navigates to the front page of the application"
-        />
+          accessibilityRole="button"
+        >
+          <Text style={styles.buttonText}>Home Page</Text>
+        </Pressable>
 
         {/* Modal for Login Errors */}
         <Modal
@@ -541,18 +571,16 @@ const LoginScreen = ({ navigation }) => {
           <View style={styles.modalContainer}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>{modalMessage}</Text>
-              
+
               <Pressable
                 style={({ pressed }) => [
                   styles.modalButton,
                   pressed && styles.buttonPressed,
                 ]}
-
                 onPress={() => setModalVisible(false)}
                 accessibilityRole="button"
                 accessibilityLabel="Close modal"
                 accessibilityHint="Closes the error modal"
-                
               >
                 <Text style={styles.buttonText}>Close</Text>
               </Pressable>
@@ -677,6 +705,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
 
 export default LoginScreen;

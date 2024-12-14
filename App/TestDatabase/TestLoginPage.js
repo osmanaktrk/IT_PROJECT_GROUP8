@@ -100,7 +100,7 @@ const TestLoginPage = ({ navigation }) => {
         <Text>Keep me logged in</Text>
         <Switch value={keepLoggedIn} onValueChange={setKeepLoggedIn} />
       </View>
-      
+
       <Button title="Login" onPress={handleLogin} />
       <TouchableOpacity
         onPress={() => navigation.navigate("TestForgetPasswordPage")}
@@ -194,4 +194,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 18,
   },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
 });

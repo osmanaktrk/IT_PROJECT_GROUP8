@@ -14,8 +14,15 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
 
+
+//********** For Authentication ***************
 import { firebaseAuth } from "../FirebaseConfig";
-import { signOut } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { signOut, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+
+//********** For Authentication ***************
+
+
 
 export default function HomePage({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,6 +103,9 @@ export default function HomePage({ navigation }) {
     }
   };
 
+
+
+  //********** For Authentication ***************
   //Test Logout
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -103,6 +113,7 @@ export default function HomePage({ navigation }) {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      await AsyncStorage.clear();
       await signOut(firebaseAuth);
       Alert.alert("Success", "You have been logged out.");
       navigation.replace("FrontPage");
@@ -118,13 +129,61 @@ export default function HomePage({ navigation }) {
     isLoggingOut && <ActivityIndicator size="large" color="#0000ff" />;
   }
 
+
+  //Test delete Account
+
+  // Reauthenticate the user
+  const reauthenticate = async (email, password) => {
+    try {
+      const user = firebaseAuth.currentUser;
+      const credential = EmailAuthProvider.credential(email, password);
+      await reauthenticateWithCredential(user, credential);
+      return true;
+    } catch (error) {
+      Alert.alert("Reauthentication Failed", error.message);
+      return false;
+    }
+  };
+
+
+  // Delete the user account
+  const handleDeleteAccount = async () => {
+    try {
+      const user = firebaseAuth.currentUser;
+
+      // Optional: Ask the user to confirm their password if needed
+      const email = user.email;
+      const password = "USER_PASSWORD_HERE"; // Get the password from user input
+      const isReauthenticated = await reauthenticate(email, password);
+
+      if (isReauthenticated) {
+        await user.delete(); // Delete the user account
+        Alert.alert("Account Deleted", "Your account has been successfully deleted.");
+        navigation.replace("FrontPage"); // Navigate to the home or landing page
+      }
+    } catch (error) {
+      Alert.alert("Account Deletion Failed", error.message);
+    }
+  };
+
+
+
+
+  //********** For Authentication ***************
+
   return (
     <View style={styles.container}>
 
-      {/* Test Logout */}
-      <View style={styles.logoutContainer}>
+      {/* Test Authendication */}
+      <View style={styles.testAuthendicationContainer}>
+        {/* Test Logout */}
         <Button title="Test Logout" onPress={handleLogout} />
+        {/* Test Delete Account */}
+        <Button title="Test Delete Account" onPress={handleDeleteAccount} color="red" />
+
       </View>
+
+      
 
       {/* Zoek en knop */}
       {!showAccountMenu && (
@@ -370,14 +429,11 @@ const styles = StyleSheet.create({
   listText: {
     flex: 1,
   },
-  logoutContainer: {
-    justifyContent: "center",
+  testAuthendicationContainer: {
+    flexDirection: 'row',
+    justifyContent: "space-between",
     alignItems: "center",
     padding: 20,
   },
-  logoutTitle: {
-    fontSize: 24,
-
-    textAlign: "center",
-  },
+  
 });
