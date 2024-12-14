@@ -92,66 +92,92 @@ const LoginScreen = ({ navigation }) => {
 
 
     } catch (error) {
-      if (error.code === "auth/wrong-password") {
-        // Incorrect password entered by the user
-        setModalMessage("Incorrect password. Please try again.");
-        setModalVisible(true);
-      } else if (error.code === "auth/user-not-found") {
-        // User not found in the database
-        setModalMessage("Email not found. Please sign up.");
-        setModalVisible(true);
-      } else if (error.code === "auth/invalid-email") {
-        // Invalid email format entered
-        setModalMessage(
-          "Invalid email format. Please check your email address."
-        );
-        setModalVisible(true);
-      } else if (error.code === "auth/too-many-requests") {
-        // Too many login attempts; user is temporarily blocked
-        setModalMessage(
-          "Too many unsuccessful login attempts. Please try again later."
-        );
-        setModalVisible(true);
-      } else if (error.code === "auth/network-request-failed") {
-        // Network connectivity issue during the request
-        setModalMessage(
-          "Network error. Please check your internet connection and try again."
-        );
-        setModalVisible(true);
-      } else if (error.code === "auth/invalid-credential") {
-        // Invalid authentication credentials
-        setModalMessage(
-          "Invalid credentials. Please check your email and password."
-        );
-        setModalVisible(true);
-      } else if (error.code === "auth/user-disabled") {
-        // The user's account has been disabled
-        setModalMessage(
-          "Your account has been disabled. Please contact support for assistance."
-        );
-        setModalVisible(true);
-      } else if (error.code === "auth/internal-error") {
-        // An unexpected internal error occurred
-        setModalMessage(
-          "An internal error occurred. Please try again later or contact support."
-        );
-        setModalVisible(true);
-      } else if (error.code === "auth/requires-recent-login") {
-        // User needs to log in again to perform the action
-        setModalMessage(
-          "Your session has expired. Please log in again to continue."
-        );
-        setModalVisible(true);
-      } else if (error.code === "auth/email-already-in-use") {
-        // Email is already associated with another account
-        setModalMessage(
-          "This email is already in use. Please use a different email or log in."
-        );
-        setModalVisible(true);
-      } else {
-        // Generic fallback for unexpected errors
-        Alert.alert("Login Failed", `Unexpected error occurred: ${error.code}`);
+
+
+
+      switch (error.code) {
+        case "auth/wrong-password":
+          // Incorrect password entered by the user
+          setModalMessage("Incorrect password. Please try again.");
+          setModalVisible(true);
+          break;
+      
+        case "auth/user-not-found":
+          // User not found in the database
+          setModalMessage("Email not found. Please sign up.");
+          setModalVisible(true);
+          break;
+      
+        case "auth/invalid-email":
+          // Invalid email format entered
+          setModalMessage("Invalid email format. Please check your email address.");
+          setModalVisible(true);
+          break;
+      
+        case "auth/too-many-requests":
+          // Too many login attempts; user is temporarily blocked
+          setModalMessage(
+            "Too many unsuccessful login attempts. Please try again later."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/network-request-failed":
+          // Network connectivity issue during the request
+          setModalMessage(
+            "Network error. Please check your internet connection and try again."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/invalid-credential":
+          // Invalid authentication credentials
+          setModalMessage(
+            "Invalid credentials. Please check your email and password."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/user-disabled":
+          // The user's account has been disabled
+          setModalMessage(
+            "Your account has been disabled. Please contact support for assistance."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/internal-error":
+          // An unexpected internal error occurred
+          setModalMessage(
+            "An internal error occurred. Please try again later or contact support."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/requires-recent-login":
+          // User needs to log in again to perform the action
+          setModalMessage(
+            "Your session has expired. Please log in again to continue."
+          );
+          setModalVisible(true);
+          break;
+      
+        case "auth/email-already-in-use":
+          // Email is already associated with another account
+          setModalMessage(
+            "This email is already in use. Please use a different email or log in."
+          );
+          setModalVisible(true);
+          break;
+      
+        default:
+          // Generic fallback for unexpected errors
+          Alert.alert("Login Failed", `Unexpected error occurred: ${error.code}`);
+          break;
       }
+
+
+
     }
   };
 
