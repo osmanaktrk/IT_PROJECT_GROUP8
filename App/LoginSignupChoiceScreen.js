@@ -2,41 +2,58 @@ import React from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  Pressable,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // For navigation
+import { useNavigation } from "@react-navigation/native";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+
+const ChoiceButton = ({ title, onPress, accessibilityLabel, accessibilityHint }) => (
+  <Pressable
+    style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+    onPress={onPress}
+    accessibilityLabel={accessibilityLabel}
+    accessibilityHint={accessibilityHint}
+  >
+    <Text style={styles.buttonText}>{title}</Text>
+  </Pressable>
+);
 
 const LoginSignupChoiceScreen = () => {
-  const navigation = useNavigation(); // Hook for navigation
+  const navigation = useNavigation();
 
   return (
     <ImageBackground
-      source={require("../assets/background.png")} //Background photo
+      source={require("../assets/background.png")} // Background image
       style={styles.background}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>You have an account?</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("LoginScreen")} // Navigate to Login screen
-        >
-          <Text style={styles.buttonText}>Log in</Text>
-        </TouchableOpacity>
+        {/* Log in Section */}
+        <Text style={styles.title}>Do you have an account?</Text>
+        <ChoiceButton
+          title="Log in"
+          onPress={() => navigation.navigate("LoginScreen")}
+          accessibilityLabel="Navigate to Login Screen"
+          accessibilityHint="Tap to navigate to the Login screen"
+        />
 
+        {/* Sign up Section */}
         <Text style={styles.title}>Don’t have an account?</Text>
-        <TouchableOpacity 
-  style={styles.button}
-  onPress={() => navigation.navigate('SignUpScreen')} // Navigate to SignUpScreen
->
-  <Text style={styles.buttonText}>Sign up</Text>
-</TouchableOpacity>
+        <ChoiceButton
+          title="Sign up"
+          onPress={() => navigation.navigate("SignUpScreen")}
+          accessibilityLabel="Navigate to Sign Up Screen"
+          accessibilityHint="Tap to navigate to the Sign Up screen"
+        />
       </View>
     </ImageBackground>
   );
 };
-//Style for the Login/Signup Choice Screen
+
 
 const styles = StyleSheet.create({
   background: {
@@ -47,24 +64,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(5), // Dynamic padding
   },
   title: {
-    color: "#B2DDF9", // Standard font color..
-    marginVertical: 10,
+    color: "#B2DDF9",
+    fontSize: hp(2.5), // Responsive font size
+    marginVertical: hp(2), // Dynamic vertical margin
     textAlign: "center",
     fontWeight: "600",
   },
   button: {
-    backgroundColor: "#424242", // Standard buttons color..
-    borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 60,
-    marginVertical: 10,
+    backgroundColor: "#424242", // Button background color
+    borderRadius: wp(10), // Fully rounded corners
+    paddingVertical: hp(2), // Responsive padding
+    paddingHorizontal: wp(20), // Responsive width
+    marginVertical: hp(1.5), // Dynamic spacing between buttons
+  },
+  buttonPressed: {
+    backgroundColor: "#525252", // Slightly lighter background on press
   },
   buttonText: {
     color: "#B2DDF9",
-    fontSize: 20,
+    fontSize: hp(2.5), // Responsive font size
     fontWeight: "bold",
     textAlign: "center",
   },
