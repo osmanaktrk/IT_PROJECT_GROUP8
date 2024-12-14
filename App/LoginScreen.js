@@ -29,8 +29,6 @@ const LoginScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-
-  
   // Check if the user is already logged in when the app starts
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -58,9 +56,6 @@ const LoginScreen = ({ navigation }) => {
     checkUserStatus();
   }, [navigation]);
 
-
-
-
   // Login handler
   const handleLogin = async () => {
     try {
@@ -70,50 +65,69 @@ const LoginScreen = ({ navigation }) => {
         password
       );
 
-      if (rememberMe) {
-        // Save login credentials to AsyncStorage
-        await AsyncStorage.setItem("userEmail", email);
-        await AsyncStorage.setItem("userPassword", password);
-        await AsyncStorage.setItem("keepLoggedIn", "true");
-      } else {
-        // Clear login credentials if "Keep me logged in" is not selected
-        await AsyncStorage.removeItem("userEmail");
-        await AsyncStorage.removeItem("userPassword");
-        await AsyncStorage.setItem("keepLoggedIn", "false");
-      }
-
-
       const user = userCredential.user;
-      Alert.alert("Login Successful", `Welcome back, ${user.email}!`);
 
+     
+      // Check if the user's email is verified
+      if (!user.emailVerified) {
+        // Email not verified
+        Alert.alert(
+          "Email Verification Required",
+          `Hello ${user.displayName}, welcome. Your account has been created. Please verify your email before logging in.`
 
-      navigation.replace("HomePage");
+        );
+       
+       
+        
 
+        // Redirect user to the email verification screen
+        
+        navigation.replace("VerifyEmailScreen");
 
+         // Sign out the user to prevent access
+        setTimeout(async () => {
+          await signOut(firebaseAuth);
+        }, 500);
+        return;
+      } else {
+        if (rememberMe) {
+          // Save login credentials to AsyncStorage
+          await AsyncStorage.setItem("userEmail", email);
+          await AsyncStorage.setItem("userPassword", password);
+          await AsyncStorage.setItem("keepLoggedIn", "true");
+        } else {
+          // Clear login credentials if "Keep me logged in" is not selected
+          await AsyncStorage.removeItem("userEmail");
+          await AsyncStorage.removeItem("userPassword");
+          await AsyncStorage.setItem("keepLoggedIn", "false");
+        }
 
+        Alert.alert("Login Successful", `Welcome back, ${user.email}!`);
+
+        navigation.replace("HomePage");
+      }
     } catch (error) {
-
-
-
       switch (error.code) {
         case "auth/wrong-password":
           // Incorrect password entered by the user
           setModalMessage("Incorrect password. Please try again.");
           setModalVisible(true);
           break;
-      
+
         case "auth/user-not-found":
           // User not found in the database
           setModalMessage("Email not found. Please sign up.");
           setModalVisible(true);
           break;
-      
+
         case "auth/invalid-email":
           // Invalid email format entered
-          setModalMessage("Invalid email format. Please check your email address.");
+          setModalMessage(
+            "Invalid email format. Please check your email address."
+          );
           setModalVisible(true);
           break;
-      
+
         case "auth/too-many-requests":
           // Too many login attempts; user is temporarily blocked
           setModalMessage(
@@ -121,7 +135,7 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-      
+
         case "auth/network-request-failed":
           // Network connectivity issue during the request
           setModalMessage(
@@ -129,7 +143,7 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-      
+
         case "auth/invalid-credential":
           // Invalid authentication credentials
           setModalMessage(
@@ -137,7 +151,7 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-      
+
         case "auth/user-disabled":
           // The user's account has been disabled
           setModalMessage(
@@ -145,7 +159,7 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-      
+
         case "auth/internal-error":
           // An unexpected internal error occurred
           setModalMessage(
@@ -153,7 +167,7 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-      
+
         case "auth/requires-recent-login":
           // User needs to log in again to perform the action
           setModalMessage(
@@ -161,7 +175,7 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-      
+
         case "auth/email-already-in-use":
           // Email is already associated with another account
           setModalMessage(
@@ -169,21 +183,31 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-      
+
         default:
+          if (!user.emailVerified) {
+        // Email not verified
+        Alert.alert(
+          "Email Verification Required",
+          "Please verify your email before logging in."
+        );
+
+        // Sign out the user to prevent access
+        await signOut(firebaseAuth);
+
+        // Redirect user to the email verification screen
+        navigation.replace("VerifyEmailScreen");
+        return; // Stop further execution
+      }
           // Generic fallback for unexpected errors
-          Alert.alert("Login Failed", `Unexpected error occurred: ${error.code}`);
+          Alert.alert(
+            "Login Failed",
+            `Unexpected error occurred: ${error.code}`
+          );
           break;
       }
-
-
-
     }
   };
-
-
-
-
 
   if (isLoading) {
     return (
@@ -428,7 +452,7 @@ const styles = StyleSheet.create({
     padding: hp(2),
     marginTop: hp(3),
     borderColor: "#B2DDF9",
-    borderWidth:1,
+    borderWidth: 1,
   },
   button: {
     backgroundColor: "#424242",
@@ -438,7 +462,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(2),
     marginTop: hp(3),
     borderColor: "#B2DDF9",
-    borderWidth:1,
+    borderWidth: 1,
   },
   buttonPressed: {
     backgroundColor: "#525252",

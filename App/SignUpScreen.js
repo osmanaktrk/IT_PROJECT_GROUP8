@@ -42,6 +42,79 @@ const SignUpScreen = ({ navigation }) => {
     // Check if passwords match
     if (password !== confirmPassword) {
       setModalMessage("Passwords do not match!");
+      setModalVisible(true);
+      return;
+    }
+
+    // Username Validation
+    if (username.length < 3) {
+      setModalMessage("Your username must be at least 3 characters long.");
+      setModalVisible(true);
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setModalMessage(
+        "Your username can only contain letters, numbers, and underscores."
+      );
+      setModalVisible(true);
+      return;
+    }
+
+    // Email Validation
+    if (!email) {
+      setModalMessage("Email address is required.");
+      setModalVisible(true);
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setModalMessage("Please enter a valid email address.");
+      setModalVisible(true);
+      return;
+    }
+
+    //*********** Password Verification will remain as a comment temporarily ***********
+
+    // Password Validation
+    // if (password.length < 6) {
+    //   setModalMessage("Your password must be at least 6 characters long.");
+    //   setModalVisible(true);
+    //   return;
+    // }
+    // if (!/[A-Z]/.test(password)) {
+    //   setModalMessage(
+    //     "Your password must contain at least one uppercase letter."
+    //   );
+    //   setModalVisible(true);
+    //   return;
+    // }
+    // if (!/[a-z]/.test(password)) {
+    //   setModalMessage(
+    //     "Your password must contain at least one lowercase letter."
+    //   );
+    //   setModalVisible(true);
+    //   return;
+    // }
+    // if (!/[0-9]/.test(password)) {
+    //   setModalMessage("Your password must contain at least one number.");
+    //   setModalVisible(true);
+    //   return;
+    // }
+    // if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    //   setModalMessage(
+    //     "Your password must contain at least one special character."
+    //   );
+    //   setModalVisible(true);
+    //   return;
+    // }
+
+    //*********** Password Verification will remain as a comment temporarily ***********
+
+    // Check Terms and Conditions
+    if (!isChecked) {
+      setModalMessage(
+        "In order to create an account, you must read and accept the terms and conditions."
+      );
+      setModalVisible(true);
       return;
     }
 
@@ -54,65 +127,61 @@ const SignUpScreen = ({ navigation }) => {
       );
       const user = userCredential.user;
 
+      user.displayName = username;
       // Send email verification
       await sendEmailVerification(user);
       Alert.alert(
         "Success",
-        `Account created for ${user.email}. Please verify your email before logging in.`
+        `Hello ${user.displayName}, welcome. Your account has been created. Please verify your email before logging in.`
       );
 
       // Sign out the user until email is verified
-      await signOut(firebaseAuth);
       navigation.replace("VerifyEmailScreen");
+      setTimeout(async () => {
+        await signOut(firebaseAuth);
+      }, 500);
     } catch (error) {
-      if (!isChecked) {
-        setModalMessage(
-          "In order to create an account, you must read and accept the terms and conditions."
-        );
-        setModalVisible(true);
-      } else {
-        // Handle Firebase authentication errors
-        switch (error.code) {
-          case "auth/email-already-in-use":
-            // Email is already associated with an account
-            setModalMessage(
-              "This email is already in use. Please use a different email."
-            );
-            setModalVisible(true);
-            break;
-          case "auth/invalid-email":
-            // Email format is invalid
-            setModalMessage(
-              "Invalid email format. Please enter a valid email address."
-            );
-            setModalVisible(true);
-            break;
-          case "auth/weak-password":
-            // Password is too weak
-            setModalMessage(
-              "Your password is too weak. Please use a stronger password."
-            );
-            setModalVisible(true);
-            break;
-          case "auth/network-request-failed":
-            // Network error
-            setModalMessage(
-              "Network error. Please check your internet connection and try again."
-            );
-            setModalVisible(true);
-            break;
-          case "auth/operation-not-allowed":
-            // Email/password accounts are not enabled in Firebase
-            setModalMessage(
-              "Sign up is currently not allowed. Please contact support."
-            );
-            setModalVisible(true);
-            break;
-          default:
-            // Handle unexpected errors
-            setModalMessage(`An unexpected error occurred: ${error.message}`);
-            setModalVisible(true);
-        }
+      // Handle Firebase authentication errors
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          // Email is already associated with an account
+          setModalMessage(
+            "This email is already in use. Please use a different email."
+          );
+          setModalVisible(true);
+          break;
+        case "auth/invalid-email":
+          // Email format is invalid
+          setModalMessage(
+            "Invalid email format. Please enter a valid email address."
+          );
+          setModalVisible(true);
+          break;
+        case "auth/weak-password":
+          // Password is too weak
+          setModalMessage(
+            "Your password is too weak. Please use a stronger password."
+          );
+          setModalVisible(true);
+          break;
+        case "auth/network-request-failed":
+          // Network error
+          setModalMessage(
+            "Network error. Please check your internet connection and try again."
+          );
+          setModalVisible(true);
+          break;
+        case "auth/operation-not-allowed":
+          // Email/password accounts are not enabled in Firebase
+          setModalMessage(
+            "Sign up is currently not allowed. Please contact support."
+          );
+          setModalVisible(true);
+          break;
+        default:
+          // Handle unexpected errors
+          setModalMessage(`An unexpected error occurred: ${error.message}`);
+          setModalVisible(true);
       }
     }
   };
@@ -138,7 +207,7 @@ const SignUpScreen = ({ navigation }) => {
             placeholderTextColor="#B0BEC5"
             style={styles.input}
             value={username}
-            onChangeText={setUsername}
+            onChangeText={(value) => setUsername(value.trim())}
             autoCapitalize="none"
           />
         </View>
@@ -156,7 +225,7 @@ const SignUpScreen = ({ navigation }) => {
             placeholderTextColor="#B0BEC5"
             style={styles.input}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(value) => setEmail(value.trim())}
             autoCapitalize="none"
             keyboardType="email-address"
             accessibilityLabel="Email Input Field"
@@ -176,7 +245,7 @@ const SignUpScreen = ({ navigation }) => {
             placeholderTextColor="#B0BEC5"
             style={styles.input}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(value) => setPassword(value.trim())}
             secureTextEntry={!passwordVisible}
             autoCapitalize="none"
             accessibilityLabel="Password Input Field"
@@ -207,7 +276,7 @@ const SignUpScreen = ({ navigation }) => {
             placeholderTextColor="#B0BEC5"
             style={styles.input}
             value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            onChangeText={(value) => setConfirmPassword(value.trim())}
             secureTextEntry={!passwordConfirmVisible}
             autoCapitalize="none"
             accessibilityLabel="Password Input Field"

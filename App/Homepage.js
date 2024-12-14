@@ -166,7 +166,7 @@ export default function HomePage({ navigation }) {
     }
   };
 
-
+  const user = firebaseAuth.currentUser;
 
 
   //********** For Authentication ***************
@@ -176,6 +176,7 @@ export default function HomePage({ navigation }) {
 
       {/* Test Authendication */}
       <View style={styles.testAuthendicationContainer}>
+        <Text>Hello {user.displayName}</Text>
         {/* Test Logout */}
         <Button title="Test Logout" onPress={handleLogout} />
         {/* Test Delete Account */}
