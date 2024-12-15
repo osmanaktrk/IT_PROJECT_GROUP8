@@ -18,7 +18,7 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="VerifyEmailScreen"
+        initialRouteName="FrontPage"
         screenOptions={{ headerShown: false }}
       >
         {/* Front Page */}

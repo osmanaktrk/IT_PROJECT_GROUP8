@@ -44,7 +44,10 @@ const LoginScreen = ({ navigation }) => {
             savedPassword
           );
           const user = userCredential.user;
-          Alert.alert("Welcome Back", `You are logged in as ${user.email}`);
+          Alert.alert(
+            "Welcome Back",
+            `You are logged in as ${user.displayName}`
+          );
           navigation.replace("HomePage");
         } catch (error) {
           console.error("Auto-login failed:", error.message);
@@ -67,24 +70,19 @@ const LoginScreen = ({ navigation }) => {
 
       const user = userCredential.user;
 
-     
       // Check if the user's email is verified
       if (!user.emailVerified) {
         // Email not verified
         Alert.alert(
           "Email Verification Required",
-          `Hello ${user.displayName}, welcome. Your account has been created. Please verify your email before logging in.`
-
+          `Welcome. Your account has been created. Please verify your email before logging in.`
         );
-       
-       
-        
 
         // Redirect user to the email verification screen
-        
+
         navigation.replace("VerifyEmailScreen");
 
-         // Sign out the user to prevent access
+        // Sign out the user to prevent access
         setTimeout(async () => {
           await signOut(firebaseAuth);
         }, 500);
@@ -186,19 +184,19 @@ const LoginScreen = ({ navigation }) => {
 
         default:
           if (!user.emailVerified) {
-        // Email not verified
-        Alert.alert(
-          "Email Verification Required",
-          "Please verify your email before logging in."
-        );
+            // Email not verified
+            Alert.alert(
+              "Email Verification Required",
+              "Please verify your email before logging in."
+            );
 
-        // Sign out the user to prevent access
-        await signOut(firebaseAuth);
+            // Sign out the user to prevent access
+            await signOut(firebaseAuth);
 
-        // Redirect user to the email verification screen
-        navigation.replace("VerifyEmailScreen");
-        return; // Stop further execution
-      }
+            // Redirect user to the email verification screen
+            navigation.replace("VerifyEmailScreen");
+            return; // Stop further execution
+          }
           // Generic fallback for unexpected errors
           Alert.alert(
             "Login Failed",
@@ -284,6 +282,9 @@ const LoginScreen = ({ navigation }) => {
               value={rememberMe}
               onValueChange={setRememberMe}
               style={{ marginRight: wp(2) }}
+              ios_backgroundColor="#B2DDF9"
+              trackColor={{ false: "#B2DDF9", true: "#008000" }}
+              thumbColor={rememberMe ? "#B2DDF9" : "#f4f3f4"}
             />
             <Text style={styles.rememberText}>Keep me logged in</Text>
           </View>

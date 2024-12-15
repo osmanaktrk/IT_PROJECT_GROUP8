@@ -179,7 +179,24 @@ const VerifyEmailScreen = ({ navigation }) => {
         >
           <Text style={styles.buttonText}>Resend Email</Text>
         </Pressable>
+
+        <Pressable
+        style={({ pressed }) => [
+          styles.button,
+          pressed && styles.buttonPressed,
+        ]}
+        onPress={() => navigation.navigate("FrontPage")}
+        accessibilityLabel="Navigate to the front page"
+        accessibilityHint="Navigates to the front page of the application"
+        accessibilityRole="button"
+      >
+        <Text style={styles.buttonText}>Home Page</Text>
+      </Pressable>
       </View>
+
+      {/* FrontPage Button */}
+
+      
     </ImageBackground>
   );
 };

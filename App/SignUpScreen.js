@@ -301,8 +301,9 @@ const SignUpScreen = ({ navigation }) => {
               setIsChecked(value);
               setTermsModalVisible(value);
             }}
-            trackColor={{ false: "#424242", true: "#B2DDF9" }}
-            thumbColor={isChecked ? "#B2DDF9" : "#fff"}
+            ios_backgroundColor="#B2DDF9"
+            trackColor={{ false: "#B2DDF9", true: "#008000" }}
+            thumbColor={isChecked ? "#B2DDF9" : "#f4f3f4"}
           />
           <Text style={styles.checkboxText}>
             I agree to Terms and Conditions
