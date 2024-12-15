@@ -21,6 +21,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signOut,
+  updateProfile
 } from "firebase/auth";
 
 const SignUpScreen = ({ navigation }) => {
@@ -127,7 +128,9 @@ const SignUpScreen = ({ navigation }) => {
       );
       const user = userCredential.user;
 
-      user.displayName = username;
+      await updateProfile(user, {
+        displayName: username,
+      });
       // Send email verification
       await sendEmailVerification(user);
       Alert.alert(
@@ -155,6 +158,12 @@ const SignUpScreen = ({ navigation }) => {
           setModalMessage(
             "Invalid email format. Please enter a valid email address."
           );
+          setModalVisible(true);
+          break;
+
+        case "auth/missing-password":
+          // Password is missing in the request
+          setModalMessage("Password is required. Please provide a password.");
           setModalVisible(true);
           break;
         case "auth/weak-password":

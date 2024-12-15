@@ -100,7 +100,7 @@ const LoginScreen = ({ navigation }) => {
           await AsyncStorage.setItem("keepLoggedIn", "false");
         }
 
-        Alert.alert("Login Successful", `Welcome back, ${user.email}!`);
+        Alert.alert("Login Successful", `Welcome back ${user.displayName}!`);
 
         navigation.replace("HomePage");
       }
@@ -112,11 +112,26 @@ const LoginScreen = ({ navigation }) => {
           setModalVisible(true);
           break;
 
+        case "auth/email-already-in-use":
+          // Email is already associated with another account
+          setModalMessage(
+            "This email is already in use. Please use a different email or log in."
+          );
+          setModalVisible(true);
+          break;
         case "auth/user-not-found":
           // User not found in the database
           setModalMessage("Email not found. Please sign up.");
           setModalVisible(true);
           break;
+
+        case "auth/missing-password":
+          // Password is missing in the request
+          setModalMessage("Password is required. Please provide a password.");
+          setModalVisible(true);
+          break;
+
+       
 
         case "auth/invalid-email":
           // Invalid email format entered
@@ -125,7 +140,6 @@ const LoginScreen = ({ navigation }) => {
           );
           setModalVisible(true);
           break;
-
         case "auth/too-many-requests":
           // Too many login attempts; user is temporarily blocked
           setModalMessage(
@@ -170,14 +184,6 @@ const LoginScreen = ({ navigation }) => {
           // User needs to log in again to perform the action
           setModalMessage(
             "Your session has expired. Please log in again to continue."
-          );
-          setModalVisible(true);
-          break;
-
-        case "auth/email-already-in-use":
-          // Email is already associated with another account
-          setModalMessage(
-            "This email is already in use. Please use a different email or log in."
           );
           setModalVisible(true);
           break;

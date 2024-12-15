@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -146,6 +146,7 @@ export default function HomePage({ navigation }) {
   };
 
 
+
   // Delete the user account
   const handleDeleteAccount = async () => {
     try {
@@ -166,7 +167,20 @@ export default function HomePage({ navigation }) {
     }
   };
 
-  const user = firebaseAuth.currentUser;
+  const [username, setUsername] = useState("Guest"); 
+  useEffect(() => {
+    const user = firebaseAuth.currentUser;
+
+    if (user) {
+      setUsername(user.displayName || "User");
+    } else {
+  
+      setUsername("Guest");
+    }
+  }, []); 
+ 
+ 
+  
 
 
   //********** For Authentication ***************
@@ -176,7 +190,7 @@ export default function HomePage({ navigation }) {
 
       {/* Test Authendication */}
       <View style={styles.testAuthendicationContainer}>
-        <Text>Hello {user.displayName}</Text>
+        <Text> {username}</Text>
         {/* Test Logout */}
         <Button title="Test Logout" onPress={handleLogout} />
         {/* Test Delete Account */}
