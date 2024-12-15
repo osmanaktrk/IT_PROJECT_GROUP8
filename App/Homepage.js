@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -8,36 +8,9 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  Image,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
-
-//********** For Authentication and Database ***************
-import * as Location from "expo-location";
-import { firebaseAuth, firestoreDB } from "../FirebaseConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  signOut,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
-
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-} from "firebase/firestore";
-
-//********** For Authentication and Database ***************
 
 export default function HomePage({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,8 +20,6 @@ export default function HomePage({ navigation }) {
     latitudeDelta: 0.03,
     longitudeDelta: 0.03,
   });
-
-  
   const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
   const [showUpdateProfile, setShowUpdateProfile] = useState(false); // Voor update profiel
   const mapRef = useRef(null);
@@ -56,31 +27,35 @@ export default function HomePage({ navigation }) {
   const markers = [
     {
       id: 1,
-      geo: { latitude: 50.8466, longitude: 4.3528 },
+      latitude: 50.8466,
+      longitude: 4.3528,
       title: "Grote Markt",
       price: 10,
       status: "available",
     },
     {
       id: 2,
-      geo: { latitude: 50.8503, longitude: 4.3497 },
+      latitude: 50.8503,
+      longitude: 4.3497,
       title: "Manneken Pis",
-      price: 0,
+      price: "free",
       status: "unavailable",
     },
     {
       id: 3,
-      geo: { latitude: 50.8456, longitude: 4.3572 },
+      latitude: 50.8456,
+      longitude: 4.3572,
       title: "Koninklijke Sint-Hubertusgalerijen",
       price: 7.5,
       status: "available",
     },
     {
       id: 4,
-      geo: { latitude: 50.8505, longitude: 4.3488 },
+      latitude: 50.8505,
+      longitude: 4.3488,
       title: "Stadhuis van Brussel",
       price: 3.5,
-      status: "unavailable",
+      status: "available",
     },
   ];
 
@@ -89,12 +64,11 @@ export default function HomePage({ navigation }) {
     setShowUpdateProfile(false);
   };
 
-
   const fitAllMarkers = () => {
     if (mapRef.current && markers.length > 0) {
       const coordinates = markers.map((marker) => ({
-        latitude: marker.geo.latitude,
-        longitude: marker.geo.longitude,
+        latitude: marker.latitude,
+        longitude: marker.longitude,
       }));
       mapRef.current.fitToCoordinates(coordinates, {
         edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
@@ -117,192 +91,8 @@ export default function HomePage({ navigation }) {
     }
   };
 
-  // *************** For Database ******************
-  const [userLocation, setUserLocation] = useState(null);
-  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
-  const [spotsDatabase, setSpotsDatabase] = useState([]);
-
-    // Default Location
-    const defaultLocation = {
-      latitude: 50.8503,
-      longitude: 4.3517,
-      latitudeDelta: 0.03,
-      longitudeDelta: 0.03,
-    };
-  
-
-  // Function to fetch user's current location
-  const fetchUserLocation = async () => {
-    setIsFetchingLocation(true); // Start fetching location
-    try {
-      // Request location permission from the user
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permission Denied",
-          "Location permission is required to show your location on the map."
-        );
-        setIsFetchingLocation(false);
-        return;
-      }
-
-      // Get the user's current location
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-
-      // Set the user's location state
-      setUserLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.03,
-        longitudeDelta: 0.03,
-      });
-
-      // Move the map view to the user's location
-      if (mapRef.current) {
-        mapRef.current.animateToRegion({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.03,
-          longitudeDelta: 0.03,
-        });
-      }
-    } catch (error) {
-      Alert.alert("Error", `Failed to fetch location: ${error.message}`);
-    } finally {
-      setIsFetchingLocation(false); // Stop loading
-    }
-  };
-
-  // Function to fetch spots data from Firestore
-  const fetchSpots = async () => {
-    try {
-      // Fetch data from the "spots" collection
-      const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
-      const spots = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        spots.push({
-          id: doc.id,
-          latitude: data.geo.latitude,
-          longitude: data.geo.longitude,
-          title: data.title || `Spot ${doc.id}`,
-          status: data.status,
-          price: data.price,
-        });
-      });
-      setSpotsDatabase(spots); // Update the spots state
-    } catch (error) {
-      Alert.alert("Error", `Failed to load spots: ${error.message}`);
-    }
-  };
-
-  // Fetch user's location and Firestore spots data when the component mounts
-  useEffect(() => {
-    fetchUserLocation();
-    fetchSpots();
-  }, []);
-
-  // *************** For Database ******************
-
-  //********** For Authentication ***************
-  //Test Logout
-
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    try {
-      await AsyncStorage.clear();
-      await signOut(firebaseAuth);
-      Alert.alert("Success", "You have been logged out.");
-      navigation.replace("FrontPage");
-    } catch (error) {
-      Alert.alert("Logout Failed", `An error occurred: ${error.message}`);
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
-  // Inside the render method:
-  {
-    isLoggingOut && <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
-  //Test delete Account
-
-  // Reauthenticate the user
-  const reauthenticate = async (email, password) => {
-    try {
-      const user = firebaseAuth.currentUser;
-      const credential = EmailAuthProvider.credential(email, password);
-      await reauthenticateWithCredential(user, credential);
-      return true;
-    } catch (error) {
-      Alert.alert("Reauthentication Failed", error.message);
-      return false;
-    }
-  };
-
-  // Delete the user account
-  const handleDeleteAccount = async () => {
-    try {
-      const user = firebaseAuth.currentUser;
-
-      // Optional: Ask the user to confirm their password if needed
-      const email = user.email;
-      const password = "USER_PASSWORD_HERE"; // Get the password from user input
-      const isReauthenticated = await reauthenticate(email, password);
-
-      if (isReauthenticated) {
-        await user.delete(); // Delete the user account
-        Alert.alert(
-          "Account Deleted",
-          "Your account has been successfully deleted."
-        );
-        navigation.replace("FrontPage"); // Navigate to the home or landing page
-      }
-    } catch (error) {
-      Alert.alert("Account Deletion Failed", error.message);
-    }
-  };
-
-  const [username, setUsername] = useState("Guest");
-  useEffect(() => {
-    const user = firebaseAuth.currentUser;
-
-    if (user) {
-      setUsername(user.displayName || "User");
-    } else {
-      setUsername("Guest");
-    }
-  }, []);
-
-  //********** For Authentication ***************
-
-
-
-
-
-
-
-  
   return (
     <View style={styles.container}>
-      {/* Test Authendication */}
-      <View style={styles.testAuthendicationContainer}>
-        <Text> {username}</Text>
-        {/* Test Logout */}
-        <Button title="Test Logout" onPress={handleLogout} />
-        {/* Test Delete Account */}
-        <Button
-          title="Test Delete Account"
-          onPress={handleDeleteAccount}
-          color="red"
-        />
-      </View>
-
       {/* Zoek en knop */}
       {!showAccountMenu && (
         <View style={styles.searchContainer}>
@@ -381,10 +171,7 @@ export default function HomePage({ navigation }) {
           </View>
 
           <View style={styles.bottomSection}>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={toggleAccountMenu}
-            >
+            <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
               <Text style={styles.menuButtonText}>Done</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -398,70 +185,19 @@ export default function HomePage({ navigation }) {
       )}
 
       {/* Kaartweergave */}
-      {/* Button to update user's location */}
-      <Button title="Update Location" onPress={fetchUserLocation} />
-
-      {/* MapView to display the map and markers */}
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        region={
-          userLocation || {
-            latitude: 50.8503,
-            longitude: 4.3517,
-            latitudeDelta: 0.03,
-            longitudeDelta: 0.03,
-          }
-        }
-      >
-        {/* User's current location */}
-        {userLocation && (
-        <Marker
-          coordinate={{
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-          }}
-          title="Your Location"
-        >
-          <Image
-            source={require('../assets/car.png')}
-            style={{ width: 50, height: 50 }} 
-            resizeMode="contain" // Zorgt ervoor dat de aspect ratio behouden blijft
-          />
-        </Marker>
-)}
-
-        {/* Firestore spots */}
-        {spotsDatabase.map((spot) => (
-          <Marker
-            key={`spot-${spot.id}`}
-            coordinate={{
-              latitude: spot.latitude,
-              longitude: spot.longitude,
-            }}
-            title={spot.title}
-            pinColor={spot.status === "available" ? "green" : "red"}
-          />
-        ))}
-
-        {/* Static markers */}
+      <MapView ref={mapRef} style={styles.map} region={location}>
         {markers.map((marker) => (
           <Marker
-            key={`marker-${marker.id}`}
+            key={marker.id}
             coordinate={{
-              latitude: marker.geo.latitude, // Ensure the latitude is in geo property
-              longitude: marker.geo.longitude,
+              latitude: marker.latitude,
+              longitude: marker.longitude,
             }}
             title={marker.title}
-            pinColor={marker.status === "available" ? "blue" : "orange"}
+            pinColor={marker.status === "available" ? "green" : "red"}
           />
         ))}
       </MapView>
-
-      {/* Activity indicator for location fetching */}
-      {isFetchingLocation && (
-        <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
-      )}
 
       {/* Lijst van markers */}
       {!showAccountMenu && (
@@ -597,19 +333,5 @@ const styles = StyleSheet.create({
   },
   listText: {
     flex: 1,
-  },
-  testAuthendicationContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-  },
-  loader: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    marginLeft: -25,
-    marginTop: -25,
-    zIndex: 1,
   },
 });
