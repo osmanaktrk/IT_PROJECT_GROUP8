@@ -18,7 +18,7 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="FrontPage"
+        initialRouteName="HomePage"
         screenOptions={{ headerShown: false }}
       >
         {/* Front Page */}
