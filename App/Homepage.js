@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
@@ -415,15 +416,20 @@ export default function HomePage({ navigation }) {
       >
         {/* User's current location */}
         {userLocation && (
-          <Marker
-            coordinate={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-            }}
-            title="Your Location"
-            pinColor="black"
+        <Marker
+          coordinate={{
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude,
+          }}
+          title="Your Location"
+        >
+          <Image
+            source={require('../assets/car.png')}
+            style={{ width: 50, height: 50 }} 
+            resizeMode="contain" // Zorgt ervoor dat de aspect ratio behouden blijft
           />
-        )}
+        </Marker>
+)}
 
         {/* Firestore spots */}
         {spotsDatabase.map((spot) => (
