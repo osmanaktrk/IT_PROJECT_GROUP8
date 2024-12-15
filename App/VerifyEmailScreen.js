@@ -1,286 +1,239 @@
-// npm install @react-native-async-storage/async-storage
-
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   ImageBackground,
-  Modal,
+  Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // For navigation
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { firebaseAuth } from "../FirebaseConfig";
+import {
+  sendEmailVerification,
+  signOut,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
-const VerifyEmailScreen = () => {
-const correctCode = ["1", "2", "3", "4", "5"]; // Define the correct code here
-  const [code, setCode] = useState(["", "", "", "", ""]);
-  const [isSuccessModalVisible, setSuccessModalVisible] = useState(false); // Success Modal
-  const [isErrorModalVisible, setErrorModalVisible] = useState(false); // Error Modal
-  const inputs = useRef([]);
-  const navigation = useNavigation(); // Navigation function
+const VerifyEmailScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const handleCodeChange = (index, value) => {
-    const newCode = [...code];
-    newCode[index] = value;
-
-    // If a value is entered, focus the next input
-    if (value.length === 1 && index < inputs.current.length - 1) {
-      inputs.current[index + 1].focus();
+  const resendEmail = async () => {
+    // Email Validation
+    if (!email) {
+      Alert.alert("Email", "Email address is required.");
+      return;
     }
-    // If the value is empty and not the first field, focus the previous input
-    else if (value === "" && index > 0) {
-      inputs.current[index - 1].focus();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      Alert.alert("Email", "Please enter a valid email address.");
+      return;
     }
 
-    setCode(newCode);
-  };
+    // Password Validation
+    if (password.length < 6) {
+      Alert.alert(
+        "Password",
+        "Your password must be at least 6 characters long."
+      );
+      return;
+    }
 
-  const handleVerifyCode = () => {
-    //     // Show the success modal
-    //     setSuccessModalVisible(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password
+      );
 
-    //     // Wait for 3 seconds and navigate to LoginScreen
-    //     setTimeout(() => {
-    //       setSuccessModalVisible(false); // Hide the modal
-    //       navigation.navigate("LoginScreen"); // Navigate to LoginScreen
-    //     }, 3000);
-    //   };
+      const user = userCredential.user;
 
-    if (JSON.stringify(code) === JSON.stringify(correctCode)) {
-      // If the code matches, show success modal
-      setSuccessModalVisible(true);
-      setTimeout(() => {
-        setSuccessModalVisible(false); // Hide modal
-        navigation.navigate("LoginScreen"); // Navigate to LoginScreen
-      }, 4000);
-    } else {
-      // If the code is incorrect, show error modal
-      setErrorModalVisible(true);
+      await sendEmailVerification(user);
+      Alert.alert(
+        "Success",
+        "A verification email has been sent to your email address."
+      );
+
+      setEmail("");
+      setPassword("");
+
+      await signOut(firebaseAuth);
+    } catch (error) {
+      switch (error.code) {
+        case "auth/wrong-password":
+          Alert.alert("Password", "Incorrect password. Please try again.");
+          break;
+
+        case "auth/user-not-found":
+          Alert.alert("Email", "Email not found. Please sign up.");
+          break;
+
+        case "auth/invalid-email":
+          Alert.alert(
+            "Email",
+            "Invalid email format. Please check your email address."
+          );
+          break;
+
+        case "auth/network-request-failed":
+          Alert.alert(
+            "Network Error",
+            "Network error. Please check your internet connection and try again."
+          );
+          break;
+
+        case "auth/invalid-credential":
+          Alert.alert(
+            "Invalid credentials",
+            "Invalid credentials. Please check your email and password."
+          );
+          break;
+
+        case "auth/internal-error":
+          Alert.alert(
+            "Internal Error",
+            "An internal error occurred. Please try again later or contact support."
+          );
+          break;
+
+        default:
+          Alert.alert("Unexpected Error", "An unexpected error occurred");
+      }
     }
   };
 
   return (
     <ImageBackground
-      source={require("../assets/background.png")} // Ensure the image exists in the correct path
+      source={require("../assets/background.png")}
       style={styles.background}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Check your email</Text>
+        <Text style={styles.title}>Check Your Email</Text>
         <Text style={styles.subtitle}>
-          We sent a confirmation link to {"\n"}
-          <Text style={styles.email}>John.doe@gmail.com</Text>
-          {"\n"}Enter the 5-digit code mentioned in the email
+          We sent a confirmation link to your email. Please verify your email
+          before logging in.
         </Text>
 
-        <View style={styles.codeContainer}>
-          {code.map((digit, index) => (
-            <TextInput
-              key={index}
-              style={styles.codeInput}
-              maxLength={1}
-              keyboardType="numeric"
-              value={digit}
-              onChangeText={(value) => handleCodeChange(index, value)}
-              ref={(input) => (inputs.current[index] = input)} // Set the ref to enable focus shifting
+        {/* Email Input */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="envelope"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Enter your email"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={email}
+            onChangeText={(value) => setEmail(value.trim())}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+        </View>
+
+        {/* Password Input with Visibility Toggle */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="lock"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={password}
+            onChangeText={(value) => setPassword(value.trim())}
+            secureTextEntry={!passwordVisible}
+            autoCapitalize="none"
+          />
+          <Pressable
+            onPress={() => setPasswordVisible(!passwordVisible)}
+            style={styles.eyeIcon}
+          >
+            <Ionicons
+              name={passwordVisible ? "eye-off" : "eye"}
+              size={hp(3)}
+              color="#B0BEC5"
             />
-          ))}
+          </Pressable>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleVerifyCode}>
-          <Text style={styles.buttonText}>Verify Code</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.resendText}>
-          Haven’t got the email yet?{" "}
-          <Text style={styles.resendLink}>Resend email</Text>
-        </Text>
+        {/* Resend Email Button */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={resendEmail}
+        >
+          <Text style={styles.buttonText}>Resend Email</Text>
+        </Pressable>
       </View>
-      {/* Success Modal */}
-      <Modal
-        animationType="fade" // Changed to "fade" for smoother appearance
-        transparent={true}
-        visible={isSuccessModalVisible}
-        onRequestClose={() => setSuccessModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <View style={styles.iconContainer}>
-              <Text style={styles.checkIcon}>✔️</Text>
-            </View>
-            <Text style={styles.successTitle}>Success!</Text>
-            <Text style={styles.successMessage}>
-              Congrats, your account has been successfully created
-            </Text>
-          </View>
-        </View>
-      </Modal>
-      {/* Error Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={isErrorModalVisible}
-        onRequestClose={() => setErrorModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.errorTitle}>Error</Text>
-            <Text style={styles.errorMessage}>
-              The code you entered is incorrect. Please try again.
-            </Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setErrorModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: "cover", // Make the image cover the entire screen
-  },
+  background: { flex: 1, resizeMode: "cover" },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: wp(5),
   },
   title: {
-    fontSize: 28,
+    fontSize: hp(4),
     fontWeight: "bold",
     color: "#B2DDF9",
-    marginBottom: 10,
+    marginBottom: hp(2),
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: hp(2),
     color: "#B2DDF9",
     textAlign: "center",
-    marginBottom: 30,
-    lineHeight: 22, // Added line height for better readability
+    marginBottom: hp(5),
+    lineHeight: hp(3),
+    width: wp(80),
   },
-
-  email: {
-    fontWeight: "bold",
-  },
-  codeContainer: {
-    flexDirection: "row", // Arrange inputs in a row
-    justifyContent: "space-between", // Space inputs evenly
-    width: "80%", // Adjust container width
-    marginBottom: 20,
-  },
-  codeInput: {
-    width: 50, // Match input box width from the image
-    height: 50, // Match input box height from the image
-    backgroundColor: "#fff", // White background
-    color: "#000", // Black text color
-    textAlign: "center", // Center align text
-    fontSize: 20, // Adjust font size to match the design
-    fontWeight: "bold", // Bold text
-    borderRadius: 8, // Rounded corners
-    borderWidth: 2, // Add border
-    borderColor: "#B2DDF9", // Match border color when active
-    shadowColor: "#000", // Add shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 3, // Add elevation for shadow
-  },
-
   button: {
     backgroundColor: "#424242",
-    padding: 15,
-    borderRadius: 30,
-    width: "85%",
-    alignItems: "center",
-    marginVertical: 20,
+    paddingVertical: hp(2),
+    paddingHorizontal: wp(20),
+    borderRadius: wp(5),
+    marginTop: hp(2),
+    borderColor: "#B2DDF9",
+    borderWidth: 1,
   },
+  buttonPressed: { backgroundColor: "#525252" },
   buttonText: {
     color: "#B2DDF9",
+    fontSize: hp(2.5),
     fontWeight: "bold",
-    fontSize: 18,
-  },
-  resendText: {
-    color: "#B2DDF9",
-    fontSize: 14,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  resendLink: {
-    textDecorationLine: "underline",
-    fontWeight: "bold",
-  },
-  modalBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-  },
-  modalContainer: {
-    backgroundColor: "#fff", // Updated to white for better visibility
-    width: "75%",
-    padding: 25,
-    borderRadius: 20, // Added rounded corners
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  iconContainer: {
-    backgroundColor: "#B2DDF9",
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  checkIcon: {
-    fontSize: 32,
-    color: "#424242",
-  },
-  successTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#424242",
-    marginBottom: 10,
-  },
-  successMessage: {
-    fontSize: 16,
-    color: "#424242",
     textAlign: "center",
   },
-  errorTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FF0000", // لون النص أحمر
-    marginBottom: 10,
-  },
-  errorMessage: {
-    fontSize: 16,
-    color: "#424242",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  closeButton: {
-    backgroundColor: "#424242",
-    padding: 10,
-    borderRadius: 10,
+  inputContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    width: "50%",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: wp(7),
+    paddingHorizontal: wp(4),
+    marginVertical: hp(1.5),
+    width: "90%",
+    height: hp(7),
   },
-  closeButtonText: {
-    color: "#B2DDF9",
-    fontWeight: "bold",
-  },
+  input: { flex: 1, fontSize: hp(2), color: "#000", marginLeft: wp(3) },
+  icon: { marginRight: wp(2) },
 });
 
 export default VerifyEmailScreen;
