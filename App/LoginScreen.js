@@ -324,12 +324,12 @@ const LoginScreen = ({ navigation }) => {
             styles.button,
             pressed && styles.buttonPressed,
           ]}
-          onPress={() => navigation.navigate("FrontPage")}
-          accessibilityLabel="Navigate to the front page"
-          accessibilityHint="Navigates to the front page of the application"
+          onPress={() => navigation.navigate("SignUpScreen")}
+          accessibilityLabel="Navigate to the singup page"
+          accessibilityHint="Navigates to the singup page of the application"
           accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>Home Page</Text>
+          <Text style={styles.buttonText}>Sign Up</Text>
         </Pressable>
 
         {/* Modal for Login Errors */}
