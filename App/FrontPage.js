@@ -1,12 +1,22 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, ImageBackground, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ImageBackground,
+  Pressable,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 
-const FrontPage = ({navigation}) => {
+const FrontPage = ({ navigation }) => {
+  setTimeout(() => {
+    navigation.navigate("LoginSignupChoiceScreen");
+  }, 1000);
 
   return (
     <ImageBackground
@@ -33,7 +43,11 @@ const FrontPage = ({navigation}) => {
           onPress={() => navigation.navigate("LoginSignupChoiceScreen")}
           accessibilityLabel="Navigate to Login or Signup choice screen"
         >
-          <Ionicons name="arrow-forward-circle" size={Math.min(wp(20), hp(8))} color="#B2DDF9" />
+          <Ionicons
+            name="arrow-forward-circle"
+            size={Math.min(wp(20), hp(8))}
+            color="#B2DDF9"
+          />
         </Pressable>
       </View>
     </ImageBackground>
@@ -81,7 +95,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     opacity: 0.8,
     borderColor: "#B2DDF9",
-    borderWidth:1,
+    borderWidth: 1,
   },
   pressedStyle: {
     backgroundColor: "#525252",
