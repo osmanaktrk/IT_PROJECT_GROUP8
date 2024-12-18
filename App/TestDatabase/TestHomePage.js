@@ -10,6 +10,7 @@ import {
   Pressable,
   Animated,
   Easing,
+  TouchableOpacity
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
@@ -143,9 +144,9 @@ export default function App({ navigation }) {
     <View style={styles.container}>
       {/* Menü ve arama */}
       <View style={styles.header}>
-        <Pressable onPress={toggleAccountMenu}>
+        <TouchableOpacity onPress={toggleAccountMenu}>
           <Ionicons name="person-circle-outline" size={30} color="black" />
-        </Pressable>
+        </TouchableOpacity>
         <TextInput
           style={styles.searchInput}
           placeholder="Search for a location"
@@ -157,11 +158,11 @@ export default function App({ navigation }) {
         style={[styles.accountMenu, { transform: [{ translateX: slideAnim }] }]}
       >
         {/* Çarpı butonu */}
-        <Pressable style={styles.closeButton} onPress={toggleAccountMenu}>
+        <TouchableOpacity style={styles.closeButton} onPress={toggleAccountMenu}>
           <View style={styles.closeButtonContainer}>
             <Ionicons name="close" size={24} color="white" />
           </View>
-        </Pressable>
+        </TouchableOpacity>
 
         <View style={styles.topSection}>
           <Text style={styles.accountText}>User Menu</Text>
@@ -172,21 +173,25 @@ export default function App({ navigation }) {
             style={styles.avatar}
           />
         </View>
+        
         <View style={styles.middleSection}>
-          <Pressable style={styles.menuButton}>
+          <TouchableOpacity style={styles.menuButton}>
             <Text style={styles.menuButtonText}>Profile</Text>
-          </Pressable>
-          <Pressable style={styles.menuButton}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton} onPress={()=> navigation.navigate("TestProfilePage")}>
+            <Text style={styles.menuButtonText}>Update Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton}>
             <Text style={styles.menuButtonText}>My Points</Text>
-          </Pressable>
-          <Pressable style={styles.menuButton}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton}>
             <Text style={styles.menuButtonText}>Terms & Conditions</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
         <View style={styles.bottomSection}>
-          <Pressable style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutButtonText}>Log out</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </Animated.View>
 

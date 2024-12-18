@@ -12,7 +12,13 @@ import ConfirmPasswordResetScreen from './App/ConfirmPasswordResetScreen';
 import SignUpScreen from "./App/SignUpScreen";
 import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
+
+//test Pages
+
 import TestHomePage from './App/TestDatabase/TestHomePage';
+import TestProfilePage from './App/TestDatabase/TestProfilePage';
+
+//Test Pages
 import PointsInfo from './App/PointsInfo';
 import HistoryScreen from './App/HistoryScreen'; 
 
@@ -77,9 +83,13 @@ function App() {
         {/* HistoryScreen Page */}
         <Stack.Screen name="HistoryScreen" component={HistoryScreen} />
 
-        {/* Home Page */}
+        {/* Test Pages */}
         <Stack.Screen name="TestHomePage" component={TestHomePage} />
-        
+        <Stack.Screen name="TestProfilePage" component={TestProfilePage} />
+
+
+
+        {/* Test Pages */}
       </Stack.Navigator>
     </NavigationContainer>
   );
