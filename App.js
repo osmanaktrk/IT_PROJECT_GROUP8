@@ -14,6 +14,7 @@ import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
 import TestHomePage from './App/TestDatabase/TestHomePage';
 import PointsInfo from './App/PointsInfo';
+import HistoryScreen from './App/HistoryScreen'; 
 
 //import MyPoints from './App/MyPoints';
 const Stack = createStackNavigator();
@@ -71,6 +72,10 @@ function App() {
 
         {/* Home Page */}
         <Stack.Screen name="HomePage" component={HomePage} />
+
+
+        {/* HistoryScreen Page */}
+        <Stack.Screen name="HistoryScreen" component={HistoryScreen} />
 
         {/* Home Page */}
         <Stack.Screen name="TestHomePage" component={TestHomePage} />
