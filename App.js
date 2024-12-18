@@ -49,7 +49,7 @@ function App() {
 
         {/* TermsAndconditions Page */}
         <Stack.Screen
-          name="TermsConditions"
+          name="TermsAndConditions"
           component={TermsAndConditions}
         />
 

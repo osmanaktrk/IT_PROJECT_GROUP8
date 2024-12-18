@@ -200,7 +200,9 @@ export default function App({ navigation }) {
             <Text style={styles.menuButtonText}>History</Text>
           </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuButton}>
+            <TouchableOpacity style={styles.menuButton}
+            onPress={() => navigation.navigate("TermsAndConditions")}
+            >
               <Text style={styles.menuButtonText}>Terms & Conditions</Text>
             </TouchableOpacity>
             
