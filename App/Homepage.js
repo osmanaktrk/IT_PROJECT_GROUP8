@@ -206,9 +206,17 @@ export default function App({navigation}) {
             <TouchableOpacity style={styles.menuButton}>
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate("HistoryScreen")} // Navigate to the history page
+            >
+            <Text style={styles.menuButtonText}>History</Text>
+          </TouchableOpacity>
+
             <TouchableOpacity style={styles.menuButton}>
               <Text style={styles.menuButtonText}>Terms & Conditions</Text>
             </TouchableOpacity>
+            
           </View>
           <View style={styles.bottomSection}>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
