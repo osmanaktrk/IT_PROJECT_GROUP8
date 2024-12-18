@@ -66,8 +66,8 @@ export default function App({ navigation }) {
       const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
       const spots = querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        latitude: doc.data().geo.latitude,
-        longitude: doc.data().geo.longitude,
+        latitude: doc.data().coords.latitude,
+        longitude: doc.data().coords.longitude,
         title: doc.data().title || `Spot ${doc.id}`,
         status: doc.data().status,
       }));
