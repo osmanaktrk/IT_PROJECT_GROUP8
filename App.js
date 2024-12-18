@@ -13,6 +13,7 @@ import SignUpScreen from "./App/SignUpScreen";
 import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
 import TestHomePage from './App/TestDatabase/TestHomePage';
+import PointsInfo from './App/PointsInfo';
 
 //import MyPoints from './App/MyPoints';
 const Stack = createStackNavigator();
@@ -31,6 +32,12 @@ function App() {
         <Stack.Screen
           name="LoginSignupChoiceScreen"
           component={LoginSignupChoiceScreen}
+        />
+
+        {/* PointsInfo Page */}
+        <Stack.Screen
+          name="PointsInfo"
+          component={PointsInfo}
         />
 
         {/* TermsAndconditions Page */}
