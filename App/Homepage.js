@@ -103,7 +103,7 @@ export default function App({ navigation }) {
     }
   };
   const toggleAccountMenu = () => setShowAccountMenu(!showAccountMenu);
-  
+
   const goToLiveLocation = () => {
     if (liveLocation) {
       setMapLocation({ ...liveLocation, latitudeDelta: 0.03, longitudeDelta: 0.03 });
@@ -150,7 +150,6 @@ export default function App({ navigation }) {
             onChangeText={(text) => setSearchQuery(text)}
           />
           <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
-          <Button title="Ga naar mijn locatie" onPress={goToLiveLocation} />
         </View>
       )}
 
@@ -209,6 +208,16 @@ export default function App({ navigation }) {
         </View>
       )}
 
+      <TouchableOpacity 
+        onPress={goToLiveLocation} 
+        style={styles.locationButton}
+      >
+        <Image 
+          source={require("../assets/MyLocationMarker.png")} // Pas de afbeelding aan naar jouw bestand
+          style={styles.locationButtonImage}
+        />
+      </TouchableOpacity>
+
       <MapView ref={mapRef} style={styles.map} region={mapLocation}>
         {liveLocation && (
           <Marker coordinate={liveLocation}>
@@ -234,7 +243,7 @@ export default function App({ navigation }) {
       </MapView>
 
       {!showAccountMenu && (
-        <FlatList
+       <FlatList
           data={markers}
           keyExtractor={(item) => item.id.toString()}
           style={styles.list}
@@ -247,7 +256,7 @@ export default function App({ navigation }) {
               />
             </View>
           )}
-        />
+        /> 
       )}
     </View>
   );
@@ -376,5 +385,17 @@ const styles = StyleSheet.create({
     width: 50, 
     height: 50, 
     resizeMode: "contain", // keep the ratio the same
+  },
+
+  locationButton: {
+    position: "absolute",
+    bottom: 20, // Zet de knop 20 eenheden van de onderkant
+    left: 10,  // Zet de knop 10 eenheden van de linkerkant
+    zIndex: 1, // Zorg ervoor dat de knop boven andere componenten komt
+  },
+  locationButtonImage: {
+    width: 60, // Pas de grootte van de afbeelding aan
+    height: 60,
+    resizeMode: "contain", // Behoud de beeldverhouding
   },
 });
