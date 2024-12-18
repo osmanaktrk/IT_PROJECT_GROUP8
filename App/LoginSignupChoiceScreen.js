@@ -5,11 +5,18 @@ import {
   StyleSheet,
   ImageBackground,
   Pressable,
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { firebaseAuth } from "../FirebaseConfig";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { useState, useEffect } from "react";
 
 const ChoiceButton = ({ title, onPress, accessibilityLabel, accessibilityHint }) => (
   <Pressable
@@ -23,6 +30,66 @@ const ChoiceButton = ({ title, onPress, accessibilityLabel, accessibilityHint })
 );
 
 const LoginSignupChoiceScreen = ({navigation}) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check user authendication status
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) {
+        navigation.replace("HomePage");
+      } else {
+        setIsLoading(false);
+      }
+    });
+    return unsubscribe; // Cleanup on unmount
+  }, [navigation]);
+
+  // Check if the user is already logged in when the app starts
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      const savedEmail = await AsyncStorage.getItem("userEmail");
+      const savedPassword = await AsyncStorage.getItem("userPassword");
+      const keepLoggedIn = await AsyncStorage.getItem("keepLoggedIn");
+      
+
+      if (keepLoggedIn === 'true' && savedEmail && savedPassword) {
+        try {
+          const userCredential = await signInWithEmailAndPassword(
+            firebaseAuth,
+            savedEmail,
+            savedPassword
+          );
+          const user = userCredential.user;
+          Alert.alert(
+            "Welcome Back",
+            `You are logged in as ${user.displayName}`
+          );
+          navigation.replace("HomePage");
+        } catch (error) {
+          Alert.alert(
+            "Auto-login failed",
+            "Please log in again."
+          );
+
+          //console.error("Auto-login failed:", error.message);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkUserStatus();
+  }, [navigation]);
+
+  // Show loading indicator while checking authentication state
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#B2DDF9" />
+      </View>
+    );
+  }
+
+
 
   return (
     <ImageBackground
