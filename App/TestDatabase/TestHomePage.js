@@ -1,149 +1,336 @@
-//*****************************************************************************
-//
-//This page was created to test database connections. Do not make any changes.
-//
-//
-//****************************************************************************
+// import React, { useState, useEffect, useRef } from "react";
+// import {
+//   StyleSheet,
+//   View,
+//   TextInput,
+//   TouchableOpacity,
+//   Dimensions,
+//   Text,
+//   Alert,
+//   ActivityIndicator,
+//   Image,
+//   FlatList,
+// } from "react-native";
+// import MapView, { Marker, Callout } from "react-native-maps";
+// import * as Location from "expo-location";
+// import { Ionicons } from "@expo/vector-icons";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+// import { firebaseAuth } from "../../FirebaseConfig";
+// import { signOut } from "firebase/auth";
+
+// export default function App({ navigation }) {
+
+  
+
+//   useEffect(() => {
+//     Alert.alert('TestHomePage', 'TestHomePage');
+//   }, [])
+    
+//   const [userLocation, setUserLocation] = useState(null);
+//   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+//   const [spotsDatabase, setSpotsDatabase] = useState([]);
+
+//     // Default Location
+
+  
+
+//   // Function to fetch user's current location
+//   const fetchUserLocation = async () => {
+//     setIsFetchingLocation(true); // Start fetching location
+//     try {
+//       // Request location permission from the user
+//       const { status } = await Location.requestForegroundPermissionsAsync();
+//       if (status !== "granted") {
+//         Alert.alert(
+//           "Permission Denied",
+//           "Location permission is required to show your location on the map."
+//         );
+//         setIsFetchingLocation(false);
+//         return;
+//       }
+
+//       // Get the user's current location
+//       const location = await Location.getCurrentPositionAsync({
+//         accuracy: Location.Accuracy.High,
+//       });
+
+//       // Set the user's location state
+//       setUserLocation({
+//         latitude: location.coords.latitude,
+//         longitude: location.coords.longitude,
+//         latitudeDelta: 0.03,
+//         longitudeDelta: 0.03,
+//       });
+
+//       // Move the map view to the user's location
+//       if (mapRef.current) {
+//         mapRef.current.animateToRegion({
+//           latitude: location.coords.latitude,
+//           longitude: location.coords.longitude,
+//           latitudeDelta: 0.03,
+//           longitudeDelta: 0.03,
+//         });
+//       }
+//     } catch (error) {
+//       Alert.alert("Error", `Failed to fetch location: ${error.message}`);
+//     } finally {
+//       setIsFetchingLocation(false); // Stop loading
+//     }
+//   };
+
+//   // Function to fetch spots data from Firestore
+//   const fetchSpots = async () => {
+//     try {
+//       // Fetch data from the "spots" collection
+//       const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
+//       const spots = [];
+//       querySnapshot.forEach((doc) => {
+//         const data = doc.data();
+//         spots.push({
+//           id: doc.id,
+//           latitude: data.geo.latitude,
+//           longitude: data.geo.longitude,
+//           title: data.title || `Spot ${doc.id}`,
+//           status: data.status,
+//           price: data.price,
+//         });
+//       });
+//       setSpotsDatabase(spots); // Update the spots state
+//     } catch (error) {
+//       Alert.alert("Error", `Failed to load spots: ${error.message}`);
+//     }
+//   };
+
+//   // Fetch user's location and Firestore spots data when the component mounts
+//   useEffect(() => {
+//     fetchUserLocation();
+//     fetchSpots();
+//   }, []);
 
 
-import React, { useState, useRef, useEffect } from "react";
+
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [debouncedQuery, setDebouncedQuery] = useState("");
+//   const [liveLocation, setLiveLocation] = useState(null);
+//   const [location, setLocation] = useState({
+//     latitude: 50.8503,
+//     longitude: 4.3517,
+//     latitudeDelta: 0.03,
+//     longitudeDelta: 0.03,
+//   });
+//   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  
+//   const mapRef = useRef(null);
+
+//   // Debounced query için zamanlayıcı
+//   useEffect(() => {
+//     const handler = setTimeout(() => setDebouncedQuery(searchQuery), 1000);
+//     return () => clearTimeout(handler);
+//   }, [searchQuery]);
+
+//   // Debounced query tetikleyici
+//   useEffect(() => {
+//     if (debouncedQuery.trim() !== "") searchLocation(debouncedQuery);
+//   }, [debouncedQuery]);
+
+//   // Kullanıcı konum izleme
+//   useEffect(() => {
+//     (async () => {
+//       const { status } = await Location.requestForegroundPermissionsAsync();
+//       if (status !== "granted") {
+//         Alert.alert(
+//           "Location Access Denied",
+//           "Enable location access to use your current location."
+//         );
+//         return;
+//       }
+//       Location.watchPositionAsync(
+//         { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
+//         (loc) => {
+//           const { latitude, longitude } = loc.coords;
+//           setLiveLocation({ latitude, longitude });
+//           setLocation((prev) => ({ ...prev, latitude, longitude }));
+//         }
+//       );
+//     })();
+//   }, []);
+
+//   // Lokasyon arama
+//   const searchLocation = async (query) => {
+//     try {
+//       const response = await fetch(
+//         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+//           query
+//         )}&format=json&addressdetails=1&limit=1`,
+//         {
+//           headers: { "User-Agent": "ReactNativeApp/1.0 (https://example.com)" },
+//         }
+//       );
+//       if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+//       const data = await response.json();
+//       if (data.length === 0) {
+//         Alert.alert("No Results", "Try a different location.");
+//         return;
+//       }
+//       const coords = {
+//         latitude: parseFloat(data[0].lat),
+//         longitude: parseFloat(data[0].lon),
+//         latitudeDelta: 0.03,
+//         longitudeDelta: 0.03,
+//       };
+//       setLocation(coords);
+//     } catch (error) {
+//       Alert.alert("Error", `Failed to fetch location: ${error.message}`);
+//     }
+//   };
+
+//   // Hesap menüsü geçişi
+//   const toggleAccountMenu = () => setShowAccountMenu(!showAccountMenu);
+
+//   // Log out işlemi
+//   const handleLogout = async () => {
+//     try {
+//       await AsyncStorage.clear();
+//       await signOut(firebaseAuth);
+//       Alert.alert("Success", "You have been logged out.");
+//       navigation.replace("FrontPage");
+//     } catch (error) {
+//       Alert.alert("Logout Failed", `Error: ${error.message}`);
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       {/* Arama ve hesap menüsü */}
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={toggleAccountMenu}>
+//           <Ionicons name="person-circle-outline" size={40} color="black" />
+//         </TouchableOpacity>
+//         <TextInput
+//           style={styles.searchInput}
+//           placeholder="Search for a location"
+//           value={searchQuery}
+//           onChangeText={setSearchQuery}
+//         />
+//       </View>
+
+//       {showAccountMenu && (
+//         <View style={styles.accountMenu}>
+//           <TouchableOpacity style={styles.menuButton} onPress={handleLogout}>
+//             <Ionicons name="log-out-outline" size={24} color="red" />
+//             <Text style={styles.menuButtonText}>Log out</Text>
+//           </TouchableOpacity>
+//         </View>
+//       )}
+
+//       {/* Harita görünümü */}
+//       <MapView ref={mapRef} style={styles.map} region={location}>
+//         {/* Kullanıcı konumu */}
+//         {liveLocation && (
+//           <Marker
+//             coordinate={liveLocation}
+//             title="Your Location"
+//           >
+//             <Image
+//               source={require("../../assets/car.png")}
+//               style={styles.markerImage}
+//               resizeMode="contain"
+//             />
+//           </Marker>
+//         )}
+//       </MapView>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//   },
+//   header: {
+//     position: "absolute",
+//     top: 20,
+//     left: 10,
+//     right: 10,
+//     zIndex: 1,
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "space-between",
+//   },
+//   searchInput: {
+//     flex: 1,
+//     height: 40,
+//     borderColor: "#ccc",
+//     borderWidth: 1,
+//     borderRadius: 5,
+//     marginLeft: 10,
+//     paddingHorizontal: 10,
+//     backgroundColor: "#fff",
+//   },
+//   map: {
+//     flex: 1,
+//   },
+//   accountMenu: {
+//     position: "absolute",
+//     top: 70,
+//     left: 10,
+//     right: 10,
+//     zIndex: 2,
+//     backgroundColor: "white",
+//     borderRadius: 10,
+//     padding: 10,
+//   },
+//   menuButton: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     padding: 10,
+//     borderRadius: 5,
+//     marginBottom: 10,
+//     backgroundColor: "#f5f5f5",
+//   },
+//   menuButtonText: {
+//     marginLeft: 10,
+//     color: "red",
+//     fontWeight: "bold",
+//   },
+//   markerImage: {
+//     width: 40,
+//     height: 40,
+//   },
+// });
+
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
   TextInput,
-  Button,
-  FlatList,
+  TouchableOpacity,
+  Alert,
   Dimensions,
   Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
   Image,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
-
-//********** For Authentication and Database ***************
 import * as Location from "expo-location";
-import { firebaseAuth, firestoreDB } from "../../FirebaseConfig";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  signOut,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
+import { firebaseAuth } from "../../FirebaseConfig";
+import { signOut } from "firebase/auth";
+import { getDocs, collection } from "firebase/firestore";
+import { firestoreDB } from "../../FirebaseConfig";
 
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-} from "firebase/firestore";
-
-//********** For Authentication and Database ***************
-
-export default function TestHomePage({ navigation }) {
+export default function App({ navigation }) {
+  const [userLocation, setUserLocation] = useState(null);
+  const [spotsDatabase, setSpotsDatabase] = useState([]);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [location, setLocation] = useState({
-    latitude: 50.8503, // standaard locatie
-    longitude: 4.3517,
-    latitudeDelta: 0.03,
-    longitudeDelta: 0.03,
-  });
-
-  
-  const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
-  const [showUpdateProfile, setShowUpdateProfile] = useState(false); // Voor update profiel
   const mapRef = useRef(null);
 
-  const markers = [
-    {
-      id: 1,
-      geo: { latitude: 50.8466, longitude: 4.3528 },
-      title: "Grote Markt",
-      price: 10,
-      status: "available",
-    },
-    {
-      id: 2,
-      geo: { latitude: 50.8503, longitude: 4.3497 },
-      title: "Manneken Pis",
-      price: 0,
-      status: "unavailable",
-    },
-    {
-      id: 3,
-      geo: { latitude: 50.8456, longitude: 4.3572 },
-      title: "Koninklijke Sint-Hubertusgalerijen",
-      price: 7.5,
-      status: "available",
-    },
-    {
-      id: 4,
-      geo: { latitude: 50.8505, longitude: 4.3488 },
-      title: "Stadhuis van Brussel",
-      price: 3.5,
-      status: "unavailable",
-    },
-  ];
-
-  const toggleAccountMenu = () => {
-    setShowAccountMenu(!showAccountMenu);
-    setShowUpdateProfile(false);
-  };
-
-
-  const fitAllMarkers = () => {
-    if (mapRef.current && markers.length > 0) {
-      const coordinates = markers.map((marker) => ({
-        latitude: marker.geo.latitude,
-        longitude: marker.geo.longitude,
-      }));
-      mapRef.current.fitToCoordinates(coordinates, {
-        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-        animated: true,
-      });
-    }
-  };
-
-  const navigateToMarker = (latitude, longitude) => {
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude,
-          longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        1000 // Animatie duur in milliseconden
-      );
-    }
-  };
-
-  // *************** For Database ******************
-  const [userLocation, setUserLocation] = useState(null);
-  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
-  const [spotsDatabase, setSpotsDatabase] = useState([]);
-
-    // Default Location
-    const defaultLocation = {
-      latitude: 50.8503,
-      longitude: 4.3517,
-      latitudeDelta: 0.03,
-      longitudeDelta: 0.03,
-    };
-  
-
-  // Function to fetch user's current location
+  // Kullanıcı konumunu alma
   const fetchUserLocation = async () => {
-    setIsFetchingLocation(true); // Start fetching location
+    setIsFetchingLocation(true);
     try {
-      // Request location permission from the user
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
@@ -154,12 +341,10 @@ export default function TestHomePage({ navigation }) {
         return;
       }
 
-      // Get the user's current location
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High,
       });
 
-      // Set the user's location state
       setUserLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -167,7 +352,7 @@ export default function TestHomePage({ navigation }) {
         longitudeDelta: 0.03,
       });
 
-      // Move the map view to the user's location
+      // Haritayı kullanıcı konumuna odakla
       if (mapRef.current) {
         mapRef.current.animateToRegion({
           latitude: location.coords.latitude,
@@ -179,14 +364,13 @@ export default function TestHomePage({ navigation }) {
     } catch (error) {
       Alert.alert("Error", `Failed to fetch location: ${error.message}`);
     } finally {
-      setIsFetchingLocation(false); // Stop loading
+      setIsFetchingLocation(false);
     }
   };
 
-  // Function to fetch spots data from Firestore
+  // Firestore'dan marker verilerini çekme
   const fetchSpots = async () => {
     try {
-      // Fetch data from the "spots" collection
       const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
       const spots = [];
       querySnapshot.forEach((doc) => {
@@ -200,216 +384,58 @@ export default function TestHomePage({ navigation }) {
           price: data.price,
         });
       });
-      setSpotsDatabase(spots); // Update the spots state
+      setSpotsDatabase(spots);
     } catch (error) {
       Alert.alert("Error", `Failed to load spots: ${error.message}`);
     }
   };
 
-  // Fetch user's location and Firestore spots data when the component mounts
   useEffect(() => {
     fetchUserLocation();
     fetchSpots();
   }, []);
 
-  // *************** For Database ******************
+  // Hesap menüsü kontrolü
+  const toggleAccountMenu = () => setShowAccountMenu(!showAccountMenu);
 
-  //********** For Authentication ***************
-  //Test Logout
-
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
+  // Çıkış yapma işlemi
   const handleLogout = async () => {
-    setIsLoggingOut(true);
     try {
       await AsyncStorage.clear();
       await signOut(firebaseAuth);
       Alert.alert("Success", "You have been logged out.");
       navigation.replace("FrontPage");
     } catch (error) {
-      Alert.alert("Logout Failed", `An error occurred: ${error.message}`);
-    } finally {
-      setIsLoggingOut(false);
+      Alert.alert("Logout Failed", `Error: ${error.message}`);
     }
   };
 
-  // Inside the render method:
-  {
-    isLoggingOut && <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
-  //Test delete Account
-
-  // Reauthenticate the user
-  const reauthenticate = async (email, password) => {
-    try {
-      const user = firebaseAuth.currentUser;
-      const credential = EmailAuthProvider.credential(email, password);
-      await reauthenticateWithCredential(user, credential);
-      return true;
-    } catch (error) {
-      Alert.alert("Reauthentication Failed", error.message);
-      return false;
-    }
-  };
-
-  // Delete the user account
-  const handleDeleteAccount = async () => {
-    try {
-      const user = firebaseAuth.currentUser;
-
-      // Optional: Ask the user to confirm their password if needed
-      const email = user.email;
-      const password = "USER_PASSWORD_HERE"; // Get the password from user input
-      const isReauthenticated = await reauthenticate(email, password);
-
-      if (isReauthenticated) {
-        await user.delete(); // Delete the user account
-        Alert.alert(
-          "Account Deleted",
-          "Your account has been successfully deleted."
-        );
-        navigation.replace("FrontPage"); // Navigate to the home or landing page
-      }
-    } catch (error) {
-      Alert.alert("Account Deletion Failed", error.message);
-    }
-  };
-
-  const [username, setUsername] = useState("Guest");
-  useEffect(() => {
-    const user = firebaseAuth.currentUser;
-
-    if (user) {
-      setUsername(user.displayName || "User");
-    } else {
-      setUsername("Guest");
-    }
-  }, []);
-
-  //********** For Authentication ***************
-
-
-
-
-
-
-
-  
   return (
     <View style={styles.container}>
-      {/* Test Authendication */}
-      <View style={styles.testAuthendicationContainer}>
-        <Text> {username}</Text>
-        {/* Test Logout */}
-        <Button title="Test Logout" onPress={handleLogout} />
-        {/* Test Delete Account */}
-        <Button
-          title="Test Delete Account"
-          onPress={handleDeleteAccount}
-          color="red"
+      {/* Arama ve Hesap Menüsü */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={toggleAccountMenu}>
+          <Ionicons name="person-circle-outline" size={40} color="black" />
+        </TouchableOpacity>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search for a location"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
       </View>
 
-      {/* Zoek en knop */}
-      {!showAccountMenu && (
-        <View style={styles.searchContainer}>
-          <TouchableOpacity onPress={toggleAccountMenu}>
-            <Ionicons name="person-circle-outline" size={40} color="black" />
+      {/* Hesap Menüsü */}
+      {showAccountMenu && (
+        <View style={styles.accountMenu}>
+          <TouchableOpacity style={styles.menuButton} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color="red" />
+            <Text style={styles.menuButtonText}>Log out</Text>
           </TouchableOpacity>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Zoek een locatie"
-            value={searchQuery}
-            onChangeText={(text) => setSearchQuery(text)}
-          />
-          <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
         </View>
       )}
 
-      {/* Zijmenu voor account */}
-      {showAccountMenu && !showUpdateProfile && (
-        <View style={styles.accountMenu}>
-          <View style={styles.topSection}>
-            <Text style={styles.accountText}>Name</Text>
-          </View>
-
-          <View style={styles.middleSection}>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => setShowUpdateProfile(true)}
-            >
-              <Text style={styles.menuButtonText}>Update Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
-              <Text style={styles.menuButtonText}>My Points</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => navigation.navigate("TermsConditions")}
-            >
-              <Text style={styles.menuButtonText}>Terms & Conditions</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.bottomSection}>
-            <TouchableOpacity style={styles.logoutButton}>
-              <Text style={styles.logoutButtonText}>Log out</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={toggleAccountMenu}>
-              <Text style={styles.closeButton}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-      {/* Update profiel */}
-      {showUpdateProfile && (
-        <View style={styles.accountMenu}>
-          <View style={styles.topSection}>
-            <Text style={styles.accountText}>Update Profile</Text>
-          </View>
-
-          <View style={styles.middleSection}>
-            <TextInput
-              style={styles.inputField}
-              placeholder="Name"
-              placeholderTextColor="gray"
-            />
-            <TextInput
-              style={styles.inputField}
-              placeholder="E-mail"
-              placeholderTextColor="gray"
-            />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Phone number"
-              placeholderTextColor="gray"
-            />
-          </View>
-
-          <View style={styles.bottomSection}>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={toggleAccountMenu}
-            >
-              <Text style={styles.menuButtonText}>Done</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => setShowUpdateProfile(false)}
-            >
-              <Text style={styles.menuButtonText}>Back to menu</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-      {/* Kaartweergave */}
-      {/* Button to update user's location */}
-      <Button title="Update Location" onPress={fetchUserLocation} />
-
-      {/* MapView to display the map and markers */}
+      {/* Harita */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -422,24 +448,18 @@ export default function TestHomePage({ navigation }) {
           }
         }
       >
-        {/* User's current location */}
+        {/* Kullanıcı Konumu */}
         {userLocation && (
-        <Marker
-          coordinate={{
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-          }}
-          title="Your Location"
-        >
-          <Image
-            source={require('../../assets/car.png')}
-            style={{ width: 50, height: 50 }} 
-            resizeMode="contain" // Zorgt ervoor dat de aspect ratio behouden blijft
-          />
-        </Marker>
-)}
+          <Marker coordinate={userLocation} title="Your Location">
+            <Image
+              source={require("../../assets/car.png")}
+              style={styles.markerImage}
+              resizeMode="contain"
+            />
+          </Marker>
+        )}
 
-        {/* Firestore spots */}
+        {/* Firestore Marker'ları */}
         {spotsDatabase.map((spot) => (
           <Marker
             key={`spot-${spot.id}`}
@@ -451,43 +471,7 @@ export default function TestHomePage({ navigation }) {
             pinColor={spot.status === "available" ? "green" : "red"}
           />
         ))}
-
-        {/* Static markers */}
-        {markers.map((marker) => (
-          <Marker
-            key={`marker-${marker.id}`}
-            coordinate={{
-              latitude: marker.geo.latitude, // Ensure the latitude is in geo property
-              longitude: marker.geo.longitude,
-            }}
-            title={marker.title}
-            pinColor={marker.status === "available" ? "blue" : "orange"}
-          />
-        ))}
       </MapView>
-
-      {/* Activity indicator for location fetching */}
-      {isFetchingLocation && (
-        <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
-      )}
-
-      {/* Lijst van markers */}
-      {!showAccountMenu && (
-        <FlatList
-          data={markers}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.list}
-          renderItem={({ item }) => (
-            <View style={styles.listItem}>
-              <Text style={styles.listText}>{item.title}</Text>
-              <Button
-                title="Zoom"
-                onPress={() => navigateToMarker(item.latitude, item.longitude)}
-              />
-            </View>
-          )}
-        />
-      )}
     </View>
   );
 }
@@ -496,17 +480,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  searchContainer: {
+  header: {
     position: "absolute",
-    top: 70,
+    top: 20,
     left: 10,
     right: 10,
-    backgroundColor: "white",
-    borderRadius: 10,
+    zIndex: 1,
     flexDirection: "row",
     alignItems: "center",
-    paddingRight: 10,
-    zIndex: 1,
+    justifyContent: "space-between",
   },
   searchInput: {
     flex: 1,
@@ -514,110 +496,38 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
-    marginRight: 10,
+    marginLeft: 10,
     paddingHorizontal: 10,
+    backgroundColor: "#fff",
   },
   map: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
+    flex: 1,
   },
   accountMenu: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    width: "60%",
-    height: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    top: 70,
+    left: 10,
+    right: 10,
     zIndex: 2,
-    padding: 20,
-  },
-  topSection: {
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  middleSection: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  bottomSection: {
-    alignItems: "center",
-    marginBottom: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
   },
   menuButton: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginVertical: 5,
+    flexDirection: "row",
     alignItems: "center",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    backgroundColor: "#f5f5f5",
   },
   menuButtonText: {
-    color: "black",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  logoutButton: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginVertical: 5,
-    alignItems: "center",
-  },
-  logoutButtonText: {
+    marginLeft: 10,
     color: "red",
-    fontSize: 16,
     fontWeight: "bold",
   },
-  closeButton: {
-    fontSize: 18,
-    color: "black",
-    marginTop: 10,
-    textAlign: "center",
-  },
-  accountText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  inputField: {
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: 5,
-  },
-  list: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "white",
-    maxHeight: 200,
-  },
-  listItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  listText: {
-    flex: 1,
-  },
-  testAuthendicationContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-  },
-  loader: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    marginLeft: -25,
-    marginTop: -25,
-    zIndex: 1,
+  markerImage: {
+    width: 40,
+    height: 40,
   },
 });
