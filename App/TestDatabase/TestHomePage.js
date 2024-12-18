@@ -70,6 +70,7 @@ export default function App({ navigation }) {
         longitude: doc.data().coords.longitude,
         title: doc.data().title || `Spot ${doc.id}`,
         status: doc.data().status,
+        timestamp : doc.data().timestamp,
       }));
       setSpotsDatabase(spots);
     } catch (error) {
