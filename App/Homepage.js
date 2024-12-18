@@ -272,8 +272,18 @@ export default function App({ navigation }) {
             longitude: spot.longitude,
           }}
           title={spot.title}
-          pinColor={spot.status === "available" ? "green" : "red"}
         >
+          {/* Gebruik aangepaste afbeelding afhankelijk van de status */}
+    <View style={styles.markerContainer}>
+      <Image
+        source={
+          spot.status === "available"
+            ? require("../assets/available.png")
+            : require("../assets/notAvailable.png")
+        }
+        style={styles.markerImage}
+      />
+    </View>
           <Callout>
             <View>
               <Text>{spot.title}</Text>
