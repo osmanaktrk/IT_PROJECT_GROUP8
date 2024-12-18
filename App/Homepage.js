@@ -41,6 +41,7 @@ export default function App({ navigation }) {
         latitude: doc.data().coords.latitude,
         longitude: doc.data().coords.longitude,
         title: doc.data().title || `Spot ${doc.id}`,
+        price: doc.data().price || "Onbekend",
         status: doc.data().status,
       }));
       setSpotsDatabase(spots);
@@ -265,18 +266,26 @@ export default function App({ navigation }) {
         {/* Firestore marker */}
         {spotsDatabase.map((spot) => (
           <Marker
-            key={spot.id}
-            coordinate={{
-              latitude: spot.latitude,
-              longitude: spot.longitude,
-            }}
-            title={spot.title}
-            pinColor={spot.status === "available" ? "green" : "red"}
-          />
-        ))}
+          key={spot.id}
+          coordinate={{
+            latitude: spot.latitude,
+            longitude: spot.longitude,
+          }}
+          title={spot.title}
+          pinColor={spot.status === "available" ? "green" : "red"}
+        >
+          <Callout>
+            <View>
+              <Text>{spot.title}</Text>
+              <Text>Prijs: {spot.price} EUR</Text>
+              <Text>Status: {spot.status}</Text>
+            </View>
+          </Callout>
+        </Marker>
+      ))}
       </MapView>
 
-      {!showAccountMenu && (
+      {/*{!showAccountMenu && (
        <FlatList
           data={markers}
           keyExtractor={(item) => item.id.toString()}
@@ -291,7 +300,7 @@ export default function App({ navigation }) {
             </View>
           )}
         /> 
-      )}
+      )}*/}
     </View>
   );
 }
@@ -423,8 +432,8 @@ const styles = StyleSheet.create({
 
   locationButton: {
     position: "absolute",
-    bottom: 20, // Zet de knop 20 eenheden van de onderkant
-    left: 10,  // Zet de knop 10 eenheden van de linkerkant
+    bottom: 40, // Zet de knop 20 eenheden van de onderkant
+    left: 30,  // Zet de knop 10 eenheden van de linkerkant
     zIndex: 1, // Zorg ervoor dat de knop boven andere componenten komt
   },
   locationButtonImage: {
