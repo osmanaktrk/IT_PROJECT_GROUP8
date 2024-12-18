@@ -24,7 +24,9 @@ export default function App({ navigation }) {
   const [userLocation, setUserLocation] = useState(null);
   const [spotsDatabase, setSpotsDatabase] = useState([]);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-Dimensions.get("window").width * 0.6)).current; // Menü animasyonu için
+  const slideAnim = useRef(
+    new Animated.Value(-Dimensions.get("window").width * 0.6)
+  ).current; // Menü animasyonu için
   const mapRef = useRef(null);
 
   // Kullanıcı konumunu alma
@@ -70,7 +72,7 @@ export default function App({ navigation }) {
         longitude: doc.data().coords.longitude,
         title: doc.data().title || `Spot ${doc.id}`,
         status: doc.data().status,
-        timestamp : doc.data().timestamp,
+        timestamp: doc.data().timestamp,
       }));
       setSpotsDatabase(spots);
     } catch (error) {
@@ -82,6 +84,38 @@ export default function App({ navigation }) {
     fetchUserLocation();
     fetchSpots();
   }, []);
+
+
+
+
+  //Update document
+
+  // example code
+  const handleUpdateSpot = () => {
+    
+    const spotId = "spot123"; 
+  
+    // updated spot informations
+    const updatedData = {
+      title: "Updated Spot Title",
+      status: "unavailable",
+      timestamp: new Date().toISOString(),
+      //timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+  
+    updateSpot(spotId, updatedData);
+  };
+  
+  const updateSpot = async (spotId, updatedData) => {
+    try {
+      const spotRef = doc(firestoreDB, "spots", spotId);
+
+      await updateDoc(spotRef, updatedData);
+      Alert.alert("Success", "Spot has been updated successfully.");
+    } catch (error) {
+      Alert.alert("Error", `Failed to update spot: ${error.message}`);
+    }
+  };
 
   // Menü açma/kapama
   const toggleAccountMenu = () => {
@@ -112,15 +146,20 @@ export default function App({ navigation }) {
         <Pressable onPress={toggleAccountMenu}>
           <Ionicons name="person-circle-outline" size={30} color="black" />
         </Pressable>
-        <TextInput style={styles.searchInput} placeholder="Search for a location" />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search for a location"
+        />
       </View>
 
       {/* Sol taraftan açılan menü */}
-      <Animated.View style={[styles.accountMenu, { transform: [{ translateX: slideAnim }] }]}>
+      <Animated.View
+        style={[styles.accountMenu, { transform: [{ translateX: slideAnim }] }]}
+      >
         {/* Çarpı butonu */}
         <Pressable style={styles.closeButton} onPress={toggleAccountMenu}>
           <View style={styles.closeButtonContainer}>
-          <Ionicons name="close" size={24} color="white" />
+            <Ionicons name="close" size={24} color="white" />
           </View>
         </Pressable>
 
@@ -128,7 +167,10 @@ export default function App({ navigation }) {
           <Text style={styles.accountText}>User Menu</Text>
         </View>
         <View style={styles.avatarContainer}>
-          <Image source={require("../../assets/Profile.png")} style={styles.avatar} />
+          <Image
+            source={require("../../assets/Profile.png")}
+            style={styles.avatar}
+          />
         </View>
         <View style={styles.middleSection}>
           <Pressable style={styles.menuButton}>
@@ -164,7 +206,10 @@ export default function App({ navigation }) {
         {/* Kullanıcı konumu */}
         {userLocation && (
           <Marker coordinate={userLocation} title="Your Location">
-            <Image source={require("../../assets/car.png")} style={styles.markerImage} />
+            <Image
+              source={require("../../assets/car.png")}
+              style={styles.markerImage}
+            />
           </Marker>
         )}
 
@@ -222,8 +267,8 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 5,
   },
-  closeButtonContainer:{
-    borderColor :"red",
+  closeButtonContainer: {
+    borderColor: "red",
     padding: 2,
     borderWidth: 2,
     borderRadius: 8,
@@ -232,23 +277,21 @@ const styles = StyleSheet.create({
   closeButton: {
     alignSelf: "flex-end",
     marginBottom: 20,
-    
   },
   topSection: {
     marginBottom: 20,
     alignItems: "center",
   },
-  avatarContainer:{
+  avatarContainer: {
     marginBottom: 20,
     alignItems: "center",
-    width: '100%',
-    justifyContent: 'center',
-
+    width: "100%",
+    justifyContent: "center",
   },
-  avatar:{
-    width: '80%',
+  avatar: {
+    width: "80%",
     height: 150,
-    borderRadius:20,
+    borderRadius: 20,
   },
   middleSection: {
     flex: 1,
@@ -280,6 +323,4 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  
-  
 });
