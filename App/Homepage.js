@@ -1,29 +1,26 @@
-import React, { useState, useRef } from "react";
-import {
-  StyleSheet,
-  View,
-  TextInput,
-  Button,
-  FlatList,
-  Dimensions,
-  Text,
-  TouchableOpacity,
-} from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
+import React, { useState, useEffect, useRef, } from "react";
+import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image, TouchableOpacity, FlatList } from "react-native";
+import MapView, { Marker, Callout } from "react-native-maps";
+import * as Location from "expo-location";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function HomePage({ navigation }) {
+export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
-    latitude: 50.8503, // standaard locatie
+    latitude: 50.8503,
     longitude: 4.3517,
     latitudeDelta: 0.03,
     longitudeDelta: 0.03,
   });
-  const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
-  const [showUpdateProfile, setShowUpdateProfile] = useState(false); // Voor update profiel
-  const mapRef = useRef(null);
+  const [locationName, setLocationName] = useState("Brussel");
+  const [liveLocation, setLiveLocation] = useState(null);
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [showUpdateProfile, setShowUpdateProfile] = useState(false);
 
+  const mapRef = useRef(null);
+  // some markers 
   const markers = [
     {
       id: 1,
@@ -59,41 +56,94 @@ export default function HomePage({ navigation }) {
     },
   ];
 
-  const toggleAccountMenu = () => {
-    setShowAccountMenu(!showAccountMenu);
-    setShowUpdateProfile(false);
-  };
+  // automaticly enter the search after 1 second
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedQuery(searchQuery), 1000);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
-  const fitAllMarkers = () => {
-    if (mapRef.current && markers.length > 0) {
-      const coordinates = markers.map((marker) => ({
-        latitude: marker.latitude,
-        longitude: marker.longitude,
-      }));
-      mapRef.current.fitToCoordinates(coordinates, {
-        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-        animated: true,
-      });
-    }
-  };
+  useEffect(() => {
+    if (debouncedQuery.trim() !== "") searchLocation(debouncedQuery);
+  }, [debouncedQuery]);
 
-  const navigateToMarker = (latitude, longitude) => {
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Locatietoegang geweigerd",
+          "Schakel locatietoegang in om je huidige locatie te gebruiken."
+        );
+        return;
+      }
+      setPermissionGranted(true);
+
+      Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
+        (loc) => {
+          const { latitude, longitude } = loc.coords;
+          setLiveLocation({ latitude, longitude });
+          setLocation((prev) => ({ ...prev, latitude, longitude }));
+        }
+      );
+    })();
+  }, []);
+
+  const searchLocation = async (query) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          query
+        )}&format=json&addressdetails=1&limit=1`,
         {
-          latitude,
-          longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        1000 // Animatie duur in milliseconden
+          headers: { "User-Agent": "ReactNativeApp/1.0 (https://example.com)" },
+        }
+      );
+
+      if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+
+      const data = await response.json();
+
+      if (data.length === 0) {
+        Alert.alert("Geen resultaten", "Probeer een andere locatie.");
+        return;
+      }
+
+      const coords = {
+        latitude: parseFloat(data[0].lat),
+        longitude: parseFloat(data[0].lon),
+        latitudeDelta: 0.065,
+        longitudeDelta: 0.065,
+      };
+
+      setLocation(coords);
+      setLocationName(data[0].display_name);
+    } catch (error) {
+      Alert.alert(
+        "Fout",
+        `Er ging iets mis bij het ophalen van de locatie: ${error.message}`
       );
     }
   };
 
+  const toggleAccountMenu = () => setShowAccountMenu(!showAccountMenu);
+
+  const navigateToMarker = (latitude, longitude) => {
+    mapRef.current?.animateToRegion(
+      { latitude, longitude, latitudeDelta: 0.03, longitudeDelta: 0.03 },
+      1000
+    );
+  };
+
+  const fitAllMarkers = () => {
+    mapRef.current?.fitToCoordinates(
+      markers.map((m) => ({ latitude: m.latitude, longitude: m.longitude })),
+      { edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, animated: true }
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {/* Zoek en knop */}
       {!showAccountMenu && (
         <View style={styles.searchContainer}>
           <TouchableOpacity onPress={toggleAccountMenu}>
@@ -109,13 +159,11 @@ export default function HomePage({ navigation }) {
         </View>
       )}
 
-      {/* Zijmenu voor account */}
       {showAccountMenu && !showUpdateProfile && (
         <View style={styles.accountMenu}>
           <View style={styles.topSection}>
             <Text style={styles.accountText}>Name</Text>
           </View>
-
           <View style={styles.middleSection}>
             <TouchableOpacity
               style={styles.menuButton}
@@ -126,14 +174,10 @@ export default function HomePage({ navigation }) {
             <TouchableOpacity style={styles.menuButton}>
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => navigation.navigate("TermsConditions")}
-            >
+            <TouchableOpacity style={styles.menuButton}>
               <Text style={styles.menuButtonText}>Terms & Conditions</Text>
             </TouchableOpacity>
           </View>
-
           <View style={styles.bottomSection}>
             <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>Log out</Text>
@@ -145,31 +189,16 @@ export default function HomePage({ navigation }) {
         </View>
       )}
 
-      {/* Update profiel */}
       {showUpdateProfile && (
         <View style={styles.accountMenu}>
           <View style={styles.topSection}>
             <Text style={styles.accountText}>Update Profile</Text>
           </View>
-
           <View style={styles.middleSection}>
-            <TextInput
-              style={styles.inputField}
-              placeholder="Name"
-              placeholderTextColor="gray"
-            />
-            <TextInput
-              style={styles.inputField}
-              placeholder="E-mail"
-              placeholderTextColor="gray"
-            />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Phone number"
-              placeholderTextColor="gray"
-            />
+            <TextInput style={styles.inputField} placeholder="Name" />
+            <TextInput style={styles.inputField} placeholder="E-mail" />
+            <TextInput style={styles.inputField} placeholder="Phone number" />
           </View>
-
           <View style={styles.bottomSection}>
             <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
               <Text style={styles.menuButtonText}>Done</Text>
@@ -184,8 +213,20 @@ export default function HomePage({ navigation }) {
         </View>
       )}
 
-      {/* Kaartweergave */}
       <MapView ref={mapRef} style={styles.map} region={location}>
+        {liveLocation && (
+          <Marker coordinate={liveLocation}>
+             <View style={styles.markerContainer}>
+             <Image
+              source={require("../assets/car.png")} 
+              style={styles.markerImage}
+            />
+          </View>
+            <Callout>
+              <Text>Dit ben jij!</Text>
+            </Callout>
+          </Marker>
+        )}
         {markers.map((marker) => (
           <Marker
             key={marker.id}
@@ -199,7 +240,6 @@ export default function HomePage({ navigation }) {
         ))}
       </MapView>
 
-      {/* Lijst van markers */}
       {!showAccountMenu && (
         <FlatList
           data={markers}
@@ -333,5 +373,15 @@ const styles = StyleSheet.create({
   },
   listText: {
     flex: 1,
+  },
+
+  markerContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  markerImage: {
+    width: 50, 
+    height: 50, 
+    resizeMode: "contain", // keep the ratio the same
   },
 });
