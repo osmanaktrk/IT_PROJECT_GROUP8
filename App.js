@@ -12,6 +12,7 @@ import ConfirmPasswordResetScreen from './App/ConfirmPasswordResetScreen';
 import SignUpScreen from "./App/SignUpScreen";
 import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
+import MyPoints from './App/MyPoints';
 const Stack = createStackNavigator();
 
 function App() {
@@ -28,6 +29,12 @@ function App() {
         <Stack.Screen
           name="LoginSignupChoiceScreen"
           component={LoginSignupChoiceScreen}
+        />
+
+        {/* MyPoints Page */}
+        <Stack.Screen
+          name="MyPoints"
+          component={MyPoints}
         />
 
         {/* TermsAndconditions Page */}
