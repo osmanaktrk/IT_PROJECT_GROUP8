@@ -39,7 +39,8 @@
     "react-native-screens": "~4.1.0",
     "react-native-webview": "13.12.5",
     "react-redux": "^9.2.0",
-    "redux": "^5.0.1"
+    "redux": "^5.0.1",
+    "expo-updates": "~0.26.10"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2"
