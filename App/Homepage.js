@@ -22,6 +22,8 @@ export default function HomePage({ navigation }) {
   });
   const [showAccountMenu, setShowAccountMenu] = useState(false); // Voor het zijmenu
   const [showUpdateProfile, setShowUpdateProfile] = useState(false); // Voor update profiel
+  const [showMyPoints, setShowMyPoints] = useState(false); // Voor MyPoints
+
   const mapRef = useRef(null);
 
   const markers = [
@@ -62,6 +64,7 @@ export default function HomePage({ navigation }) {
   const toggleAccountMenu = () => {
     setShowAccountMenu(!showAccountMenu);
     setShowUpdateProfile(false);
+    setShowMyPoints(false);
   };
 
   const fitAllMarkers = () => {
@@ -123,7 +126,7 @@ export default function HomePage({ navigation }) {
             >
               <Text style={styles.menuButtonText}>Update Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
+            <TouchableOpacity style={styles.menuButton} onPress={() => setShowMyPoints(true)}>
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -140,6 +143,27 @@ export default function HomePage({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleAccountMenu}>
               <Text style={styles.closeButton}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* My Points Sectie */}
+      {showMyPoints && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>My Points</Text>
+          </View>
+          <View style={styles.middleSection}>
+            <Text style={styles.pointsText}>⭐ 0</Text>
+            <Text style={styles.pointsInfo}>
+              More info about the points system{" "}
+              <Text style={styles.linkText}>click here</Text>
+            </Text>
+          </View>
+          <View style={styles.bottomSection}>
+            <TouchableOpacity onPress={() => setShowMyPoints(false)}>
+              <Text style={styles.closeButton}>Back to Menu</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -297,6 +321,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  pointsText: { fontSize: 48, textAlign: "center" },
+  pointsInfo: { textAlign: "center", marginTop: 10 },
+  linkText: { color: "blue", textDecorationLine: "underline" },
   closeButton: {
     fontSize: 18,
     color: "black",
