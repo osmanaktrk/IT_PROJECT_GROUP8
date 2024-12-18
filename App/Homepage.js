@@ -188,7 +188,9 @@ export default function App({ navigation }) {
             >
               <Text style={styles.menuButtonText}>Update Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
+            <TouchableOpacity style={styles.menuButton}
+            onPress={() => navigation.navigate("PointsInfo")}
+            >
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
             <TouchableOpacity
