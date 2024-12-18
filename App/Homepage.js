@@ -4,13 +4,15 @@ import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 
+import { getDocs, collection } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { firebaseAuth } from '../FirebaseConfig'; //user authentication
+import { firebaseAuth, firestoreDB } from '../FirebaseConfig'; //user authentication
 import { signOut, reauthenticateWithCredential, EmailAuthProvider, } from "firebase/auth";
 
 export default function App({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [spotsDatabase, setSpotsDatabase] = useState([]);
   const [mapLocation, setMapLocation] = useState({
     latitude: 50.8503,
     longitude: 4.3517,
@@ -30,6 +32,26 @@ export default function App({ navigation }) {
     { id: 3, latitude: 50.8456, longitude: 4.3572, title: "Koninklijke Sint-Hubertusgalerijen", price: 7.5, status: "available" },
     { id: 4, latitude: 50.8505, longitude: 4.3488, title: "Stadhuis van Brussel", price: 3.5, status: "available" },
   ];
+
+  const fetchSpots = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
+      const spots = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        latitude: doc.data().coords.latitude,
+        longitude: doc.data().coords.longitude,
+        title: doc.data().title || `Spot ${doc.id}`,
+        status: doc.data().status,
+      }));
+      setSpotsDatabase(spots);
+    } catch (error) {
+      Alert.alert("Error", `Failed to load spots: ${error.message}`);
+    }
+  };
+
+  useEffect(() => {
+    fetchSpots();
+  }, []);
 
   // Automatically update the debounced search query after 1 second
   useEffect(() => {
@@ -221,7 +243,7 @@ export default function App({ navigation }) {
         style={styles.locationButton}
       >
         <Image 
-          source={require("../assets/MyLocationMarker.png")} // Pas de afbeelding aan naar jouw bestand
+          source={require("../assets/MyLocationMarker.png")} 
           style={styles.locationButtonImage}
         />
       </TouchableOpacity>
@@ -240,12 +262,16 @@ export default function App({ navigation }) {
             </Callout>
           </Marker>
         )}
-        {markers.map((marker) => (
+        {/* Firestore marker */}
+        {spotsDatabase.map((spot) => (
           <Marker
-            key={marker.id}
-            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-            title={marker.title}
-            pinColor={marker.status === "available" ? "green" : "red"}
+            key={spot.id}
+            coordinate={{
+              latitude: spot.latitude,
+              longitude: spot.longitude,
+            }}
+            title={spot.title}
+            pinColor={spot.status === "available" ? "green" : "red"}
           />
         ))}
       </MapView>
