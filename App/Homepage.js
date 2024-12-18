@@ -4,7 +4,16 @@ import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function App() {
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { firebaseAuth } from '../FirebaseConfig'; //user authenticatopn
+import {
+  signOut,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
+
+export default function App({navigation}) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [location, setLocation] = useState({
@@ -142,6 +151,29 @@ export default function App() {
     );
   };
 
+  //********** For Authentication ***************
+  //Test Logout
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await AsyncStorage.clear();
+      await signOut(firebaseAuth);
+      Alert.alert("Success", "You have been logged out.");
+      navigation.replace("FrontPage");
+    } catch (error) {
+      Alert.alert("Logout Failed", `An error occurred: ${error.message}`);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+
+
+
+
   return (
     <View style={styles.container}>
       {!showAccountMenu && (
@@ -179,8 +211,9 @@ export default function App() {
             </TouchableOpacity>
           </View>
           <View style={styles.bottomSection}>
-            <TouchableOpacity style={styles.logoutButton}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
               <Text style={styles.logoutButtonText}>Log out</Text>
+
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleAccountMenu}>
               <Text style={styles.closeButton}>Close</Text>
