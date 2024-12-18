@@ -1,71 +1,37 @@
-import React, { useState, useEffect, useRef, } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image, TouchableOpacity, FlatList } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { firebaseAuth } from '../FirebaseConfig'; //user authenticatopn
-import {
-  signOut,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
+import { firebaseAuth } from '../FirebaseConfig'; //user authentication
+import { signOut, reauthenticateWithCredential, EmailAuthProvider, } from "firebase/auth";
 
-export default function App({navigation}) {
+export default function App({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [location, setLocation] = useState({
+  const [mapLocation, setMapLocation] = useState({
     latitude: 50.8503,
     longitude: 4.3517,
     latitudeDelta: 0.03,
     longitudeDelta: 0.03,
   });
-  const [locationName, setLocationName] = useState("Brussel");
   const [liveLocation, setLiveLocation] = useState(null);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showUpdateProfile, setShowUpdateProfile] = useState(false);
 
   const mapRef = useRef(null);
-  // some markers 
+
   const markers = [
-    {
-      id: 1,
-      latitude: 50.8466,
-      longitude: 4.3528,
-      title: "Grote Markt",
-      price: 10,
-      status: "available",
-    },
-    {
-      id: 2,
-      latitude: 50.8503,
-      longitude: 4.3497,
-      title: "Manneken Pis",
-      price: "free",
-      status: "unavailable",
-    },
-    {
-      id: 3,
-      latitude: 50.8456,
-      longitude: 4.3572,
-      title: "Koninklijke Sint-Hubertusgalerijen",
-      price: 7.5,
-      status: "available",
-    },
-    {
-      id: 4,
-      latitude: 50.8505,
-      longitude: 4.3488,
-      title: "Stadhuis van Brussel",
-      price: 3.5,
-      status: "available",
-    },
+    { id: 1, latitude: 50.8466, longitude: 4.3528, title: "Grote Markt", price: 10, status: "available" },
+    { id: 2, latitude: 50.8503, longitude: 4.3497, title: "Manneken Pis", price: "free", status: "unavailable" },
+    { id: 3, latitude: 50.8456, longitude: 4.3572, title: "Koninklijke Sint-Hubertusgalerijen", price: 7.5, status: "available" },
+    { id: 4, latitude: 50.8505, longitude: 4.3488, title: "Stadhuis van Brussel", price: 3.5, status: "available" },
   ];
 
-  // automaticly enter the search after 1 second
+  // Automatically update the debounced search query after 1 second
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedQuery(searchQuery), 1000);
     return () => clearTimeout(handler);
@@ -75,44 +41,50 @@ export default function App({navigation}) {
     if (debouncedQuery.trim() !== "") searchLocation(debouncedQuery);
   }, [debouncedQuery]);
 
+  // Request location permissions and track live location
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
-          "Locatietoegang geweigerd",
-          "Schakel locatietoegang in om je huidige locatie te gebruiken."
-        );
+        Alert.alert("Locatietoegang geweigerd", "Schakel locatietoegang in om je huidige locatie te gebruiken.");
         return;
       }
       setPermissionGranted(true);
-
+  
+      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const { latitude, longitude } = location.coords;
+  
+      const initialLocation = {
+        latitude,
+        longitude,
+        latitudeDelta: 0.03,
+        longitudeDelta: 0.03,
+      };
+  
+      setLiveLocation({ latitude, longitude });
+      setMapLocation(initialLocation); // Stel live locatie als startpunt van de kaart in.
+  
       Location.watchPositionAsync(
         { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
         (loc) => {
           const { latitude, longitude } = loc.coords;
           setLiveLocation({ latitude, longitude });
-          setLocation((prev) => ({ ...prev, latitude, longitude }));
         }
       );
     })();
   }, []);
+  
 
   const searchLocation = async (query) => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          query
-        )}&format=json&addressdetails=1&limit=1`,
-        {
-          headers: { "User-Agent": "ReactNativeApp/1.0 (https://example.com)" },
-        }
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=1`,
+        { headers: { "User-Agent": "ReactNativeApp/1.0 (https://example.com)" } }
       );
 
       if (!response.ok) throw new Error(`HTTP status ${response.status}`);
 
       const data = await response.json();
-
       if (data.length === 0) {
         Alert.alert("Geen resultaten", "Probeer een andere locatie.");
         return;
@@ -125,23 +97,23 @@ export default function App({navigation}) {
         longitudeDelta: 0.065,
       };
 
-      setLocation(coords);
-      setLocationName(data[0].display_name);
+      setMapLocation(coords);
     } catch (error) {
-      Alert.alert(
-        "Fout",
-        `Er ging iets mis bij het ophalen van de locatie: ${error.message}`
-      );
+      Alert.alert("Fout", `Er ging iets mis bij het ophalen van de locatie: ${error.message}`);
+    }
+  };
+  const toggleAccountMenu = () => setShowAccountMenu(!showAccountMenu);
+  
+  const goToLiveLocation = () => {
+    if (liveLocation) {
+      setMapLocation({ ...liveLocation, latitudeDelta: 0.03, longitudeDelta: 0.03 });
+    } else {
+      Alert.alert("Geen live locatie beschikbaar", "Controleer of locatie is ingeschakeld.");
     }
   };
 
-  const toggleAccountMenu = () => setShowAccountMenu(!showAccountMenu);
-
   const navigateToMarker = (latitude, longitude) => {
-    mapRef.current?.animateToRegion(
-      { latitude, longitude, latitudeDelta: 0.03, longitudeDelta: 0.03 },
-      1000
-    );
+    setMapLocation({ latitude, longitude, latitudeDelta: 0.03, longitudeDelta: 0.03 });
   };
 
   const fitAllMarkers = () => {
@@ -151,13 +123,7 @@ export default function App({navigation}) {
     );
   };
 
-  //********** For Authentication ***************
-  //Test Logout
-
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
   const handleLogout = async () => {
-    setIsLoggingOut(true);
     try {
       await AsyncStorage.clear();
       await signOut(firebaseAuth);
@@ -170,15 +136,11 @@ export default function App({navigation}) {
     }
   };
 
-
-
-
-
   return (
     <View style={styles.container}>
       {!showAccountMenu && (
         <View style={styles.searchContainer}>
-          <TouchableOpacity onPress={toggleAccountMenu}>
+          <TouchableOpacity onPress={() => setShowAccountMenu(true)}>
             <Ionicons name="person-circle-outline" size={40} color="black" />
           </TouchableOpacity>
           <TextInput
@@ -188,10 +150,11 @@ export default function App({navigation}) {
             onChangeText={(text) => setSearchQuery(text)}
           />
           <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
+          <Button title="Ga naar mijn locatie" onPress={goToLiveLocation} />
         </View>
       )}
 
-      {showAccountMenu && !showUpdateProfile && (
+{showAccountMenu && !showUpdateProfile && (
         <View style={styles.accountMenu}>
           <View style={styles.topSection}>
             <Text style={styles.accountText}>Name</Text>
@@ -246,10 +209,10 @@ export default function App({navigation}) {
         </View>
       )}
 
-      <MapView ref={mapRef} style={styles.map} region={location}>
+      <MapView ref={mapRef} style={styles.map} region={mapLocation}>
         {liveLocation && (
           <Marker coordinate={liveLocation}>
-             <View style={styles.markerContainer}>
+              <View style={styles.markerContainer}>
              <Image
               source={require("../assets/car.png")} 
               style={styles.markerImage}
@@ -263,10 +226,7 @@ export default function App({navigation}) {
         {markers.map((marker) => (
           <Marker
             key={marker.id}
-            coordinate={{
-              latitude: marker.latitude,
-              longitude: marker.longitude,
-            }}
+            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
             title={marker.title}
             pinColor={marker.status === "available" ? "green" : "red"}
           />
