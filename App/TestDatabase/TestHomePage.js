@@ -25,7 +25,7 @@ import { Ionicons } from "@expo/vector-icons"; // Voor het icoon
 
 //********** For Authentication and Database ***************
 import * as Location from "expo-location";
-import { firebaseAuth, firestoreDB } from "../FirebaseConfig";
+import { firebaseAuth, firestoreDB } from "../../FirebaseConfig"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   signOut,
@@ -432,7 +432,7 @@ export default function TestHomePage({ navigation }) {
           title="Your Location"
         >
           <Image
-            source={require('../assets/car.png')}
+            source={require('../../assets/car.png')}
             style={{ width: 50, height: 50 }} 
             resizeMode="contain" // Zorgt ervoor dat de aspect ratio behouden blijft
           />
