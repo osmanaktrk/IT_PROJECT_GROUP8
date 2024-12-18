@@ -1,13 +1,30 @@
-import React from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 
-export default function HistoryPage({ navigation }) {
+import React, { useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
+
+export default function HistoryPage() {
   // History list (here is experimental data only)
-  const historyData = [
+  const [historyData, setHistoryData] = useState([
     { id: "1", name: "Quai de l'Industrie 170,1070" },
     { id: "2", name: "Quai de l'Industrie 170,1070" },
     { id: "3", name: "Quai de l'Industrie 170,1070" },
-  ];
+  ]);
+  // Delete an item from the list
+  const handleDelete = (id) => {
+    setHistoryData((prevData) => prevData.filter((item) => item.id !== id));
+  };
+
+  // (Swipe)
+  const renderRightActions = (id) => {
+    return (
+      <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(id)}>
+        <Ionicons name="trash-outline" size={30} color="white" />
+      </TouchableOpacity>
+    );
+  };
+
 
   return (
     <View style={styles.container}>
@@ -16,15 +33,18 @@ export default function HistoryPage({ navigation }) {
         data={historyData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.historyItem}>
-            <Text style={styles.itemText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
+            <Swipeable renderRightActions={() => renderRightActions(item.id)}>
+            <View style={styles.historyItem}>
+              <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
+              <Text style={styles.itemText}>{item.name}</Text>
+            </View>
+          </Swipeable>
+          )}
+          />
+          </View>
   );
 }
-
+   
 const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -39,6 +59,8 @@ const styles = StyleSheet.create({
       marginBottom: 20, 
     },
     historyItem: {
+        flexDirection: "row",
+        alignItems: "center",
       padding: 15,
       backgroundColor: "#fff",
       borderRadius: 8,
@@ -52,6 +74,14 @@ const styles = StyleSheet.create({
       fontSize: 16,
       color: "#333",
     },
+    deleteButton: {
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "red",
+        width: 70,
+        marginVertical: 5,
+        borderRadius: 8,
+      },
   });
   
 
