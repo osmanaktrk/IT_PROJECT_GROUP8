@@ -56,28 +56,28 @@
 //   const markers = [
 //     {
 //       id: 1,
-//       geo: { latitude: 50.8466, longitude: 4.3528 },
+//       coords: { latitude: 50.8466, longitude: 4.3528 },
 //       title: "Grote Markt",
 //       price: 10,
 //       status: "available",
 //     },
 //     {
 //       id: 2,
-//       geo: { latitude: 50.8503, longitude: 4.3497 },
+//       coords: { latitude: 50.8503, longitude: 4.3497 },
 //       title: "Manneken Pis",
 //       price: 0,
 //       status: "unavailable",
 //     },
 //     {
 //       id: 3,
-//       geo: { latitude: 50.8456, longitude: 4.3572 },
+//       coords: { latitude: 50.8456, longitude: 4.3572 },
 //       title: "Koninklijke Sint-Hubertusgalerijen",
 //       price: 7.5,
 //       status: "available",
 //     },
 //     {
 //       id: 4,
-//       geo: { latitude: 50.8505, longitude: 4.3488 },
+//       coords: { latitude: 50.8505, longitude: 4.3488 },
 //       title: "Stadhuis van Brussel",
 //       price: 3.5,
 //       status: "unavailable",
@@ -93,8 +93,8 @@
 //   const fitAllMarkers = () => {
 //     if (mapRef.current && markers.length > 0) {
 //       const coordinates = markers.map((marker) => ({
-//         latitude: marker.geo.latitude,
-//         longitude: marker.geo.longitude,
+//         latitude: marker.coords.latitude,
+//         longitude: marker.coords.longitude,
 //       }));
 //       mapRef.current.fitToCoordinates(coordinates, {
 //         edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
@@ -185,8 +185,8 @@
 //         const data = doc.data();
 //         spots.push({
 //           id: doc.id,
-//           latitude: data.geo.latitude,
-//           longitude: data.geo.longitude,
+//           latitude: data.coords.latitude,
+//           longitude: data.coords.longitude,
 //           title: data.title || `Spot ${doc.id}`,
 //           status: data.status,
 //           price: data.price,
@@ -449,8 +449,8 @@
 //           <Marker
 //             key={`marker-${marker.id}`}
 //             coordinate={{
-//               latitude: marker.geo.latitude, // Ensure the latitude is in geo property
-//               longitude: marker.geo.longitude,
+//               latitude: marker.coords.latitude, // Ensure the latitude is in coords property
+//               longitude: marker.coords.longitude,
 //             }}
 //             title={marker.title}
 //             pinColor={marker.status === "available" ? "blue" : "orange"}
