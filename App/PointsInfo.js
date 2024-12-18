@@ -11,7 +11,7 @@ export default function PointsInfo({ navigation }) {
       <View style={styles.infoSection}>
         <Text style={styles.pointHeader}>1. Marking a Parking Spot as Taken</Text>
         <Text style={styles.pointDescription}>
-          - Earn 5 points by confirming that you have occupied a parking spot.{"\n"}
+          - Earn 1 point by confirming that you have occupied a parking spot.{"\n"}
           - Make sure the location is accurate to help others.
         </Text>
       </View>
@@ -19,7 +19,7 @@ export default function PointsInfo({ navigation }) {
       <View style={styles.infoSection}>
         <Text style={styles.pointHeader}>2. Marking a Parking Spot as Vacant</Text>
         <Text style={styles.pointDescription}>
-          - Earn 5 points by indicating that you have vacated a parking spot.{"\n"}
+          - Earn 1 point by indicating that you have vacated a parking spot.{"\n"}
           - This helps other users find available parking more easily.
         </Text>
       </View>
@@ -35,7 +35,7 @@ export default function PointsInfo({ navigation }) {
       <View style={styles.infoSection}>
         <Text style={styles.pointHeader}>4. Referring a Friend</Text>
         <Text style={styles.pointDescription}>
-          - Earn 10 points for each friend you refer who signs up and uses the app.{"\n"}
+          - Earn 5 points for each friend you refer who signs up and uses the app.{"\n"}
           - Share your unique referral code to get started.
         </Text>
       </View>
