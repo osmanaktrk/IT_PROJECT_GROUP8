@@ -16,7 +16,7 @@ import {
 const FrontPage = ({ navigation }) => {
   setTimeout(() => {
     navigation.navigate("LoginSignupChoiceScreen");
-  }, 1000);
+  }, 700);
 
   return (
     <ImageBackground

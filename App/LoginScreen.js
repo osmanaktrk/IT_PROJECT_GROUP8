@@ -50,7 +50,12 @@ const LoginScreen = ({ navigation }) => {
           );
           navigation.replace("HomePage");
         } catch (error) {
-          console.error("Auto-login failed:", error.message);
+          Alert.alert(
+            "Auto-login failed",
+            "Please log in again."
+          );
+
+          //console.error("Auto-login failed:", error.message);
         }
       }
       setIsLoading(false);
