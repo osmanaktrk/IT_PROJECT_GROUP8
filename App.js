@@ -12,6 +12,8 @@ import ConfirmPasswordResetScreen from './App/ConfirmPasswordResetScreen';
 import SignUpScreen from "./App/SignUpScreen";
 import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
+import TestHomePage from './App/TestDatabase/TestHomePage';
+
 //import MyPoints from './App/MyPoints';
 const Stack = createStackNavigator();
 
@@ -62,6 +64,9 @@ function App() {
 
         {/* Home Page */}
         <Stack.Screen name="HomePage" component={HomePage} />
+
+        {/* Home Page */}
+        <Stack.Screen name="TestHomePage" component={TestHomePage} />
         
       </Stack.Navigator>
     </NavigationContainer>
