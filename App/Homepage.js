@@ -189,7 +189,13 @@ export default function App({ navigation }) {
             >
               <Text style={styles.menuButtonText}>Update Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton} onPress={() => setShowMyPoints(true)}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => {
+                setShowAccountMenu(false); // Sluit de standaard zijbalk
+                setShowMyPoints(true); 
+              }}
+            >
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -261,9 +267,14 @@ export default function App({ navigation }) {
             </Text>
           </View>
           <View style={styles.bottomSection}>
-            <TouchableOpacity onPress={() => setShowMyPoints(false)}>
-              <Text style={styles.closeButton}>Back to Menu</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+        onPress={() => {
+          setShowMyPoints(false); // Sluit de My Points-sectie
+          setShowAccountMenu(true); // Heropen de standaard zijbalk
+        }}
+      >
+        <Text style={styles.closeButton}>Back to Menu</Text>
+      </TouchableOpacity>
           </View>
         </View>
       )}
