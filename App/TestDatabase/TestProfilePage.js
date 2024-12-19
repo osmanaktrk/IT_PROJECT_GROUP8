@@ -9,26 +9,25 @@ import {
   Text,
   TouchableOpacity,
   Pressable,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
-import { firebaseAuth, firestoreDB } from "../../FirebaseConfig";
+import { firebaseAuth } from "../../FirebaseConfig";
 import {
   deleteUser,
-  reauthenticateWithRedirect,
   updateProfile,
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function TestProfilePage() {
+export default function TestProfilePage({ navigation }) {
   const [updatedUsername, setUpdatedUsername] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [deleteUserPassword, setDeleteUserPassword] = useState("");
 
   const currentUser = firebaseAuth.currentUser;
 
@@ -38,10 +37,7 @@ export default function TestProfilePage() {
       await updateProfile(currentUser, {
         displayName: updatedUsername,
       });
-
-      //const userDocRef = doc(firestoreDB, "users", currentUser.uid);
-      //await updateDoc(userDocRef, { displayName: updatedUsername });
-
+      setUpdatedUsername("");
       Alert.alert("Success", "Username updated successfully!");
     } catch (error) {
       Alert.alert("Error", `Failed to update username: ${error.message}`);
@@ -56,34 +52,38 @@ export default function TestProfilePage() {
         currentPassword
       );
       await reauthenticateWithCredential(currentUser, credential);
-
       await updatePassword(currentUser, newPassword);
+
+      // AsyncStorage'de şifreyi güncelle
+      await AsyncStorage.setItem("userPassword", newPassword);
+      setCurrentPassword("");
+      setNewPassword("")
+
       Alert.alert("Success", "Password updated successfully!");
     } catch (error) {
       Alert.alert("Error", `Failed to update password: ${error.message}`);
     }
   };
 
-  // Profil resmini güncelle (localde resim upload edilir gibi simüle ediliyor)
+  // Profil resmini güncelle
   const handleUpdateProfileImage = async () => {
     try {
       await updateProfile(currentUser, {
         photoURL: profileImage,
       });
-
-      const userDocRef = doc(firestoreDB, "users", currentUser.uid);
-      await updateDoc(userDocRef, { photoURL: profileImage });
-
       Alert.alert("Success", "Profile image updated successfully!");
     } catch (error) {
       Alert.alert("Error", `Failed to update profile image: ${error.message}`);
     }
   };
 
-  // Reauthenticate the user
-  const reauthenticateUser = async () => {
+  // Kullanıcıyı yeniden kimlik doğrula
+  const reauthenticateUser = async (password) => {
     if (!password) {
-      Alert.alert("Error", "Password is required for sensitive actions.");
+      Alert.alert(
+        "Error",
+        "Current password is required for sensitive actions."
+      );
       return false;
     }
     try {
@@ -99,21 +99,31 @@ export default function TestProfilePage() {
     }
   };
 
-  // Delete user account
   const handleDeleteAccount = async () => {
-    setIsLoading(true);
-    const confirmed = await reauthenticateUser();
-    if (!confirmed) {
-      setIsLoading(false);
-      return;
+    if (!deleteUserPassword) {
+      Alert.alert(
+        "Error",
+        "Current password is required for sensitive actions."
+      );
+      return false;
     }
 
-    try {
-      // Delete Firestore user document
-      await deleteDoc(doc(firestoreDB, "users", currentUser.uid));
+    setIsLoading(true);
 
-      // Delete Firebase Auth user
+    // Reauthenticate the user
+
+    try {
+      const confirmed = await reauthenticateUser(deleteUserPassword);
+      if (!confirmed) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Delete user
       await deleteUser(currentUser);
+
+      // Clear local storage
+      await AsyncStorage.clear();
 
       Alert.alert(
         "Account Deleted",
@@ -127,12 +137,23 @@ export default function TestProfilePage() {
     }
   };
 
+  // Input for entering the current password
+  <TextInput
+    style={styles.input}
+    placeholder="Enter your current password"
+    secureTextEntry
+    value={deleteUserPassword}
+    onChangeText={setDeleteUserPassword}
+  />;
+
   return (
     <View style={styles.container}>
       {/* Kullanıcı Adını Güncelle */}
       <TextInput
         style={styles.input}
-        placeholder={`Welcome: ${currentUser.displayName}, Enter your new username`}
+        placeholder={`Welcome: ${
+          currentUser?.displayName || "User"
+        }, enter your new username`}
         value={updatedUsername}
         onChangeText={setUpdatedUsername}
       />
@@ -169,10 +190,19 @@ export default function TestProfilePage() {
       </View>
       <Button title="Update Profile Image" onPress={handleUpdateProfileImage} />
 
-
-
       {/* Delete Account Button */}
-      <Pressable style={[styles.button, styles.deleteButton]} onPress={handleDeleteAccount}>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter current password"
+        secureTextEntry
+        value={deleteUserPassword}
+        onChangeText={setDeleteUserPassword}
+      />
+
+      <Pressable
+        style={[styles.button, styles.deleteButton]}
+        onPress={handleDeleteAccount}
+      >
         {isLoading ? (
           <ActivityIndicator color="#fff" />
         ) : (

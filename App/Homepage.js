@@ -24,6 +24,7 @@ export default function App({ navigation }) {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showUpdateProfile, setShowUpdateProfile] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null); // Opslaan van geselecteerde spot
+  const [showMyPoints, setShowMyPoints] = useState(false);
 
   const mapRef = useRef(null);
 
@@ -211,8 +212,12 @@ export default function App({ navigation }) {
             >
               <Text style={styles.menuButtonText}>Update Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}
-            onPress={() => navigation.navigate("PointsInfo")}
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => {
+                setShowAccountMenu(false); // Sluit de standaard zijbalk
+                setShowMyPoints(true); 
+              }}
             >
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
@@ -267,6 +272,48 @@ export default function App({ navigation }) {
       )}
 
     
+      {/* My Points Sectie */}
+      {showMyPoints && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>My Points</Text>
+          </View>
+          <View style={styles.middleSection}>
+            <Text style={styles.pointsText}>⭐ 0</Text>
+            <Text style={styles.pointsInfo}>
+              More info about the points system{" "}
+              <Text
+                style={styles.linkText}
+                onPress={() => navigation.navigate("PointsInfo")} // Navigates to PointsInfo.js
+              >
+                click here
+              </Text>
+            </Text>
+          </View>
+          <View style={styles.bottomSection}>
+          <TouchableOpacity
+        onPress={() => {
+          setShowMyPoints(false); // Sluit de My Points-sectie
+          setShowAccountMenu(true); // Heropen de standaard zijbalk
+        }}
+      >
+        <Text style={styles.closeButton}>Back to Menu</Text>
+      </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      
+
+      <TouchableOpacity 
+        onPress={goToLiveLocation} 
+        style={styles.locationButton}
+      >
+        <Image 
+          source={require("../assets/MyLocationMarker.png")} 
+          style={styles.locationButtonImage}
+        />
+      </TouchableOpacity>
 
       <MapView ref={mapRef} style={styles.map} region={mapLocation}>
         {liveLocation && (
@@ -505,4 +552,7 @@ const styles = StyleSheet.create({
     color: "green",
     marginBottom: 10,
   },
+  pointsText: { fontSize: 48, textAlign: "center" },
+  pointsInfo: { textAlign: "center", marginTop: 10 },
+  linkText: { color: "blue", textDecorationLine: "underline" },
 });
