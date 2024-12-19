@@ -4,7 +4,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function HistoryPage() {
+export default function HistoryPage({ navigation }) {
   // History list (here is experimental data only)
   const [historyData, setHistoryData] = useState([
     { id: "1", name: "Quai de l'Industrie 170,1070" },
@@ -41,7 +41,14 @@ export default function HistoryPage() {
           </Swipeable>
           )}
           />
-          </View>
+        {/* Terugknop */}
+                    <TouchableOpacity
+                      style={styles.backButton}
+                      onPress={() => navigation.goBack()}
+                    >
+                      <Text style={styles.backButtonText}>Back to menu</Text>
+                    </TouchableOpacity>
+    </View>
   );
 }
    
@@ -81,6 +88,18 @@ const styles = StyleSheet.create({
         width: 70,
         marginVertical: 5,
         borderRadius: 8,
+      },
+      backButton: {
+        backgroundColor: "#007AFF",
+        paddingVertical: 12,
+        borderRadius: 10,
+        alignItems: "center",
+        marginTop: 10,
+      },
+      backButtonText: {
+        color: "white",
+        fontWeight: "bold",
+        fontSize: 16,
       },
   });
   
