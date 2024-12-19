@@ -23,6 +23,7 @@ export default function App({ navigation }) {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showUpdateProfile, setShowUpdateProfile] = useState(false);
+  const [showMyPoints, setShowMyPoints] = useState(false);
 
   const mapRef = useRef(null);
 
@@ -236,6 +237,27 @@ export default function App({ navigation }) {
               onPress={() => setShowUpdateProfile(false)}
             >
               <Text style={styles.menuButtonText}>Back to menu</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* My Points Sectie */}
+      {showMyPoints && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>My Points</Text>
+          </View>
+          <View style={styles.middleSection}>
+            <Text style={styles.pointsText}>⭐ 0</Text>
+            <Text style={styles.pointsInfo}>
+              More info about the points system{" "}
+              <Text style={styles.linkText}>click here</Text>
+            </Text>
+          </View>
+          <View style={styles.bottomSection}>
+            <TouchableOpacity onPress={() => setShowMyPoints(false)}>
+              <Text style={styles.closeButton}>Back to Menu</Text>
             </TouchableOpacity>
           </View>
         </View>
