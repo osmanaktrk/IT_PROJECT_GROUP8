@@ -132,7 +132,15 @@ export default function App({ navigation }) {
 
   const goToLiveLocation = () => {
     if (liveLocation) {
-      setMapLocation({ ...liveLocation, latitudeDelta: 0.03, longitudeDelta: 0.03 });
+      const newRegion = {
+        latitude: liveLocation.latitude,
+        longitude: liveLocation.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      // Gebruik animateToRegion om de kaart te animeren naar de live locatie
+      mapRef.current?.animateToRegion(newRegion, 1000);  // De tweede parameter is de duur van de animatie in milliseconden
+  
     } else {
       Alert.alert("Geen live locatie beschikbaar", "Controleer of locatie is ingeschakeld.");
     }
@@ -305,15 +313,7 @@ export default function App({ navigation }) {
 
       
 
-      <TouchableOpacity 
-        onPress={goToLiveLocation} 
-        style={styles.locationButton}
-      >
-        <Image 
-          source={require("../assets/MyLocationMarker.png")} 
-          style={styles.locationButtonImage}
-        />
-      </TouchableOpacity>
+
 
       <MapView ref={mapRef} style={styles.map} region={mapLocation}>
         {liveLocation && (
