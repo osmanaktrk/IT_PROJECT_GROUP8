@@ -477,4 +477,7 @@ const styles = StyleSheet.create({
     height: 60,
     resizeMode: "contain", // Behoud de beeldverhouding
   },
+  pointsText: { fontSize: 48, textAlign: "center" },
+  pointsInfo: { textAlign: "center", marginTop: 10 },
+  linkText: { color: "blue", textDecorationLine: "underline" },
 });
