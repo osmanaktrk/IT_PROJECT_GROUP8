@@ -252,7 +252,12 @@ export default function App({ navigation }) {
             <Text style={styles.pointsText}>⭐ 0</Text>
             <Text style={styles.pointsInfo}>
               More info about the points system{" "}
-              <Text style={styles.linkText}>click here</Text>
+              <Text
+                style={styles.linkText}
+                onPress={() => navigation.navigate("PointsInfo")} // Navigates to PointsInfo.js
+              >
+                click here
+              </Text>
             </Text>
           </View>
           <View style={styles.bottomSection}>
