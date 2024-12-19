@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function TermsConditions() {
+export default function TermsConditions({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>TERMS & CONDITIONS</Text>
@@ -25,6 +26,14 @@ export default function TermsConditions() {
           5. <Text style={styles.bold}>Modifications:</Text> We reserve the right to modify or discontinue the app's features at any time without notice.
         </Text>
       </ScrollView>
+      {/* Back to Menu Button */}
+      {/* Terugknop */}
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.backButtonText}>Back to menu</Text>
+            </TouchableOpacity>
     </View>
   );
 }
@@ -55,5 +64,17 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: "bold",
+  },
+  backButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  backButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
