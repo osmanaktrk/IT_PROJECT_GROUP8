@@ -4,7 +4,7 @@ import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, collection, Timestamp } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseAuth, firestoreDB } from '../FirebaseConfig'; //user authentication
 import { signOut, reauthenticateWithCredential, EmailAuthProvider, } from "firebase/auth";
@@ -23,6 +23,7 @@ export default function App({ navigation }) {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showUpdateProfile, setShowUpdateProfile] = useState(false);
+  const [selectedSpot, setSelectedSpot] = useState(null); // Opslaan van geselecteerde spot
 
   const mapRef = useRef(null);
 
@@ -43,6 +44,7 @@ export default function App({ navigation }) {
         title: doc.data().title || `Spot ${doc.id}`,
         price: doc.data().price || "Onbekend",
         status: doc.data().status,
+        Timestamp: doc.data().Timestamp,
       }));
       setSpotsDatabase(spots);
     } catch (error) {
@@ -135,9 +137,6 @@ export default function App({ navigation }) {
     }
   };
 
-  const navigateToMarker = (latitude, longitude) => {
-    setMapLocation({ latitude, longitude, latitudeDelta: 0.03, longitudeDelta: 0.03 });
-  };
 
   const fitAllMarkers = () => {
     mapRef.current?.fitToCoordinates(
@@ -159,6 +158,14 @@ export default function App({ navigation }) {
     }
   };
 
+  const handleSpotPress = (spot) => {
+    setSelectedSpot(spot); // Stel de geselecteerde spot in
+  };
+
+  const closeBottomSheet = () => {
+    setSelectedSpot(null); // Sluit de bottom sheet
+  };
+
   return (
     <View style={styles.container}>
       {!showAccountMenu && (
@@ -172,9 +179,25 @@ export default function App({ navigation }) {
             value={searchQuery}
             onChangeText={(text) => setSearchQuery(text)}
           />
+          
           <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
         </View>
       )}
+  
+      {/* Zorg ervoor dat de live locatieknop altijd onderaan wordt weergegeven */}
+      {!showAccountMenu && !selectedSpot && (
+        <TouchableOpacity 
+          onPress={goToLiveLocation} 
+          style={styles.locationButton}
+        >
+          <Image 
+            source={require("../assets/MyLocationMarker.png")} 
+            style={styles.locationButtonImage}
+          />
+        </TouchableOpacity>
+      )}
+
+      
 
 {showAccountMenu && !showUpdateProfile && (
         <View style={styles.accountMenu}>
@@ -243,15 +266,7 @@ export default function App({ navigation }) {
         </View>
       )}
 
-      <TouchableOpacity 
-        onPress={goToLiveLocation} 
-        style={styles.locationButton}
-      >
-        <Image 
-          source={require("../assets/MyLocationMarker.png")} 
-          style={styles.locationButtonImage}
-        />
-      </TouchableOpacity>
+    
 
       <MapView ref={mapRef} style={styles.map} region={mapLocation}>
         {liveLocation && (
@@ -267,6 +282,7 @@ export default function App({ navigation }) {
             </Callout>
           </Marker>
         )}
+        
         {/* Firestore marker */}
         {spotsDatabase.map((spot) => (
           <Marker
@@ -275,7 +291,8 @@ export default function App({ navigation }) {
             latitude: spot.latitude,
             longitude: spot.longitude,
           }}
-          title={spot.title}
+          
+          onPress={() => handleSpotPress(spot)}
         >
           {/* Gebruik aangepaste afbeelding afhankelijk van de status */}
     <View style={styles.markerContainer}>
@@ -287,17 +304,21 @@ export default function App({ navigation }) {
         }
         style={styles.markerImage}
       />
-    </View>
-          <Callout>
-            <View>
-              <Text>{spot.title}</Text>
-              <Text>Prijs: {spot.price} EUR</Text>
-              <Text>Status: {spot.status}</Text>
-            </View>
-          </Callout>
+    </View>  
         </Marker>
       ))}
       </MapView>
+
+      {selectedSpot && (
+        <View style={styles.bottomSheet}>
+          <Text style={styles.description}>{selectedSpot.description}</Text>
+          <Text style={styles.price}>{"price: " + selectedSpot.price + " euro"}</Text>
+          <Text style={styles.Timestamp}>{"timestamp: " + selectedSpot.Timestamp}</Text>
+          <Button title="Close" onPress={closeBottomSheet} />
+        </View>
+      )}
+
+      
 
       {/*{!showAccountMenu && (
        <FlatList
@@ -454,5 +475,34 @@ const styles = StyleSheet.create({
     width: 60, // Pas de grootte van de afbeelding aan
     height: 60,
     resizeMode: "contain", // Behoud de beeldverhouding
+  },
+
+  bottomSheet: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  description: {
+    fontSize: 14,
+    marginVertical: 5,
+  },
+  status: {
+    fontSize: 14,
+    color: "green",
+    marginBottom: 10,
   },
 });
