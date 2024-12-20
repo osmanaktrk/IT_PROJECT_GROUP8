@@ -32,7 +32,9 @@ export const createTable = async () => {
           city_id INTEGER,
           sd_id INTEGER,
           sd_area INTEGER,
-          capakey TEXT
+          capakey TEXT,
+          status TEXT,
+          timestamp TEXT,
       );`
   );
 };
@@ -63,6 +65,10 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       sd_area,
       capakey,
     } = feature.properties;
+
+    const status = "unknown"; 
+    const timestamp = new Date(Date.UTC(1, 0, 1, 0, 0, 0)).toISOString(); 
+
     return [
       latitude,
       longitude,
@@ -81,6 +87,8 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       sd_id,
       sd_area,
       capakey || null,
+      status,
+      timestamp,
     ];
   });
 
@@ -103,8 +111,10 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
             city_id,
             sd_id,
             sd_area,
-            capakey
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            capakey,
+            status
+            timestamp,
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       data
     );
   });
@@ -122,7 +132,7 @@ export const fetchAllData = async () => {
 // fetch data from the SQLite database based on the visible region
 
 export const fetchVisibleData = async (region, expansionFactor = 1) => {
-  const db = await SQLite.openDatabaseAsync("park_and_ride.db");
+  const db = await SQLite.openDatabaseAsync("public_parking.db");
   const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
   const expandedLatitudeDelta = latitudeDelta * expansionFactor;
   const expandedLongitudeDelta = longitudeDelta * expansionFactor;
@@ -133,7 +143,7 @@ export const fetchVisibleData = async (region, expansionFactor = 1) => {
   const southWestLng = longitude - expandedLongitudeDelta / 2;
 
   const result = db.getAllAsync(
-    `SELECT * FROM park_and_ride WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`,
+    `SELECT * FROM public_parking WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`,
     [southWestLat, northEastLat, southWestLng, northEastLng]
   );
 
@@ -146,6 +156,7 @@ export const clearDatabase = async () => {
   await db.execAsync(`DROP TABLE IF EXISTS public_parking`);
 };
 
+//initialize the SQLite database
 export const initializeDatabase = () => {
   createTable();
   insertDataIntoSQLite(geoJsonData);

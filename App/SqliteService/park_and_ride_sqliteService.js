@@ -30,7 +30,9 @@ export const createTable = async () => {
         url TEXT,
         city_id INTEGER,
         sd_id INTEGER,
-        lez INTEGER
+        lez INTEGER,
+        status TEXT,
+        timestamp TEXT,
       );`
   );
 };
@@ -59,6 +61,10 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       sd_id,
       lez,
     } = feature.properties;
+
+    const status = "unknown";
+    const timestamp = new Date(Date.UTC(1, 0, 1, 0, 0, 0)).toISOString();
+
     return [
       latitude,
       longitude,
@@ -75,6 +81,8 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       city_id,
       sd_id,
       lez,
+      status,
+      timestamp,
     ];
   });
 
@@ -95,8 +103,10 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
           url,
           city_id,
           sd_id,
-          lez
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          lez,
+          status,
+          timestamp,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       data
     );
   });

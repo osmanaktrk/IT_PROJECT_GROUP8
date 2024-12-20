@@ -7,24 +7,29 @@ proj4.defs(
 );
 
 // create a new SQLite database
-const db = SQLite.openDatabaseAsync("geojson.db");
+const db = SQLite.openDatabaseAsync("on_street_supply_pt.db");
 
 // create a new table in the database
 export const createTable = async () => {
-  await db.execAsync(`CREATE TABLE IF NOT EXISTS geojson (
+  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+  await db.execAsync(`
+    PRAGMA journal_mode = WAL;
+    CREATE TABLE IF NOT EXISTS on_street_supply_pt (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           latitude REAL,
           longitude REAL,
           typreg INTEGER,
           typres INTEGER,
           evp INTEGER,
-          city_id INTEGER
+          city_id INTEGER,
+          status TEXT,
+          timestamp TEXT,
         );`);
 };
 
-
 // insert data into the SQLite database
 export const insertDataIntoSQLite = async (geoJsonData) => {
+  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
   const preparedData = geoJsonData.features.map((feature) => {
     const [longitude, latitude] = proj4(
       "EPSG:31370",
@@ -32,22 +37,32 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       feature.geometry.coordinates[0]
     );
     const { typreg, typres, evp, city_id } = feature.properties;
-    return [latitude, longitude, typreg, typres, evp, city_id];
+    const status = "unknown";
+    const timestamp = new Date(Date.UTC(1, 0, 1, 0, 0, 0)).toISOString();
+    return [
+      latitude,
+      longitude,
+      typreg,
+      typres,
+      evp,
+      city_id,
+      status,
+      timestamp,
+    ];
   });
 
-  preparedData.forEach(
-    ([latitude, longitude, typreg, typres, evp, city_id]) => {
-      db.runAsync(
-        `INSERT INTO geojson (latitude, longitude, typreg, typres, evp, city_id) VALUES (?, ?, ?, ?, ?, ?)`,
-        [latitude, longitude, typreg, typres, evp, city_id]
-      );
-    }
-  );
+  preparedData.forEach((data) => {
+    db.runAsync(
+      `INSERT INTO on_street_supply_pt (latitude, longitude, typreg, typres, evp, city_id, status, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      data
+    );
+  });
 };
 
 // fetch all data from the SQLite database
 export const fetchAllData = async () => {
-  const result = await db.getAllAsync("SELECT * FROM geojson");
+  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+  const result = await db.getAllAsync("SELECT * FROM on_street_supply_pt");
 
   return result;
 };
@@ -55,7 +70,7 @@ export const fetchAllData = async () => {
 // fetch data from the SQLite database based on the visible region
 
 export const fetchVisibleData = async (region, expansionFactor = 1) => {
-  const db = await SQLite.openDatabaseAsync("park_and_ride.db");
+  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
   const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
   const expandedLatitudeDelta = latitudeDelta * expansionFactor;
   const expandedLongitudeDelta = longitudeDelta * expansionFactor;
@@ -66,22 +81,18 @@ export const fetchVisibleData = async (region, expansionFactor = 1) => {
   const southWestLng = longitude - expandedLongitudeDelta / 2;
 
   const result = db.getAllAsync(
-    `SELECT * FROM park_and_ride WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`,
+    `SELECT * FROM on_street_supply_pt WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`,
     [southWestLat, northEastLat, southWestLng, northEastLng]
   );
 
   return result;
 };
 
-
-
 // clear the SQLite database
 export const clearDatabase = async () => {
-
-  await db.execAsync(`DROP TABLE IF EXISTS geojson`);
-  
+  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+  await db.execAsync(`DROP TABLE IF EXISTS on_street_supply_pt`);
 };
-
 
 export const initializeDatabase = () => {
   createTable();
