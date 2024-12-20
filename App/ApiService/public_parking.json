@@ -1,0 +1,2206 @@
+{
+  "type": "FeatureCollection",
+  "totalFeatures": 71,
+  "features": [
+    {
+      "type": "Feature",
+      "id": "public_parking.43",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149076.99999999983, 169254.99999889266]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 43,
+        "name_fr": "LOUISE VILLAGE",
+        "name_du": "LOUISE VILLAGE",
+        "addr_fr": "Rue Dejoncker 36",
+        "addr_du": "36 Dejonckerstraat",
+        "city_fr": "SAINT-GILLES",
+        "type": "parking public",
+        "operator": null,
+        "capacity_car": 201,
+        "capacity_bike": null,
+        "url": "http://www.parkinglouisevillage.be/tarifs/",
+        "city_du": "SINT-GILLIS",
+        "city_id": 8300,
+        "sd_id": 497,
+        "sd_area": 109521,
+        "capakey": "21013B0006/00E014",
+        "bbox": [
+          149076.99999999983, 169254.99999889266, 149076.99999999983,
+          169254.99999889266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.17",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149235.29179350744, 170558.46436615218]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 17,
+        "name_fr": "CENTRAL GATE",
+        "name_du": "CENTRAL GATE",
+        "addr_fr": "Cantersteen 39",
+        "addr_du": "Cantersteen 39",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 26,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 182,
+        "sd_area": 194965,
+        "capakey": "21804D0900/00E002",
+        "bbox": [
+          149235.29179350744, 170558.46436615218, 149235.29179350744,
+          170558.46436615218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.58",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150295.0000000001, 168608.9999988908]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 58,
+        "name_fr": "FLAGEY",
+        "name_du": "FLAGEY",
+        "addr_fr": "Place Eugène Flagey",
+        "addr_du": "Eugène Flageyplein",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 186,
+        "capacity_bike": 20,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-flagey",
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 359,
+        "sd_area": 72717,
+        "capakey": null,
+        "bbox": [
+          150295.0000000001, 168608.9999988908, 150295.0000000001,
+          168608.9999988908
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.11",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148930.01201600017, 171119.6412984502]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 11,
+        "name_fr": "MONNAIE",
+        "name_du": "MUNT",
+        "addr_fr": "Place de la Monnaie 25",
+        "addr_du": "Muntplein 25",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 601,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Monnaie/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 189,
+        "sd_area": 149869,
+        "capakey": null,
+        "bbox": [
+          148930.01201600017, 171119.6412984502, 148930.01201600017,
+          171119.6412984502
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.52",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149374.99999999985, 169083.9999988908]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 52,
+        "name_fr": "LOUISE CONCORDE",
+        "name_du": "LOUISE CONCORDE",
+        "addr_fr": "Rue de la Concorde 66",
+        "addr_du": "Eendrachtstraat 66",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": null,
+        "capacity_car": 26,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 356,
+        "sd_area": 141271,
+        "capakey": "21009A0350/00R009",
+        "bbox": [
+          149374.99999999985, 169083.9999988908, 149374.99999999985,
+          169083.9999988908
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.40",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149857.99999999997, 169293.9999988908]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 40,
+        "name_fr": "FERNAND COCQ",
+        "name_du": "FERNAND COCQ",
+        "addr_fr": "Rue de la Tulipe 22",
+        "addr_du": "Tulpstraat 20",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Rivoli parking",
+        "capacity_car": 50,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 357,
+        "sd_area": 133156,
+        "capakey": "21009A0988/00K000",
+        "bbox": [
+          149857.99999999997, 169293.9999988908, 149857.99999999997,
+          169293.9999988908
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.57",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149957.99999999997, 169365.99999889266]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 57,
+        "name_fr": "TULIPE",
+        "name_du": "TULP",
+        "addr_fr": "Rue de la Tulipe 41",
+        "addr_du": "Tulpstraat 41",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Commune d'Ixelles",
+        "capacity_car": 560,
+        "capacity_bike": 50,
+        "url": "http://www.ixelles.be/site/166-Parkings-pour-voitures",
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 357,
+        "sd_area": 133156,
+        "capakey": "21009A0965/00T002",
+        "bbox": [
+          149957.99999999997, 169365.99999889266, 149957.99999999997,
+          169365.99999889266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.31",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149439.99999999985, 172319.9999988973]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 31,
+        "name_fr": "CCN",
+        "name_du": "CCN",
+        "addr_fr": "Rue du Progrès 80",
+        "addr_du": "Vooruitgangstraat 80",
+        "city_fr": "SCHAERBEEK",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 115,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/CCN/",
+        "city_du": "SCHAARBEEK",
+        "city_id": 8500,
+        "sd_id": 550,
+        "sd_area": 199119,
+        "capakey": "21908E0002/00H014",
+        "bbox": [
+          149439.99999999985, 172319.9999988973, 149439.99999999985,
+          172319.9999988973
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.48",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149865.4103023331, 167232.8084407095]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 48,
+        "name_fr": "INNO BASCULE",
+        "name_du": "INNO BASCULE",
+        "addr_fr": "Chaussée de Waterloo 715",
+        "addr_du": "Waterloosesteenweg 715",
+        "city_fr": "UCCLE",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 450,
+        "capacity_bike": null,
+        "url": "http://www.q-park.be/fr/se-garer-chez-q-park/par-ville/bruxelles/bascule",
+        "city_du": "UKKEL",
+        "city_id": 8600,
+        "sd_id": 565,
+        "sd_area": 230933,
+        "capakey": "21612C0001/00B055",
+        "bbox": [
+          149865.4103023331, 167232.8084407095, 149865.4103023331,
+          167232.8084407095
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.36",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149444.09375011723, 171773.14062400584]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 36,
+        "name_fr": "ROGIER",
+        "name_du": "ROGIER",
+        "addr_fr": "Place Rogier",
+        "addr_du": "Rogierplein",
+        "city_fr": "SAINT-JOSSE-TEN-NOODE",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 517,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Rogier/",
+        "city_du": "SINT-JOOST-TEN-NODE",
+        "city_id": 8400,
+        "sd_id": 504,
+        "sd_area": 37321,
+        "capakey": null,
+        "bbox": [
+          149444.09375011723, 171773.14062400584, 149444.09375011723,
+          171773.14062400584
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.53",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149235.0937499877, 169033.4505197512]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 53,
+        "name_fr": "STEPHANIE-LOUISE (EX-WILTCHERS)",
+        "name_du": "STEFANIA-LOUIZA (EX-WILTCHERS)",
+        "addr_fr": "Avenue Louise 83a",
+        "addr_du": "Louizalaan 83a",
+        "city_fr": "SAINT-GILLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 602,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Stephanie%20-%20Louise/",
+        "city_du": "SINT-GILLIS",
+        "city_id": 8300,
+        "sd_id": 489,
+        "sd_area": 98693,
+        "capakey": "21013B0012/00Y004",
+        "bbox": [
+          149235.0937499877, 169033.4505197512, 149235.0937499877,
+          169033.4505197512
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.29",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149126.9999999998, 171025.99999889452]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 29,
+        "name_fr": "RADISSON SAS HOTEL",
+        "name_du": "RADISSON SAS HOTEL",
+        "addr_fr": "Rue du Fossé aux Loups 47",
+        "addr_du": "47 Wolvengracht",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "The Carlson Redizor Hotel Group",
+        "capacity_car": 65,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 189,
+        "sd_area": 149869,
+        "capakey": "21802B0919/00C000",
+        "bbox": [
+          149126.9999999998, 171025.99999889452, 149126.9999999998,
+          171025.99999889452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.41",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149209.99999999985, 169652.99999889266]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 41,
+        "name_fr": "HILTON INN GARDEN",
+        "name_du": "HILTON",
+        "addr_fr": "Boulevard de Waterloo 38",
+        "addr_du": "Waterloolaan 38",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": null,
+        "capacity_car": 120,
+        "capacity_bike": null,
+        "url": "http://www.hiltonhotels.com/fr_FR/belgique/hilton-garden-inn-brussels-louise/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 208,
+        "sd_area": 270732,
+        "capakey": "21808H1965/00C000",
+        "bbox": [
+          149209.99999999985, 169652.99999889266, 149209.99999999985,
+          169652.99999889266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.33",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150755.00000000017, 169425.9999988908]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 33,
+        "name_fr": "FORTE DEI MARMI",
+        "name_du": "FORTE DEI MARMI",
+        "addr_fr": "Avenue de Maelbeek 61a",
+        "addr_du": "Maalbeeklaan 61a",
+        "city_fr": "ETTERBEEK",
+        "type": "parking public",
+        "operator": "Régie Communale Autonome d'Etterbeek",
+        "capacity_car": 98,
+        "capacity_bike": null,
+        "url": "https://etterbeek.brussels/fr/themes/logement-et-mobilite/stationnement-et-mobilite/parkings-communaux",
+        "city_du": "ETTERBEEK",
+        "city_id": 7500,
+        "sd_id": 251,
+        "sd_area": 91925,
+        "capakey": "21363B0465/00W038",
+        "bbox": [
+          150755.00000000017, 169425.9999988908, 150755.00000000017,
+          169425.9999988908
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.30",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148991.99999999977, 170536.9999988936]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 30,
+        "name_fr": "ROYAL WINDSOR",
+        "name_du": "ROYAL WINDSOR",
+        "addr_fr": "Rue Duquesnoy 5",
+        "addr_du": "5 Duquesnoystraat",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Royal Warwick sa",
+        "capacity_car": 103,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 195,
+        "sd_area": 108427,
+        "capakey": "21004A1078/00A000",
+        "bbox": [
+          148991.99999999977, 170536.9999988936, 148991.99999999977,
+          170536.9999988936
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.5",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148818.99999999974, 171174.99999889545]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 5,
+        "name_fr": "DE BROUCKERE",
+        "name_du": "DE BROUCKÈRE",
+        "addr_fr": "Place De Brouckère 1",
+        "addr_du": "De Brouckereplein 1",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 490,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/De%20Brouck%C3%A8re/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 193,
+        "sd_area": 140409,
+        "capakey": "21812N1468/00B000",
+        "bbox": [
+          148818.99999999974, 171174.99999889545, 148818.99999999974,
+          171174.99999889545
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.47",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149173.42997674347, 172325.12528960133]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 47,
+        "name_fr": "W.T.C.",
+        "name_du": "W.T.C.",
+        "addr_fr": "Boulevard Roi Albert II  30",
+        "addr_du": "Koning Albert II-laan  30",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 515,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/WTC/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 237,
+        "sd_area": 245218,
+        "capakey": "21813D0508/00V000",
+        "bbox": [
+          149173.42997674347, 172325.12528960133, 149173.42997674347,
+          172325.12528960133
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.10",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148349.99999999962, 171283.99999889452]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 10,
+        "name_fr": "LEPAGE",
+        "name_du": "LEPAGE",
+        "addr_fr": "Rue Léon Lepage 23-31",
+        "addr_du": "Léon Lepagestraat 23-31",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 691,
+        "capacity_bike": null,
+        "url": "http://www.q-park.be/fr/se-garer-chez-q-park/par-ville/bruxelles/lepage",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 154,
+        "sd_area": 198366,
+        "capakey": "21811M0499/00H000",
+        "bbox": [
+          148349.99999999962, 171283.99999889452, 148349.99999999962,
+          171283.99999889452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.23",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148833.8912311522, 172523.87939518265]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 23,
+        "name_fr": "UP SITE",
+        "name_du": "UP SITE",
+        "addr_fr": "Quai de Willebroek 35",
+        "addr_du": "Willebroekkaai 35",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 142,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-up-site",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 222,
+        "sd_area": 475879,
+        "capakey": "21814P0404/00A006",
+        "bbox": [
+          148833.8912311522, 172523.87939518265, 148833.8912311522,
+          172523.87939518265
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.34",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149555.9999999999, 171244.99999889638]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 34,
+        "name_fr": "PACHECO",
+        "name_du": "PACHECO",
+        "addr_fr": "Boulevard Pachéco 7",
+        "addr_du": "Pachecolaan 7",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 354,
+        "capacity_bike": null,
+        "url": "http://www.q-park.be/fr/se-garer-chez-q-park/par-ville/bruxelles/pacheco",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 202,
+        "sd_area": 103930,
+        "capakey": "21803C0819/00Y000",
+        "bbox": [
+          149555.9999999999, 171244.99999889638, 149555.9999999999,
+          171244.99999889638
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.1",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149376.99999999985, 171577.99999889545]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 1,
+        "name_fr": "BOTANIQUE",
+        "name_du": "KRUIDTUIN",
+        "addr_fr": "Boulevard du Jardin Botanique 29-31",
+        "addr_du": "Kruidtuinlaan 29-31",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 369,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Botanique%20-%20Saint-Jean/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 196,
+        "sd_area": 205010,
+        "capakey": "21802B0029/00F000",
+        "bbox": [
+          149376.99999999985, 171577.99999889545, 149376.99999999985,
+          171577.99999889545
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.18",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149566.5476793483, 170954.1084000822]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 18,
+        "name_fr": "PARKING ROYAL",
+        "name_du": "PARKING ROYAL",
+        "addr_fr": "Rue de Ligne 27",
+        "addr_du": "de Lignestraat 27",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 159,
+        "capacity_bike": null,
+        "url": "https://www.parking-royal.be/fr/accessibilite/?_ga=2.106975362.1075983063.1634716498-1856372247.1630923808&_ga=2.106975362.1075983063.1634716498-1856372247.1630923808",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 202,
+        "sd_area": 103930,
+        "capakey": "21803C1142/00L000",
+        "bbox": [
+          149566.5476793483, 170954.1084000822, 149566.5476793483,
+          170954.1084000822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.3",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148890.99999999977, 171345.99999889545]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 3,
+        "name_fr": "ALHAMBRA",
+        "name_du": "ALHAMBRA",
+        "addr_fr": "Boulevard Emile Jacqmain 14",
+        "addr_du": "Emile Jacqmainlaan 14",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 199,
+        "capacity_bike": null,
+        "url": "https://www.interparking.be/fr-BE/find-parking/Alhambra/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 157,
+        "sd_area": 80908,
+        "capakey": "21812N0879/00D000",
+        "bbox": [
+          148890.99999999977, 171345.99999889545, 148890.99999999977,
+          171345.99999889545
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.32",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149298.3269160407, 171478.33998230472]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 32,
+        "name_fr": "CITY 2",
+        "name_du": "CITY 2",
+        "addr_fr": "Rue des Cendres 8",
+        "addr_du": "Asstraat 8",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 380,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/City%202/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 156,
+        "sd_area": 172568,
+        "capakey": "21802B0020/00L000",
+        "bbox": [
+          149298.3269160407, 171478.33998230472, 149298.3269160407,
+          171478.33998230472
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.7",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149063.9999999998, 170672.9999988936]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 7,
+        "name_fr": "GRAND PLACE",
+        "name_du": "GROTE MARKT",
+        "addr_fr": "Rue du Marché aux Herbes 104",
+        "addr_du": "Grasmarkt 104",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 1013,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Grand%20Place/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 182,
+        "sd_area": 194965,
+        "capakey": "21804D1152/00S000",
+        "bbox": [
+          149063.9999999998, 170672.9999988936, 149063.9999999998,
+          170672.9999988936
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.6",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148921.9999999998, 170973.99999889452]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 6,
+        "name_fr": "ECUYER",
+        "name_du": "SCHILDKNAAP",
+        "addr_fr": "Rue de l'Ecuyer 11-17",
+        "addr_du": "Schildknaapsstraat 11-17",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 509,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Ecuyer/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 189,
+        "sd_area": 149869,
+        "capakey": "21802B0983/00D000",
+        "bbox": [
+          148921.9999999998, 170973.99999889452, 148921.9999999998,
+          170973.99999889452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.45",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148876.99999999974, 169748.99999889266]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 45,
+        "name_fr": "SABLON-POELAERT",
+        "name_du": "ZAVEL-POELAERT",
+        "addr_fr": "Place Poelaert",
+        "addr_du": "Poelaertplein",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 519,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Sablon-Poelaert/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 194,
+        "sd_area": 182520,
+        "capakey": "21808H0776/02_000",
+        "bbox": [
+          148876.99999999974, 169748.99999889266, 148876.99999999974,
+          169748.99999889266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.37",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[147474.99999999948, 169353.99999889266]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 37,
+        "name_fr": "GARE DU MIDI",
+        "name_du": "ZUIDSTATION",
+        "addr_fr": "Rue de France 40",
+        "addr_du": "Frankrijkstraat 40",
+        "city_fr": "SAINT-GILLES",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 1715,
+        "capacity_bike": null,
+        "url": "http://www.q-park.be/fr/se-garer-chez-q-park/par-ville/bruxelles/gare-du-midi",
+        "city_du": "SINT-GILLIS",
+        "city_id": 8300,
+        "sd_id": 485,
+        "sd_area": 244657,
+        "capakey": "21562A0424/00S002",
+        "bbox": [
+          147474.99999999948, 169353.99999889266, 147474.99999999948,
+          169353.99999889266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.49",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149232.99999999983, 168932.9999988908]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 49,
+        "name_fr": "LOUISE",
+        "name_du": "SHOPPING LOUISE",
+        "addr_fr": "Rue de Livourne 11",
+        "addr_du": "Livornostraat 11",
+        "city_fr": "SAINT-GILLES",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 325,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-louise",
+        "city_du": "SINT-GILLIS",
+        "city_id": 8300,
+        "sd_id": 489,
+        "sd_area": 98693,
+        "capakey": "21013B0040/00C021",
+        "bbox": [
+          149232.99999999983, 168932.9999988908, 149232.99999999983,
+          168932.9999988908
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.61",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148404.24463026627, 171279.54180483893]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 61,
+        "name_fr": "DANSAERT 2",
+        "name_du": "DANSAERT 2",
+        "addr_fr": "Rue de Flandres 60",
+        "addr_du": "Vlaamsesteenweg 60",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 150,
+        "capacity_bike": null,
+        "url": "http://www.q-park.be/fr/se-garer-chez-q-park/par-ville/bruxelles/dansaert-abonnement",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 154,
+        "sd_area": 198366,
+        "capakey": "21811M0502/00G000",
+        "bbox": [
+          148404.24463026627, 171279.54180483893, 148404.24463026627,
+          171279.54180483893
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.42",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149209.99999999985, 169407.99999889173]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 42,
+        "name_fr": "INNO LOUISE",
+        "name_du": "INNO LOUISE",
+        "addr_fr": "Rue Capitaine Crespel 27",
+        "addr_du": "Kapitein Crespelstraat 27",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 119,
+        "capacity_bike": null,
+        "url": "http://www.q-park.be/fr/se-garer-chez-q-park/par-ville/bruxelles/louise",
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 354,
+        "sd_area": 58180,
+        "capakey": "21009A0376/00E007",
+        "bbox": [
+          149209.99999999985, 169407.99999889173, 149209.99999999985,
+          169407.99999889173
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.51",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150004, 170533.99999889266]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 51,
+        "name_fr": "LOI",
+        "name_du": "WET",
+        "addr_fr": "Rue de la Loi 19",
+        "addr_du": "Wetstraat 19",
+        "city_fr": "BRUXELLES",
+        "type": "parking régional",
+        "operator": "Interparking",
+        "capacity_car": 1131,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Loi/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 185,
+        "sd_area": 322474,
+        "capakey": "21805E0166/00D000",
+        "bbox": [150004, 170533.99999889266, 150004, 170533.99999889266]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.55",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149876.99999999994, 168006.99999888893]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 55,
+        "name_fr": "LOUISE-VLEURGAT",
+        "name_du": "LOUIZA-VLEURGAT",
+        "addr_fr": "Avenue Louise 327 - Ch. De Vleurgat 164-166",
+        "addr_du": "Louizalaan 327 - Vleurgatsesteenweg 164-166",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Mypark",
+        "capacity_car": 120,
+        "capacity_bike": null,
+        "url": "http://www.mypark.be/parking/parking-louise-vleurgat/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 205,
+        "sd_area": 107329,
+        "capakey": "21807G0191/00K000",
+        "bbox": [
+          149876.99999999994, 168006.99999888893, 149876.99999999994,
+          168006.99999888893
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.56",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149765.99999999997, 168268.99999888986]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 56,
+        "name_fr": "PLATINUM",
+        "name_du": "PLATINIUM",
+        "addr_fr": "Rue du Magistrat 1",
+        "addr_du": "Wethouderstraat 1",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Mypark",
+        "capacity_car": 66,
+        "capacity_bike": null,
+        "url": "http://www.mypark.be/parking/parking-platinum/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 198,
+        "sd_area": 104223,
+        "capakey": "21807G0131/00T000",
+        "bbox": [
+          149765.99999999997, 168268.99999888986, 149765.99999999997,
+          168268.99999888986
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.28",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148410.87375192338, 170475.7289464455]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 28,
+        "name_fr": "ROUPPE-FONTANAS",
+        "name_du": "ROUPPE-FONTANAS",
+        "addr_fr": "Boulevrard Maurice Lemonnier 10",
+        "addr_du": "Maurice Lemonnierlaan 10",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Hobinvest",
+        "capacity_car": 260,
+        "capacity_bike": null,
+        "url": "https://parking-rouppe-fontainas.business.site/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 179,
+        "sd_area": 106866,
+        "capakey": "21809K0057/00G000",
+        "bbox": [
+          148410.87375192338, 170475.7289464455, 148410.87375192338,
+          170475.7289464455
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.35",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149503.2725255819, 171358.44702493012]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 35,
+        "name_fr": "PASSAGE 44",
+        "name_du": "PASSAGE 44",
+        "addr_fr": "Rue de l'Ommegang 16-20",
+        "addr_du": "Ommegangstraat 16-20",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 526,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Passage%2044/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 196,
+        "sd_area": 205010,
+        "capakey": "21803C1647/00L003",
+        "bbox": [
+          149503.2725255819, 171358.44702493012, 149503.2725255819,
+          171358.44702493012
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.60",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[147918.39530320757, 165987.64694172237]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 60,
+        "name_fr": "SAINT-PIERRE",
+        "name_du": "SINT-PIETERS",
+        "addr_fr": "rue du Doyenné, 63",
+        "addr_du": "Dekenijstraat, 63",
+        "city_fr": "UCCLE",
+        "type": "parking public",
+        "operator": null,
+        "capacity_car": 44,
+        "capacity_bike": 0,
+        "url": "http://www.ccu.be/index.php?page=16",
+        "city_du": "UKKEL",
+        "city_id": 8600,
+        "sd_id": 599,
+        "sd_area": 392483,
+        "capakey": "21016B0038/00F002",
+        "bbox": [
+          147918.39530320757, 165987.64694172237, 147918.39530320757,
+          165987.64694172237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.15",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[156699.0698661585, 170044.59176595716]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 15,
+        "name_fr": "STOCKEL SQUARE",
+        "name_du": "STOCKEL SQUARE",
+        "addr_fr": "Rue de l'Eglise 96a",
+        "addr_du": "Kerkstraat 96a",
+        "city_fr": "WOLUWE-SAINT-PIERRE",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 420,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Stockel%20Square/",
+        "city_du": "SINT-PIETERS-WOLUWE",
+        "city_id": 8900,
+        "sd_id": 714,
+        "sd_area": 267560,
+        "capakey": "21683D0033/00T007",
+        "bbox": [
+          156699.0698661585, 170044.59176595716, 156699.0698661585,
+          170044.59176595716
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.13",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[147872.99999999956, 171326.99999889545]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 13,
+        "name_fr": "BRUNFAUT",
+        "name_du": "BRUNFAUT",
+        "addr_fr": "Rue Fernand Brunfaut 18b",
+        "addr_du": "Fernand Brunfautstraat 18b",
+        "city_fr": "MOLENBEEK-SAINT-JEAN",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 200,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "SINT-JANS-MOLENBEEK",
+        "city_id": 8200,
+        "sd_id": 468,
+        "sd_area": 55428,
+        "capakey": "21522B0487/00N000",
+        "bbox": [
+          147872.99999999956, 171326.99999889545, 147872.99999999956,
+          171326.99999889545
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.19",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[146942.35196792212, 170430.41691994318]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 19,
+        "name_fr": "DELACROIX",
+        "name_du": "DELACROIX",
+        "addr_fr": "Rue Jules Ruhl 2",
+        "addr_du": "Jules Ruhlstraat 2",
+        "city_fr": "ANDERLECHT",
+        "type": "parking public",
+        "operator": "Abatan",
+        "capacity_car": 450,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "ANDERLECHT",
+        "city_id": 7100,
+        "sd_id": 58,
+        "sd_area": 274915,
+        "capakey": "21304B0122/00B008",
+        "bbox": [
+          146942.35196792212, 170430.41691994318, 146942.35196792212,
+          170430.41691994318
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.64",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[155685.88460320464, 171420.61061122455]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 64,
+        "name_fr": "ESPLANADE-HIPPOCRATE",
+        "name_du": "ESPLANADE-HIPPOCRATE",
+        "addr_fr": "Avenue Hippocrate 11",
+        "addr_du": "Hippocrateslaan 11",
+        "city_fr": "WOLUWE-SAINT-LAMBERT",
+        "type": null,
+        "operator": "Q-Park",
+        "capacity_car": 881,
+        "capacity_bike": null,
+        "url": "https://www.q-park.be/fr-be/villes/bruxelles/esplanade---hippocrate/",
+        "city_du": "SINT-LAMBRECHTS-WOLUWE",
+        "city_id": 8800,
+        "sd_id": 687,
+        "sd_area": 596755,
+        "capakey": "21018B0081/00F000",
+        "bbox": [
+          155685.88460320464, 171420.61061122455, 155685.88460320464,
+          171420.61061122455
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.20",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149658.3383337077, 169268.01490532176]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 20,
+        "name_fr": "IXELLES SHOPPING",
+        "name_du": "ELSENE SHOPPING",
+        "addr_fr": "Rue de l'Arbre Bénit, 34",
+        "addr_du": "Gewijdeboomstraat, 34",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 229,
+        "capacity_bike": null,
+        "url": "http://www.interparking.be/fr-BE/find-parking/IxellesShopping/",
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 357,
+        "sd_area": 133156,
+        "capakey": "21009A1062/00Y000",
+        "bbox": [
+          149658.3383337077, 169268.01490532176, 149658.3383337077,
+          169268.01490532176
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.16",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[154842.00000000105, 170681.99999889452]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 16,
+        "name_fr": "WOLUWE SHOPPING CENTER",
+        "name_du": "WOLUWE SHOPPING CENTER",
+        "addr_fr": "Boulevard de la Woluwe 70",
+        "addr_du": "Woluwelaan 70",
+        "city_fr": "WOLUWE-SAINT-LAMBERT",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 1885,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Woluwe%20Shopping%20Center/",
+        "city_du": "SINT-LAMBRECHTS-WOLUWE",
+        "city_id": 8800,
+        "sd_id": 679,
+        "sd_area": 181669,
+        "capakey": "21674C0095/00H007",
+        "bbox": [
+          154842.00000000105, 170681.99999889452, 154842.00000000105,
+          170681.99999889452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.22",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[142878.4810002621, 167125.34183322595]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 22,
+        "name_fr": "ERASME",
+        "name_du": "ERASME",
+        "addr_fr": "Route de Lennik 806",
+        "addr_du": "Lenniksebaan 806",
+        "city_fr": "ANDERLECHT",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 764,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-erasme",
+        "city_du": "ANDERLECHT",
+        "city_id": 7100,
+        "sd_id": 32,
+        "sd_area": 521974,
+        "capakey": "21307E0036/00L003",
+        "bbox": [
+          142878.4810002621, 167125.34183322595, 142878.4810002621,
+          167125.34183322595
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.63",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150391.6778416545, 174367.2658288749]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 63,
+        "name_fr": "DOCKS BRUXSEL",
+        "name_du": "DOCKS BRUXSEL",
+        "addr_fr": "Boulevard Lambermont 1",
+        "addr_du": "Lambermontlaan 1",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 1640,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-docks-bruxsel",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 138,
+        "sd_area": 1662354,
+        "capakey": "21813F0608/00M000",
+        "bbox": [
+          150391.6778416545, 174367.2658288749, 150391.6778416545,
+          174367.2658288749
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.24",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150470.00000000012, 170346.9999988936]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 24,
+        "name_fr": "THON HOTEL",
+        "name_du": "THON HOTEL",
+        "addr_fr": "Rue de Trêves 120",
+        "addr_du": "Trierstraat 120",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 170,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-thon",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 173,
+        "sd_area": 99390,
+        "capakey": "21805E0213/00M003",
+        "bbox": [
+          150470.00000000012, 170346.9999988936, 150470.00000000012,
+          170346.9999988936
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.27",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150117.00000000003, 171099.99999889452]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 27,
+        "name_fr": "SCAILQUIN",
+        "name_du": "SCAILQUIN",
+        "addr_fr": "Rue de l'Alliance 16",
+        "addr_du": "Verbondsstraat 16",
+        "city_fr": "SAINT-JOSSE-TEN-NOODE",
+        "type": "parking public",
+        "operator": "Parking Scailquin s.a.",
+        "capacity_car": 540,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "SINT-JOOST-TEN-NODE",
+        "city_id": 8400,
+        "sd_id": 505,
+        "sd_area": 87223,
+        "capakey": "21572B0514/00N000",
+        "bbox": [
+          150117.00000000003, 171099.99999889452, 150117.00000000003,
+          171099.99999889452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.9",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149230.97843875966, 171412.9482350368]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 9,
+        "name_fr": "INNO CENTRE",
+        "name_du": "INNO CENTRE",
+        "addr_fr": "Rue du Damier 26",
+        "addr_du": "Dambordstraat 26",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 780,
+        "capacity_bike": null,
+        "url": "http://www.q-park.be/fr/se-garer-chez-q-park/par-ville/bruxelles/centre",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 156,
+        "sd_area": 172568,
+        "capakey": "21802B0581/00F000",
+        "bbox": [
+          149230.97843875966, 171412.9482350368, 149230.97843875966,
+          171412.9482350368
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.67",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150816.99799498013, 169644.1153408643]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 67,
+        "name_fr": "JOURDAN I",
+        "name_du": "JOURDAN I",
+        "addr_fr": "Avenue du Maelbeek 16",
+        "addr_du": "Maalbeeklaan 16",
+        "city_fr": "ETTERBEEK",
+        "type": "parking public",
+        "operator": "Régie Communale Autonome d'Etterbeek",
+        "capacity_car": 70,
+        "capacity_bike": null,
+        "url": "https://etterbeek.brussels/fr/themes/logement-et-mobilite/stationnement-et-mobilite/parkings-communaux",
+        "city_du": "ETTERBEEK",
+        "city_id": 7500,
+        "sd_id": 251,
+        "sd_area": 91925,
+        "capakey": "21005A0153/00Z000",
+        "bbox": [
+          150816.99799498013, 169644.1153408643, 150816.99799498013,
+          169644.1153408643
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.44",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149620.9999999999, 169633.99999889266]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 44,
+        "name_fr": "PORTE DE NAMUR",
+        "name_du": "NAAMSEPOORT",
+        "addr_fr": "Chaussée de Wavre 23",
+        "addr_du": "Waversesteenweg 23",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Mypark",
+        "capacity_car": 90,
+        "capacity_bike": null,
+        "url": "http://www.mypark.be/parking/parking-porte-de-namur/",
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 353,
+        "sd_area": 100504,
+        "capakey": "21009A0740/00M000",
+        "bbox": [
+          149620.9999999999, 169633.99999889266, 149620.9999999999,
+          169633.99999889266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.59",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[152306.00000000047, 169917.99999889173]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 59,
+        "name_fr": "TONGRES 1",
+        "name_du": "TONGEREN 1",
+        "addr_fr": "Rue des Ménapiens 18",
+        "addr_du": "Menapiersstraat 18",
+        "city_fr": "ETTERBEEK",
+        "type": "parking public",
+        "operator": "Mypark",
+        "capacity_car": 85,
+        "capacity_bike": null,
+        "url": "http://www.mypark.be/parking/parking-tongres-1/",
+        "city_du": "ETTERBEEK",
+        "city_id": 7500,
+        "sd_id": 249,
+        "sd_area": 139170,
+        "capakey": "21005A0575/00K003",
+        "bbox": [
+          152306.00000000047, 169917.99999889173, 152306.00000000047,
+          169917.99999889173
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.8",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149968.99999999997, 167295.999998888]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 8,
+        "name_fr": "LOUISE-CLAUS",
+        "name_du": "LOUIZA-CLAUS",
+        "addr_fr": "Rue Emile Claus 47",
+        "addr_du": "Emile Clausstraat 47",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Mypark",
+        "capacity_car": 140,
+        "capacity_bike": null,
+        "url": "http://www.mypark.be/parking/parking-louise-claus/",
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 373,
+        "sd_area": 130633,
+        "capakey": "21447B0415/00D000",
+        "bbox": [
+          149968.99999999997, 167295.999998888, 149968.99999999997,
+          167295.999998888
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.25",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[152345.35635999622, 170013.2598463529]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 25,
+        "name_fr": "TONGRES 2",
+        "name_du": "TONGEREN 2",
+        "addr_fr": "Rue Bâtonnier Braffort",
+        "addr_du": "Stafhouder Braffortstraat",
+        "city_fr": "WOLUWE-SAINT-LAMBERT",
+        "type": "parking public",
+        "operator": "Mypark",
+        "capacity_car": 75,
+        "capacity_bike": null,
+        "url": "http://www.mypark.be/parking/parking-tongres-2/",
+        "city_du": "SINT-LAMBRECHTS-WOLUWE",
+        "city_id": 8800,
+        "sd_id": 651,
+        "sd_area": 228994,
+        "capakey": "21673D0159/00K011",
+        "bbox": [
+          152345.35635999622, 170013.2598463529, 152345.35635999622,
+          170013.2598463529
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.26",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149271.70930265856, 169588.0095614482]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 26,
+        "name_fr": "ENTRE-DEUX-PORTES",
+        "name_du": "ENTRE-DEUX-PORTES",
+        "addr_fr": "Avenue de la Toison d'Or",
+        "addr_du": "Gulden Vlieslaan",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 198,
+        "capacity_bike": null,
+        "url": "http://www.interparking.be/fr-BE/find-parking/EntreDeuxPortes/",
+        "city_du": "BRUSSEL",
+        "city_id": 7900,
+        "sd_id": 354,
+        "sd_area": 58180,
+        "capakey": "21009A0389/00V000",
+        "bbox": [
+          149271.70930265856, 169588.0095614482, 149271.70930265856,
+          169588.0095614482
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.50",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150079, 170269.9999988936]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 50,
+        "name_fr": "INDUSTRIE",
+        "name_du": "INDUSTRIE",
+        "addr_fr": "Rue de l'Industrie 26-38",
+        "addr_du": "Nijverheidsstraat 26-38",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 278,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Industrie/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 185,
+        "sd_area": 322474,
+        "capakey": "21805E0318/00F000",
+        "bbox": [150079, 170269.9999988936, 150079, 170269.9999988936]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.69",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[144232.86780238498, 169817.00714681298]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 69,
+        "name_fr": "WESTLAND SHOPPING CENTER",
+        "name_du": "WESTLAND SHOPPING CENTER",
+        "addr_fr": "Boulevard Sylvain Dupuis 433",
+        "addr_du": "Sylvain Dupuislaan 433",
+        "city_fr": "ANDERLECHT",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 1165,
+        "capacity_bike": null,
+        "url": "https://www.interparking.be/fr-BE/find-parking/WestlandShoppingCenter/",
+        "city_du": "ANDERLECHT",
+        "city_id": 7100,
+        "sd_id": 36,
+        "sd_area": 215517,
+        "capakey": "21001A0250/00C000",
+        "bbox": [
+          144232.86780238498, 169817.00714681298, 144232.86780238498,
+          169817.00714681298
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.46",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149168.3659638184, 171794.96287962503]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 46,
+        "name_fr": "MANHATTAN CENTER",
+        "name_du": "MANHATTAN CENTER",
+        "addr_fr": "Rue des Croisades 19",
+        "addr_du": "Kruisvaartenstraat 19",
+        "city_fr": "SAINT-JOSSE-TEN-NOODE",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 686,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-manhattan",
+        "city_du": "SINT-JOOST-TEN-NODE",
+        "city_id": 8400,
+        "sd_id": 511,
+        "sd_area": 104839,
+        "capakey": "21014A0008/00Z010",
+        "bbox": [
+          149168.3659638184, 171794.96287962503, 149168.3659638184,
+          171794.96287962503
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.70",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149652.1075772036, 172337.15756494924]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 70,
+        "name_fr": "BRABANT GARE DU NORD",
+        "name_du": "BRABANT GARE DU NORD",
+        "addr_fr": "Rue de Quatrecht 38",
+        "addr_du": "Quatrechtstraat 38",
+        "city_fr": "SCHAERBEEK",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 152,
+        "capacity_bike": null,
+        "url": "https://www.interparking.be/fr-BE/find-parking/BrabantGareduNord/",
+        "city_du": "SCHAABEEK",
+        "city_id": 8500,
+        "sd_id": 549,
+        "sd_area": 174312,
+        "capakey": "21908E0022/00F007",
+        "bbox": [
+          149652.1075772036, 172337.15756494924, 149652.1075772036,
+          172337.15756494924
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.72",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149979.79349481914, 171015.85083005112]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 72,
+        "name_fr": "SPECTRUM",
+        "name_du": "SPECTRUM",
+        "addr_fr": "Petite du du Nord",
+        "addr_du": "Korte Noordstraat",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 168,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-spectrum",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 204,
+        "sd_area": 188144,
+        "capakey": "21803C0005/00E000",
+        "bbox": [
+          149979.79349481914, 171015.85083005112, 149979.79349481914,
+          171015.85083005112
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.4",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148373.99999999965, 171191.99999889452]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 4,
+        "name_fr": "DANSAERT",
+        "name_du": "DANSAERT",
+        "addr_fr": "Place du Nouveau Marché aux Grains 2",
+        "addr_du": "Nieuwe Graanmarkt 2",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Q-Park",
+        "capacity_car": 199,
+        "capacity_bike": null,
+        "url": "https://www.q-park.be/fr-be/villes/bruxelles/dansaert/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 154,
+        "sd_area": 198366,
+        "capakey": "21811M0610/00E000",
+        "bbox": [
+          148373.99999999965, 171191.99999889452, 148373.99999999965,
+          171191.99999889452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.71",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[147354.09886704924, 169444.9502644958]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 71,
+        "name_fr": "GARE DU MIDI 2",
+        "name_du": "ZUIDSTATION 2",
+        "addr_fr": "Rue Bara 101",
+        "addr_du": "Barastraat 101",
+        "city_fr": "ANDERLECHT",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 124,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-gare-du-midi-2-zuidstation-2",
+        "city_du": "ANDERLECHT",
+        "city_id": 7100,
+        "sd_id": 71,
+        "sd_area": 146886,
+        "capakey": "21305C0333/00L002",
+        "bbox": [
+          147354.09886704924, 169444.9502644958, 147354.09886704924,
+          169444.9502644958
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.74",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[145783.60815111452, 175188.9206217771]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 74,
+        "name_fr": "UZ VUB Brussel",
+        "name_du": "UZ VUB Brussel",
+        "addr_fr": "Avenue de l'Arbre Ballon 253",
+        "addr_du": "Dikke-Beuklaan 253",
+        "city_fr": "JETTE",
+        "type": "parking public",
+        "operator": "APCOA",
+        "capacity_car": 882,
+        "capacity_bike": null,
+        "url": null,
+        "city_du": "JETTE",
+        "city_id": 8000,
+        "sd_id": 406,
+        "sd_area": 338191,
+        "capakey": "21010A0012/00R002",
+        "bbox": [
+          145783.60815111452, 175188.9206217771, 145783.60815111452,
+          175188.9206217771
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.39",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149469.6041910002, 169794.2201941864]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 39,
+        "name_fr": "2 PORTES",
+        "name_du": "2 POORTEN",
+        "addr_fr": "Boulevard de Waterloo 2a",
+        "addr_du": "Waterloolaan 2a",
+        "city_fr": "BRUXELLES",
+        "type": "parking régional",
+        "operator": "Interparking",
+        "capacity_car": 754,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/2-Portes/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 208,
+        "sd_area": 270732,
+        "capakey": "21808H1934/03_000",
+        "bbox": [
+          149469.6041910002, 169794.2201941864, 149469.6041910002,
+          169794.2201941864
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.65",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[146840.09249330987, 173566.13993914146]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 65,
+        "name_fr": "MIROIR",
+        "name_du": "SPIEGEL",
+        "addr_fr": "Place Reine Astrid",
+        "addr_du": "Koningin Astridplein",
+        "city_fr": "JETTE",
+        "type": "parking régional",
+        "operator": "APCOA",
+        "capacity_car": 199,
+        "capacity_bike": 38,
+        "url": "http://www.apcoa.be/fr/emplacements/parking-in/jette/miroir.html",
+        "city_du": "JETTE",
+        "city_id": 8000,
+        "sd_id": 400,
+        "sd_area": 221845,
+        "capakey": "21464E0043/00A000",
+        "bbox": [
+          146840.09249330987, 173566.13993914146, 146840.09249330987,
+          173566.13993914146
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.14",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[147250.99999999945, 172609.9999988973]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 14,
+        "name_fr": "SIMONIS",
+        "name_du": "SIMONIS",
+        "addr_fr": "Place Eugène Simonis 24",
+        "addr_du": "Eugène Simonisplein 24",
+        "city_fr": "KOEKELBERG",
+        "type": "parking régional",
+        "operator": "Indigo",
+        "capacity_car": 116,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-simonis",
+        "city_du": "KOEKELBERG",
+        "city_id": 8100,
+        "sd_id": 417,
+        "sd_area": 148038,
+        "capakey": "21492B0065/00H007",
+        "bbox": [
+          147250.99999999945, 172609.9999988973, 147250.99999999945,
+          172609.9999988973
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.21",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[142628.05506777987, 167311.29509720264]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 21,
+        "name_fr": "LENNIK",
+        "name_du": "LENNIK",
+        "addr_fr": "Route de Lennik",
+        "addr_du": "Lenniksebaan",
+        "city_fr": "ANDERLECHT",
+        "type": "parking régional",
+        "operator": "Indigo",
+        "capacity_car": 780,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/nl/car-park/parking-lennik",
+        "city_du": "ANDERLECHT",
+        "city_id": 7100,
+        "sd_id": 725,
+        "sd_area": 383992,
+        "capakey": "21307F0183/00G000",
+        "bbox": [
+          142628.05506777987, 167311.29509720264, 142628.05506777987,
+          167311.29509720264
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.38",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[148601.24046188642, 169197.47640451777]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 38,
+        "name_fr": "PORTE DE HAL",
+        "name_du": "HALLEPOORT",
+        "addr_fr": "Boulevard de Waterloo 103a",
+        "addr_du": "Waterloolaan 103a",
+        "city_fr": "BRUXELLES",
+        "type": "parking régional",
+        "operator": "Interparking",
+        "capacity_car": 508,
+        "capacity_bike": null,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Porte%20De%20Hal/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 190,
+        "sd_area": 71928,
+        "capakey": "21808H0032/03_000",
+        "bbox": [
+          148601.24046188642, 169197.47640451777, 148601.24046188642,
+          169197.47640451777
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.73",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[150383.12846484364, 164512.95478884317]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 73,
+        "name_fr": "FORT-JACO",
+        "name_du": "FORT-JACO",
+        "addr_fr": "Chaussée de Waterloo 1333",
+        "addr_du": "Waterloosesteenweg 1333",
+        "city_fr": "Uccle",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 49,
+        "capacity_bike": null,
+        "url": "https://be.parkindigo.com/fr/car-park/parking-fort-jaco",
+        "city_du": "UKKEL",
+        "city_id": 8600,
+        "sd_id": 608,
+        "sd_area": 184499,
+        "capakey": "21614H0003/00T008",
+        "bbox": [
+          150383.12846484364, 164512.95478884317, 150383.12846484364,
+          164512.95478884317
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.77",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[153345.30475576475, 169592.30653158342]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 77,
+        "name_fr": "MEDICIS",
+        "name_du": "MEDICIS",
+        "addr_fr": "Avenue de Tervueren 236",
+        "addr_du": "Tervurenlaan 236",
+        "city_fr": "WOLUWE-SAINT-PIERRE",
+        "type": "parking public",
+        "operator": "Indigo",
+        "capacity_car": 30,
+        "capacity_bike": null,
+        "url": "https://www.medicis.be/fr/acces/parking.html",
+        "city_du": "SINT-PIETERS-WOLUWE",
+        "city_id": 8900,
+        "sd_id": 697,
+        "sd_area": 86421,
+        "capakey": "21019A0199/00S011",
+        "bbox": [
+          153345.30475576475, 169592.30653158342, 153345.30475576475,
+          169592.30653158342
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.2",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149031.79153947497, 170344.7753000871]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 2,
+        "name_fr": "ALBERTINE SQUARE",
+        "name_du": "ALBERTINA SQUARE",
+        "addr_fr": "Place de la Justice 16",
+        "addr_du": "Gerechtsplein 16",
+        "city_fr": "BRUXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 726,
+        "capacity_bike": 22,
+        "url": "https://www.interparking.be/fr-BE/find-parking/Albertine-Square/",
+        "city_du": "BRUSSEL",
+        "city_id": 7400,
+        "sd_id": 182,
+        "sd_area": 194965,
+        "capakey": "21804D0453/00E000",
+        "bbox": [
+          149031.79153947497, 170344.7753000871, 149031.79153947497,
+          170344.7753000871
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "public_parking.54",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[149319.9576510905, 169613.71036025943]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 54,
+        "name_fr": "TOISON D'OR",
+        "name_du": "GULDEN VLIES",
+        "addr_fr": "Avenue de la Toison d'Or 20",
+        "addr_du": "Gulden Vlieslaan 20",
+        "city_fr": "IXELLES",
+        "type": "parking public",
+        "operator": "Interparking",
+        "capacity_car": 371,
+        "capacity_bike": 22,
+        "url": "http://prod.interparking.be/fr-BE/find-parking/Toison%20d%20Or/",
+        "city_du": "ELSENE",
+        "city_id": 7900,
+        "sd_id": 353,
+        "sd_area": 100504,
+        "capakey": "21009A0400/00S000",
+        "bbox": [
+          149319.9576510905, 169613.71036025943, 149319.9576510905,
+          169613.71036025943
+        ]
+      }
+    }
+  ],
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:EPSG::31370" }
+  },
+  "bbox": [142562.75, 165941.640625, 155751.1875, 175234.921875]
+}

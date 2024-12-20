@@ -1,0 +1,274 @@
+{
+  "type": "FeatureCollection",
+  "totalFeatures": 9,
+  "features": [
+    {
+      "type": "Feature",
+      "id": "park_and_ride.1",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[144338.3411683798, 167282.34350913754]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 1,
+        "name_fr": "CERIA",
+        "name_du": "COOVI",
+        "street_fr": "Boulevard Josse Leemans",
+        "street_du": "Josse Leemanslaan",
+        "housenr": 110,
+        "city_fr": "ANDERLECHT",
+        "city_du": "ANDERLECHT",
+        "capacity_car": 1263,
+        "capacity_bike": 200,
+        "url": "https://parkandride.brussels/",
+        "city_id": 7100,
+        "sd_id": 22,
+        "lez": 1,
+        "bbox": [
+          144338.3411683798, 167282.34350913754, 144338.3411683798,
+          167282.34350913754
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.4",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[142677.31789699593, 167229.37720584078]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 4,
+        "name_fr": "LENNIK-ERASME",
+        "name_du": "LENNIK-ERASMUS",
+        "street_fr": "Route de Lennik",
+        "street_du": "Lenniksebaan",
+        "housenr": 806,
+        "city_fr": "ANDERLECHT",
+        "city_du": "ANDERLECHT",
+        "capacity_car": 175,
+        "capacity_bike": 12,
+        "url": "https://parkandride.brussels/",
+        "city_id": 7100,
+        "sd_id": 32,
+        "lez": 1,
+        "bbox": [
+          142677.31789699593, 167229.37720584078, 142677.31789699593,
+          167229.37720584078
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.7",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[146498.2666728515, 164898.3963868441]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 7,
+        "name_fr": "STALLE",
+        "name_du": "STALLE",
+        "street_fr": "Rue de Stalle",
+        "street_du": "Stallestraat",
+        "housenr": 292,
+        "city_fr": "UCCLE",
+        "city_du": "UKKEL",
+        "capacity_car": 380,
+        "capacity_bike": 12,
+        "url": "https://parkandride.brussels/",
+        "city_id": 8600,
+        "sd_id": 580,
+        "lez": 1,
+        "bbox": [
+          146498.2666728515, 164898.3963868441, 146498.2666728515,
+          164898.3963868441
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.6",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[154717.74298667884, 170907.47665623203]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 6,
+        "name_fr": "ROODEBEEK",
+        "name_du": "ROODEBEEK",
+        "street_fr": "Chaussée de Roodebeek",
+        "street_du": "Roodebeeksteenweg",
+        "housenr": null,
+        "city_fr": "WOLUWE-SAINT-LAMBERT",
+        "city_du": "SINT-LAMBRECHTS-WOLUWE",
+        "capacity_car": 150,
+        "capacity_bike": 12,
+        "url": "https://parkandride.brussels/",
+        "city_id": 8800,
+        "sd_id": 677,
+        "lez": 0,
+        "bbox": [
+          154717.74298667884, 170907.47665623203, 154717.74298667884,
+          170907.47665623203
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.2",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[156403.27843550683, 170972.70010960847]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 2,
+        "name_fr": "CRAINHEM",
+        "name_du": "KRAAINEM",
+        "street_fr": "Avenue de Kraainem",
+        "street_du": "Kraainemlaan",
+        "housenr": 185,
+        "city_fr": "WOLUWE-SAINT-LAMBERT",
+        "city_du": "SINT-LAMBRECHTS-WOLUWE",
+        "capacity_car": 193,
+        "capacity_bike": 24,
+        "url": "https://parkandride.brussels/",
+        "city_id": 8800,
+        "sd_id": 687,
+        "lez": 1,
+        "bbox": [
+          156403.27843550683, 170972.70010960847, 156403.27843550683,
+          170972.70010960847
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.3",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[152609.77606170357, 167340.79722035304]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 3,
+        "name_fr": "DELTA",
+        "name_du": "DELTA",
+        "street_fr": "Rue Jules Cockx",
+        "street_du": "Jules Cockxstraat",
+        "housenr": 224,
+        "city_fr": "AUDERGHEM",
+        "city_du": "AUDERGHEM",
+        "capacity_car": 386,
+        "capacity_bike": 12,
+        "url": "https://parkandride.brussels/",
+        "city_id": 7200,
+        "sd_id": 90,
+        "lez": 0,
+        "bbox": [
+          152609.77606170357, 167340.79722035304, 152609.77606170357,
+          167340.79722035304
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.5",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[154246.40481686953, 166894.51345027797]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 5,
+        "name_fr": "HERRMANN-DEBROUX",
+        "name_du": "HERRMANN-DEBROUX",
+        "street_fr": "Avenue Gustave Demey",
+        "street_du": "Gustave Demeylaan",
+        "housenr": 1,
+        "city_fr": "AUDERGHEM",
+        "city_du": "AUDERGHEM",
+        "capacity_car": 103,
+        "capacity_bike": 24,
+        "url": "https://parkandride.brussels/",
+        "city_id": 7200,
+        "sd_id": 102,
+        "lez": 0,
+        "bbox": [
+          154246.40481686953, 166894.51345027797, 154246.40481686953,
+          166894.51345027797
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.8",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[145752.27663488517, 175501.91928623413]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 8,
+        "name_fr": "UZ BRUSSEL",
+        "name_du": "UZ BRUSSEL",
+        "street_fr": "Avenue de l'Arbre Ballon",
+        "street_du": "Dikke-Beuklaan",
+        "housenr": 253,
+        "city_fr": "JETTE",
+        "city_du": "JETTE",
+        "capacity_car": 50,
+        "capacity_bike": 12,
+        "url": "https://parkandride.brussels/",
+        "city_id": 8000,
+        "sd_id": 406,
+        "lez": 1,
+        "bbox": [
+          145752.27663488517, 175501.91928623413, 145752.27663488517,
+          175501.91928623413
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park_and_ride.9",
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[147668.07438208876, 176320.5036440175]]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "id": 9,
+        "name_fr": "Heysel",
+        "name_du": "Heizel",
+        "street_fr": "Avenue Impératrice Charlotte",
+        "street_du": "Keizerin Charlottelaan",
+        "housenr": null,
+        "city_fr": "BRUXELLES",
+        "city_du": "BRUSSEL",
+        "capacity_car": 100,
+        "capacity_bike": null,
+        "url": "https://parking.brussels/fr/pr-heysel",
+        "city_id": 7400,
+        "sd_id": 213,
+        "lez": 0,
+        "bbox": [
+          147668.07438208876, 176320.5036440175, 147668.07438208876,
+          176320.5036440175
+        ]
+      }
+    }
+  ],
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:EPSG::31370" }
+  },
+  "bbox": [
+    142677.317896996, 164898.396386844, 156403.278435507, 176320.503644018
+  ]
+}

@@ -329,3 +329,79 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { View, Alert, StyleSheet } from "react-native";
+// import MapView, { Marker } from "react-native-maps";
+// //import { initializeDatabase, fetchAllData, fetchVisibleData } from "../SqliteService/park_and_ride_sqliteService";
+// import { initializeDatabase, fetchAllData, fetchVisibleData } from "../SqliteService/public_parking_sqliteService";
+// export default function App() {
+//   const [markers, setMarkers] = useState([]);
+//   const [region, setRegion] = useState({
+//     latitude: 50.8503,
+//     longitude: 4.3517,
+//     latitudeDelta: 0.1,
+//     longitudeDelta: 0.1,
+//   });
+
+//   useEffect(() => {
+//     const setupDatabase = async () => {
+//       try {
+//         initializeDatabase(); // Initialize the SQLite database
+//         const data = await fetchAllData(); // Fetch all data initially
+//         setMarkers(data);
+        
+//       } catch (error) {
+//         Alert.alert("Error", `Initialization failed: ${error.message}`);
+//       }
+//     };
+
+//     setupDatabase();
+//   }, []);
+
+//   const handleRegionChangeComplete = async (newRegion) => {
+//     try {
+//       setRegion(newRegion); // Update region state
+//       const visibleData = await fetchVisibleData(newRegion); // Fetch visible markers based on region
+//       setMarkers(visibleData);
+      
+//     } catch (error) {
+//       Alert.alert("Error", `Failed to fetch visible markers: ${error.message}`);
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <MapView
+//         style={styles.map}
+//         initialRegion={region}
+//         onRegionChangeComplete={handleRegionChangeComplete}
+//       >
+//         {markers.map((item, index) => (
+//           <Marker
+//             key={index}
+//             coordinate={{
+//               latitude: item.latitude,
+//               longitude: item.longitude,
+//             }}
+//             title={item.name_fr || "Unnamed Location"}
+//             description={`City: ${item.city_fr}, Capacity (Car): ${item.capacity_car}`}
+//             pinColor="gray"
+//           />
+//         ))}
+//       </MapView>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//   },
+//   map: {
+//     flex: 1,
+//   },
+// });
