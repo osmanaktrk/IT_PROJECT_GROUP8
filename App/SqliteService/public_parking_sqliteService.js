@@ -120,17 +120,20 @@ export const fetchAllData = async () => {
 };
 
 // fetch data from the SQLite database based on the visible region
-export const fetchVisibleData = async (region) => {
-  const db = await SQLite.openDatabaseAsync("public_parking.db");
-  const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
 
-  const northEastLat = latitude + latitudeDelta / 2;
-  const northEastLng = longitude + longitudeDelta / 2;
-  const southWestLat = latitude - latitudeDelta / 2;
-  const southWestLng = longitude - longitudeDelta / 2;
+export const fetchVisibleData = async (region, expansionFactor = 1) => {
+  const db = await SQLite.openDatabaseAsync("park_and_ride.db");
+  const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
+  const expandedLatitudeDelta = latitudeDelta * expansionFactor;
+  const expandedLongitudeDelta = longitudeDelta * expansionFactor;
+
+  const northEastLat = latitude + expandedLatitudeDelta / 2;
+  const northEastLng = longitude + expandedLongitudeDelta / 2;
+  const southWestLat = latitude - expandedLatitudeDelta / 2;
+  const southWestLng = longitude - expandedLongitudeDelta / 2;
 
   const result = db.getAllAsync(
-    `SELECT * FROM public_parking WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`,
+    `SELECT * FROM park_and_ride WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`,
     [southWestLat, northEastLat, southWestLng, northEastLng]
   );
 

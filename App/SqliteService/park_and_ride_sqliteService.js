@@ -100,7 +100,6 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       data
     );
   });
-
 };
 
 // // fetch all data from the SQLite database
@@ -112,14 +111,16 @@ export const fetchAllData = async () => {
 };
 
 // fetch data from the SQLite database based on the visible region
-export const fetchVisibleData = async (region) => {
+export const fetchVisibleData = async (region, expansionFactor = 1) => {
   const db = await SQLite.openDatabaseAsync("park_and_ride.db");
   const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
+  const expandedLatitudeDelta = latitudeDelta * expansionFactor;
+  const expandedLongitudeDelta = longitudeDelta * expansionFactor;
 
-  const northEastLat = latitude + latitudeDelta / 2;
-  const northEastLng = longitude + longitudeDelta / 2;
-  const southWestLat = latitude - latitudeDelta / 2;
-  const southWestLng = longitude - longitudeDelta / 2;
+  const northEastLat = latitude + expandedLatitudeDelta / 2;
+  const northEastLng = longitude + expandedLongitudeDelta / 2;
+  const southWestLat = latitude - expandedLatitudeDelta / 2;
+  const southWestLng = longitude - expandedLongitudeDelta / 2;
 
   const result = db.getAllAsync(
     `SELECT * FROM park_and_ride WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`,

@@ -336,8 +336,8 @@ const styles = StyleSheet.create({
 // import React, { useEffect, useState } from "react";
 // import { View, Alert, StyleSheet } from "react-native";
 // import MapView, { Marker } from "react-native-maps";
-// //import { initializeDatabase, fetchAllData, fetchVisibleData } from "../SqliteService/park_and_ride_sqliteService";
-// import { initializeDatabase, fetchAllData, fetchVisibleData } from "../SqliteService/public_parking_sqliteService";
+// //import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqliteService";
+// import * as PublicParkingSqliteService from "../SqliteService/public_parking_sqliteService";
 // export default function App() {
 //   const [markers, setMarkers] = useState([]);
 //   const [region, setRegion] = useState({
