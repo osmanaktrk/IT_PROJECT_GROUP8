@@ -7,8 +7,13 @@ proj4.defs(
 );
 
 // create a new SQLite database
-const db = SQLite.openDatabaseAsync("on_street_acar.db");
+const db = SQLite.openDatabaseSync("on_street_acar.db");
 
+
+
+export const createDatabase = async () => {
+  const db = await SQLite.openDatabaseAsync("on_street_acar.db");
+}
 
 
 // create a new table in the database
@@ -31,8 +36,8 @@ export const createTable = async () => {
           city_id INTEGER,
           sd_id INTEGER,
           md_id INTEGER,
-          status TEXT,
-          timestamp TEXT,
+          status TEXT DEFAULT 'unknown',
+          timestamp TEXT DEFAULT '0001-01-01T00:00:00.000Z'
       );`
   );
 
@@ -65,8 +70,7 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
     } = feature.properties;
 
     const status = "unknown"; 
-    const timestamp = new Date(Date.UTC(1, 0, 1, 0, 0, 0)).toISOString(); 
-
+    const timestamp = "0001-01-01T00:00:00.000Z"; 
 
     return [
       id,
@@ -83,8 +87,8 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       city_id,
       sd_id,
       md_id,
-      status,
-      timestamp,
+      status || "unknown",
+      timestamp || "0001-01-01T00:00:00.000Z",
     ];
 
   });
@@ -152,9 +156,16 @@ export const clearDatabase = async () => {
   await db.execAsync(`DROP TABLE IF EXISTS on_street_acar`);
 };
 
+
+export const deleteDatabase = async () => {
+  const db = await SQLite.openDatabaseAsync("on_street_acar.db");
+  await db.closeAsync();
+  await SQLite.deleteDatabaseAsync("on_street_acar.db");
+  console.log("Database deleted");
+};
 //initialize the SQLite database
-export const initializeDatabase = () => {
-  createTable();
-  insertDataIntoSQLite(geoJsonData);
+export const initializeDatabase = async () => {
+  await createTable();
+  await insertDataIntoSQLite(geoJsonData);
   
 };

@@ -7,7 +7,12 @@ proj4.defs(
 );
 
 // create a new SQLite database
-const db = SQLite.openDatabaseAsync("on_street_supply_pt.db");
+const db = SQLite.openDatabaseSync("on_street_supply_pt.db");
+
+export const createDatabase = async () => {
+  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+}
+
 
 // create a new table in the database
 export const createTable = async () => {
@@ -22,8 +27,8 @@ export const createTable = async () => {
           typres INTEGER,
           evp INTEGER,
           city_id INTEGER,
-          status TEXT,
-          timestamp TEXT,
+          status TEXT DEFAULT 'unknown',
+          timestamp TEXT DEFAULT '0001-01-01T00:00:00.000Z'
         );`);
 };
 
@@ -37,8 +42,11 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       feature.geometry.coordinates[0]
     );
     const { typreg, typres, evp, city_id } = feature.properties;
-    const status = "unknown";
-    const timestamp = new Date(Date.UTC(1, 0, 1, 0, 0, 0)).toISOString();
+
+    const status = "unknown"; 
+    const timestamp = "0001-01-01T00:00:00.000Z"; 
+
+
     return [
       latitude,
       longitude,
@@ -46,8 +54,8 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       typres,
       evp,
       city_id,
-      status,
-      timestamp,
+      status || "unknown",
+      timestamp || "0001-01-01T00:00:00.000Z",
     ];
   });
 
@@ -94,8 +102,18 @@ export const clearDatabase = async () => {
   await db.execAsync(`DROP TABLE IF EXISTS on_street_supply_pt`);
 };
 
+
+
+export const deleteDatabase = async () => {
+  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+  await db.closeAsync();
+  await SQLite.deleteDatabaseAsync("on_street_supply_pt.db");
+  console.log("Database deleted");
+};
+
+
+// initialize the SQLite database
 export const initializeDatabase = () => {
   createTable();
   insertDataIntoSQLite();
-  console.log("Database initialized successfully");
 };

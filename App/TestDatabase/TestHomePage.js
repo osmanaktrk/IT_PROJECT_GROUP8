@@ -10,7 +10,7 @@ import {
   Pressable,
   Animated,
   Easing,
-  TouchableOpacity
+  TouchableOpacity,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
@@ -20,11 +20,22 @@ import { firebaseAuth } from "../../FirebaseConfig";
 import { signOut } from "firebase/auth";
 import { getDocs, collection } from "firebase/firestore";
 import { firestoreDB } from "../../FirebaseConfig";
+import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqliteService";
+import * as PublicParkingSqliteService from "../SqliteService/public_parking_sqliteService";
 
 export default function App({ navigation }) {
   const [userLocation, setUserLocation] = useState(null);
   const [spotsDatabase, setSpotsDatabase] = useState([]);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [public_parking, setPublic_parking] = useState([]);
+  const [park_and_ride, setPark_and_ride] = useState([]);
+  const [region, setRegion] = useState({
+    latitude: 50.8503,
+    longitude: 4.3517,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  });
+
   const slideAnim = useRef(
     new Animated.Value(-Dimensions.get("window").width * 0.6)
   ).current; // Menü animasyonu için
@@ -63,6 +74,43 @@ export default function App({ navigation }) {
     }
   };
 
+  useEffect(() => {
+    //ParkAndRideSqliteService.clearDatabase();
+    //PublicParkingSqliteService.clearDatabase();
+    //ParkAndRideSqliteService.deleteDatabase();
+    //PublicParkingSqliteService.deleteDatabase();
+
+    const setupDatabases = async () => {
+      try {
+        const [parkAndRideData, publicParkingData] = await Promise.all([
+          (async () => {
+            await ParkAndRideSqliteService.initializeDatabase();
+            return await ParkAndRideSqliteService.fetchSelectedData();
+          })(),
+          (async () => {
+            await PublicParkingSqliteService.initializeDatabase();
+            return await PublicParkingSqliteService.fetchSelectedData();
+          })(),
+        ]);
+
+        //console.log("ParkAndRideData", parkAndRideData);
+        //console.log("PublicParkingData", publicParkingData);
+
+        setPark_and_ride(parkAndRideData);
+        setPublic_parking(publicParkingData);
+
+        console.log("Databases initialized successfully.");
+      } catch (error) {
+        Alert.alert(
+          "Error",
+          `Database initialization failed: ${error.message}`
+        );
+      }
+    };
+
+    setupDatabases();
+  }, []);
+
   // Firestore'dan marker verilerini çekme
   const fetchSpots = async () => {
     try {
@@ -86,16 +134,12 @@ export default function App({ navigation }) {
     fetchSpots();
   }, []);
 
-
-
-
   //Update document
 
   // example code
   const handleUpdateSpot = () => {
-    
-    const spotId = "spot123"; 
-  
+    const spotId = "spot123";
+
     // updated spot informations
     const updatedData = {
       title: "Updated Spot Title",
@@ -103,10 +147,10 @@ export default function App({ navigation }) {
       timestamp: new Date().toISOString(),
       //timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     };
-  
+
     updateSpot(spotId, updatedData);
   };
-  
+
   const updateSpot = async (spotId, updatedData) => {
     try {
       const spotRef = doc(firestoreDB, "spots", spotId);
@@ -158,7 +202,10 @@ export default function App({ navigation }) {
         style={[styles.accountMenu, { transform: [{ translateX: slideAnim }] }]}
       >
         {/* Çarpı butonu */}
-        <TouchableOpacity style={styles.closeButton} onPress={toggleAccountMenu}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={toggleAccountMenu}
+        >
           <View style={styles.closeButtonContainer}>
             <Ionicons name="close" size={24} color="white" />
           </View>
@@ -173,12 +220,15 @@ export default function App({ navigation }) {
             style={styles.avatar}
           />
         </View>
-        
+
         <View style={styles.middleSection}>
           <TouchableOpacity style={styles.menuButton}>
             <Text style={styles.menuButtonText}>Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton} onPress={()=> navigation.navigate("TestProfilePage")}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate("TestProfilePage")}
+          >
             <Text style={styles.menuButtonText}>Update Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuButton}>
@@ -229,6 +279,34 @@ export default function App({ navigation }) {
             title={spot.title}
             pinColor={spot.status === "available" ? "green" : "red"}
           />
+        ))}
+
+        {public_parking.map((item, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            title={item.name_du}
+            description={`Capacity (Car): ${item.capacity_car}, Status: ${item.status}, Timestamp: ${item.timestamp}`}
+            image={require("../../assets/parking40.png")}
+          ></Marker>
+        ))}
+
+        {park_and_ride.map((item, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            title={item.name_du}
+            description={` Capacity (Car): ${item.capacity_car}, Status: ${
+              item.status || "Unk"
+            }, Timestamp: ${item.timestamp}`}
+            image={require("../../assets/parking40.png")}
+          ></Marker>
         ))}
       </MapView>
     </View>
@@ -330,57 +408,68 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
-
 // import React, { useEffect, useState } from "react";
-// import { View, Alert, StyleSheet } from "react-native";
+// import { View, Alert, StyleSheet, Image } from "react-native";
 // import MapView, { Marker } from "react-native-maps";
-// //import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqliteService";
+// import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqliteService";
 // import * as PublicParkingSqliteService from "../SqliteService/public_parking_sqliteService";
+
 // export default function App() {
 //   const [markers, setMarkers] = useState([]);
+//   const [public_parking, setPublic_parking] = useState([]);
+//   const [park_and_ride, setPark_and_ride] = useState([]);
 //   const [region, setRegion] = useState({
 //     latitude: 50.8503,
 //     longitude: 4.3517,
-//     latitudeDelta: 0.1,
-//     longitudeDelta: 0.1,
+//     latitudeDelta: 0.01,
+//     longitudeDelta: 0.01,
 //   });
 
 //   useEffect(() => {
-//     const setupDatabase = async () => {
+//     //ParkAndRideSqliteService.clearDatabase();
+//     //PublicParkingSqliteService.clearDatabase();
+//     //ParkAndRideSqliteService.deleteDatabase();
+//     //PublicParkingSqliteService.deleteDatabase();
+
+//     const setupDatabases = async () => {
 //       try {
-//         initializeDatabase(); // Initialize the SQLite database
-//         const data = await fetchAllData(); // Fetch all data initially
-//         setMarkers(data);
-        
+//         const [parkAndRideData, publicParkingData] = await Promise.all([
+//           (async () => {
+//             await ParkAndRideSqliteService.initializeDatabase();
+//             return await ParkAndRideSqliteService.fetchSelectedData();
+//           })(),
+//           (async () => {
+//             await PublicParkingSqliteService.initializeDatabase();
+//             return await PublicParkingSqliteService.fetchSelectedData();
+//           })(),
+//         ]);
+
+//         console.log("ParkAndRideData", parkAndRideData);
+//         console.log("PublicParkingData", publicParkingData);
+
+//         setPark_and_ride(parkAndRideData);
+//         setPublic_parking(publicParkingData);
+
+//         console.log("Databases initialized successfully.");
 //       } catch (error) {
-//         Alert.alert("Error", `Initialization failed: ${error.message}`);
+//         Alert.alert(
+//           "Error",
+//           `Database initialization failed: ${error.message}`
+//         );
 //       }
 //     };
 
-//     setupDatabase();
+//     setupDatabases();
 //   }, []);
-
-//   const handleRegionChangeComplete = async (newRegion) => {
-//     try {
-//       setRegion(newRegion); // Update region state
-//       const visibleData = await fetchVisibleData(newRegion); // Fetch visible markers based on region
-//       setMarkers(visibleData);
-      
-//     } catch (error) {
-//       Alert.alert("Error", `Failed to fetch visible markers: ${error.message}`);
-//     }
-//   };
 
 //   return (
 //     <View style={styles.container}>
 //       <MapView
 //         style={styles.map}
 //         initialRegion={region}
-//         onRegionChangeComplete={handleRegionChangeComplete}
+//         //onRegionChangeComplete={handleRegionChangeComplete}
 //       >
-//         {markers.map((item, index) => (
+//         {/* {markers.map((item, index) => (
 //           <Marker
 //             key={index}
 //             coordinate={{
@@ -391,7 +480,42 @@ const styles = StyleSheet.create({
 //             description={`City: ${item.city_fr}, Capacity (Car): ${item.capacity_car}`}
 //             pinColor="gray"
 //           />
+//         ))} */}
+
+//         {public_parking.map((item, index) => (
+//           <Marker
+//             key={index}
+//             coordinate={{
+//               latitude: item.latitude,
+//               longitude: item.longitude,
+//             }}
+//             title={item.name_du}
+//             description={`Capacity (Car): ${item.capacity_car}, Status: ${
+//               item.status
+//             }, Timestamp: ${item.timestamp}`}
+//             image={require("../../assets/parking40.png")}
+//           >
+
+//           </Marker>
 //         ))}
+
+//         {park_and_ride.map((item, index) => (
+//           <Marker
+//             key={index}
+//             coordinate={{
+//               latitude: item.latitude,
+//               longitude: item.longitude,
+//             }}
+//             title={item.name_du}
+//             description={` Capacity (Car): ${item.capacity_car}, Status: ${
+//               item.status || "Unk"
+//             }, Timestamp: ${item.timestamp}`}
+//             image={require("../../assets/parking40.png")}
+//           >
+
+//           </Marker>
+//         ))}
+
 //       </MapView>
 //     </View>
 //   );
@@ -403,5 +527,9 @@ const styles = StyleSheet.create({
 //   },
 //   map: {
 //     flex: 1,
+//   },
+//   markerImage: {
+//     width: 40,
+//     height: 40,
 //   },
 // });

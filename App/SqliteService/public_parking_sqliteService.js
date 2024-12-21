@@ -7,7 +7,15 @@ proj4.defs(
 );
 
 // create a new SQLite database
+
 const db = SQLite.openDatabaseAsync("public_parking.db");
+
+
+export const createDatabase = async () => {
+  const db = await SQLite.openDatabaseAsync("public_parking.db");
+}
+
+
 
 // create a new table in the database
 export const createTable = async () => {
@@ -33,8 +41,8 @@ export const createTable = async () => {
           sd_id INTEGER,
           sd_area INTEGER,
           capakey TEXT,
-          status TEXT,
-          timestamp TEXT,
+          status TEXT DEFAULT 'unknown',
+          timestamp TEXT DEFAULT '0001-01-01T00:00:00.000Z'
       );`
   );
 };
@@ -67,7 +75,7 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
     } = feature.properties;
 
     const status = "unknown"; 
-    const timestamp = new Date(Date.UTC(1, 0, 1, 0, 0, 0)).toISOString(); 
+    const timestamp = "0001-01-01T00:00:00.000Z"; 
 
     return [
       latitude,
@@ -87,8 +95,8 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
       sd_id,
       sd_area,
       capakey || null,
-      status,
-      timestamp,
+      status || "unknown",
+      timestamp || "0001-01-01T00:00:00.000Z",
     ];
   });
 
@@ -112,8 +120,8 @@ export const insertDataIntoSQLite = async (geoJsonData) => {
             sd_id,
             sd_area,
             capakey,
-            status
-            timestamp,
+            status,
+            timestamp
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       data
     );
@@ -128,6 +136,13 @@ export const fetchAllData = async () => {
 
   return result;
 };
+
+export const fetchSelectedData = async ()=>{
+  const db = await SQLite.openDatabaseAsync("public_parking.db");
+  const result = await db.getAllAsync("SELECT latitude, longitude, name_du, capacity_car, status, timestamp FROM public_parking")
+console.log("public_parking_data");
+  return result;
+}
 
 // fetch data from the SQLite database based on the visible region
 
@@ -156,9 +171,17 @@ export const clearDatabase = async () => {
   await db.execAsync(`DROP TABLE IF EXISTS public_parking`);
 };
 
+export const deleteDatabase = async () => {
+  const db = await SQLite.openDatabaseAsync("public_parking.db");
+  await db.closeAsync();
+  await SQLite.deleteDatabaseAsync("public_parking.db");
+  console.log("Database deleted");
+
+};
+
 //initialize the SQLite database
-export const initializeDatabase = () => {
-  createTable();
-  insertDataIntoSQLite(geoJsonData);
+export const initializeDatabase = async () => {
+  await createTable();
+  await insertDataIntoSQLite(geoJsonData);
   
 };
