@@ -317,20 +317,15 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Log In</Text>
         </Pressable>
 
-        {/* FrontPage Button */}
-
+          {/* "Still no account?" and Sign Up Link */}
+          <Text style={styles.stillNoAccountText}>Still no account?</Text>
         <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            pressed && styles.buttonPressed,
-          ]}
           onPress={() => navigation.navigate("SignUpScreen")}
-          accessibilityLabel="Navigate to the singup page"
-          accessibilityHint="Navigates to the singup page of the application"
-          accessibilityRole="button"
+          style={({ pressed }) => pressed && styles.linkPressed}
         >
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Text style={styles.signUpText}>Sign Up</Text>
         </Pressable>
+      
 
         {/* Modal for Login Errors */}
         <Modal
@@ -428,6 +423,19 @@ const styles = StyleSheet.create({
     fontSize: hp(2),
     fontWeight: "600",
   },
+  stillNoAccountText: {
+    fontSize: hp(2),
+    color: "#B2DDF9",
+    marginTop: hp(2),
+    fontWeight: "600",
+  },
+signUpText: {
+  fontSize: hp(2),
+  color: "#B2DDF9",
+  textDecorationLine: "underline",
+  marginTop: hp(),
+  fontWeight: "700",
+},
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -456,7 +464,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(7),
     width: "90%",
     alignItems: "center",
-    padding: hp(2),
+    padding: hp(1),
     marginTop: hp(3),
     borderColor: "#B2DDF9",
     borderWidth: 1,
