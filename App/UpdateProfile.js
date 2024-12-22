@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -12,7 +12,22 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { getAuth } from "firebase/auth";
+
 export default function UpdateProfile({ navigation }) {
+  const [username, setUsername] = useState("");
+
+  // Fetch the currently logged-in user's displayName
+  useEffect(() => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      const displayName = currentUser.displayName || "User"; // Declare `displayName`
+      // Capitalize the first letter of the username
+      setUsername(displayName.charAt(0).toUpperCase() + displayName.slice(1));
+    }
+  }, []);
   return (
     <ImageBackground
       source={require("../assets/background.png")} // Update the path to your background image
@@ -20,6 +35,9 @@ export default function UpdateProfile({ navigation }) {
     >
       <View style={styles.container}>
         <Text style={styles.title}>Update Profile</Text>
+        <Text style={styles.welcomeText}>
+          Hello {username}, you can change your username and password here.
+        </Text>
 
         {/* Username Input */}
         <View style={styles.inputContainer}>
@@ -107,6 +125,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#B2DDF9",
     marginBottom: hp(2),
+  },
+  welcomeText: {
+    fontSize: hp(2.3), // Slightly smaller than the title
+    color: "#B2DDF9", // Same color as the title
+    textAlign: "center",
+    marginBottom: hp(3),
   },
   inputContainer: {
     flexDirection: "row",
