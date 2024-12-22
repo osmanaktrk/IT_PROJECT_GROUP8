@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
-import { collection, query, where, getDocs, addDoc, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, updateDoc, getDocs,doc,addDoc } from "firebase/firestore";
 import { firestoreDB } from '../FirebaseConfig'; 
 import { getAuth } from "firebase/auth";
+
+
 
 
 // Initializing the component with state for history data and user ID
@@ -66,7 +68,7 @@ export default function HistoryPage({ navigation }) {
   useEffect(() => {
     if (userID) {
       const historyRef = collection(firestoreDB, "history");
-      const q = query(historyRef, where("userID", "==", userID));
+      const q = query(historyRef, where("userID", "==", userID), where("isDeleted", "==" , false));
 
     
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -84,7 +86,10 @@ export default function HistoryPage({ navigation }) {
   // Delete a history entry by ID
   const handleDelete = async (id) => {
     try {
-      await deleteDoc(doc(firestoreDB, "history", id)); 
+      const docRef =doc(firestoreDB, "history",id);
+      await updateDoc(docRef, {isDeleted: true}) ;
+
+      setHistoryData((prevHistory) => prevHistory.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting document: ", error); 
     }
