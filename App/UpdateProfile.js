@@ -13,10 +13,12 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { FontAwesome } from "@expo/vector-icons";
-import { getAuth,deleteUser } from "firebase/auth";
+import { getAuth, deleteUser,updateProfile } from "firebase/auth";
 
 export default function UpdateProfile({ navigation }) {
   const [username, setUsername] = useState("");
+  const [newUsername, setNewUsername] = useState(""); // Added state for the new username
+
 
   // Fetch the currently logged-in user's displayName
   useEffect(() => {
@@ -29,6 +31,30 @@ export default function UpdateProfile({ navigation }) {
       setUsername(displayName.charAt(0).toUpperCase() + displayName.slice(1));
     }
   }, []);
+
+  // Handle username change
+  const handleSave = async () => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!newUsername.trim()) {
+      Alert.alert("Error", "Username cannot be empty.");
+      return;
+    }
+
+    try {
+      await updateProfile(currentUser, { displayName: newUsername });
+      setUsername(newUsername.charAt(0).toUpperCase() + newUsername.slice(1));
+      Alert.alert("Success", "Your username has been successfully changed!");
+    } catch (error) {
+      console.error("Error updating username:", error);
+      Alert.alert(
+        "Error",
+        "There was an issue updating your username. Please try again."
+      );
+    }
+  };
+
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -48,7 +74,10 @@ export default function UpdateProfile({ navigation }) {
 
               if (currentUser) {
                 await deleteUser(currentUser);
-                Alert.alert("Account Deleted", "Your account has been deleted.");
+                Alert.alert(
+                  "Account Deleted",
+                  "Your account has been deleted."
+                );
                 navigation.replace("LoginSignupChoiceScreen");
               }
             } catch (error) {
@@ -84,9 +113,11 @@ export default function UpdateProfile({ navigation }) {
             style={styles.icon}
           />
           <TextInput
-            placeholder="Change Username"
+            placeholder="New Username"
             placeholderTextColor="#B0BEC5"
             style={styles.input}
+            value={newUsername} // Bind state
+            onChangeText={setNewUsername} // Update state
           />
         </View>
 
@@ -124,10 +155,10 @@ export default function UpdateProfile({ navigation }) {
           />
         </View>
 
-        {/* Save Button */}
-        <TouchableOpacity
+       {/* Save Button */}
+       <TouchableOpacity
           style={styles.saveButton}
-          onPress={() => navigation.goBack()} // Navigate back to the previous screen
+          onPress={handleSave}
         >
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
