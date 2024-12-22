@@ -1,13 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image, TouchableOpacity, FlatList } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Button,
+  Dimensions,
+  Alert,
+  Text,
+  Image,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 
 import { getDocs, collection, Timestamp } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { firebaseAuth, firestoreDB } from '../FirebaseConfig'; //user authentication
-import { signOut, reauthenticateWithCredential, EmailAuthProvider, } from "firebase/auth";
+import { firebaseAuth, firestoreDB } from "../FirebaseConfig"; //user authentication
+import {
+  signOut,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
 
 export default function App({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,10 +44,38 @@ export default function App({ navigation }) {
   const mapRef = useRef(null);
 
   const markers = [
-    { id: 1, latitude: 50.8466, longitude: 4.3528, title: "Grote Markt", price: 10, status: "available" },
-    { id: 2, latitude: 50.8503, longitude: 4.3497, title: "Manneken Pis", price: "free", status: "unavailable" },
-    { id: 3, latitude: 50.8456, longitude: 4.3572, title: "Koninklijke Sint-Hubertusgalerijen", price: 7.5, status: "available" },
-    { id: 4, latitude: 50.8505, longitude: 4.3488, title: "Stadhuis van Brussel", price: 3.5, status: "available" },
+    {
+      id: 1,
+      latitude: 50.8466,
+      longitude: 4.3528,
+      title: "Grote Markt",
+      price: 10,
+      status: "available",
+    },
+    {
+      id: 2,
+      latitude: 50.8503,
+      longitude: 4.3497,
+      title: "Manneken Pis",
+      price: "free",
+      status: "unavailable",
+    },
+    {
+      id: 3,
+      latitude: 50.8456,
+      longitude: 4.3572,
+      title: "Koninklijke Sint-Hubertusgalerijen",
+      price: 7.5,
+      status: "available",
+    },
+    {
+      id: 4,
+      latitude: 50.8505,
+      longitude: 4.3488,
+      title: "Stadhuis van Brussel",
+      price: 3.5,
+      status: "available",
+    },
   ];
 
   const fetchSpots = async () => {
@@ -72,26 +115,35 @@ export default function App({ navigation }) {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Locatietoegang geweigerd", "Schakel locatietoegang in om je huidige locatie te gebruiken.");
+        Alert.alert(
+          "Locatietoegang geweigerd",
+          "Schakel locatietoegang in om je huidige locatie te gebruiken."
+        );
         return;
       }
       setPermissionGranted(true);
-  
-      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
       const { latitude, longitude } = location.coords;
-  
+
       const initialLocation = {
         latitude,
         longitude,
         latitudeDelta: 0.03,
         longitudeDelta: 0.03,
       };
-  
+
       setLiveLocation({ latitude, longitude });
       setMapLocation(initialLocation); // Stel live locatie als startpunt van de kaart in.
-  
+
       Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 5000,
+          distanceInterval: 10,
+        },
         (loc) => {
           const { latitude, longitude } = loc.coords;
           setLiveLocation({ latitude, longitude });
@@ -99,13 +151,16 @@ export default function App({ navigation }) {
       );
     })();
   }, []);
-  
 
   const searchLocation = async (query) => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=1`,
-        { headers: { "User-Agent": "ReactNativeApp/1.0 (https://example.com)" } }
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          query
+        )}&format=json&addressdetails=1&limit=1`,
+        {
+          headers: { "User-Agent": "ReactNativeApp/1.0 (https://example.com)" },
+        }
       );
 
       if (!response.ok) throw new Error(`HTTP status ${response.status}`);
@@ -125,7 +180,10 @@ export default function App({ navigation }) {
 
       setMapLocation(coords);
     } catch (error) {
-      Alert.alert("Fout", `Er ging iets mis bij het ophalen van de locatie: ${error.message}`);
+      Alert.alert(
+        "Fout",
+        `Er ging iets mis bij het ophalen van de locatie: ${error.message}`
+      );
     }
   };
   const toggleAccountMenu = () => setShowAccountMenu(!showAccountMenu);
@@ -139,18 +197,22 @@ export default function App({ navigation }) {
         longitudeDelta: 0.01,
       };
       // Gebruik animateToRegion om de kaart te animeren naar de live locatie
-      mapRef.current?.animateToRegion(newRegion, 1000);  // De tweede parameter is de duur van de animatie in milliseconden
-  
+      mapRef.current?.animateToRegion(newRegion, 1000); // De tweede parameter is de duur van de animatie in milliseconden
     } else {
-      Alert.alert("Geen live locatie beschikbaar", "Controleer of locatie is ingeschakeld.");
+      Alert.alert(
+        "Geen live locatie beschikbaar",
+        "Controleer of locatie is ingeschakeld."
+      );
     }
   };
-
 
   const fitAllMarkers = () => {
     mapRef.current?.fitToCoordinates(
       markers.map((m) => ({ latitude: m.latitude, longitude: m.longitude })),
-      { edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, animated: true }
+      {
+        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+        animated: true,
+      }
     );
   };
 
@@ -188,27 +250,25 @@ export default function App({ navigation }) {
             value={searchQuery}
             onChangeText={(text) => setSearchQuery(text)}
           />
-          
+
           <Button title="Zoom op alle markers" onPress={fitAllMarkers} />
         </View>
       )}
-  
+
       {/* Zorg ervoor dat de live locatieknop altijd onderaan wordt weergegeven */}
       {!showAccountMenu && !selectedSpot && (
-        <TouchableOpacity 
-          onPress={goToLiveLocation} 
+        <TouchableOpacity
+          onPress={goToLiveLocation}
           style={styles.locationButton}
         >
-          <Image 
-            source={require("../assets/MyLocationMarker.png")} 
+          <Image
+            source={require("../assets/MyLocationMarker.png")}
             style={styles.locationButtonImage}
           />
         </TouchableOpacity>
       )}
 
-      
-
-{showAccountMenu && !showUpdateProfile && (
+      {showAccountMenu && !showUpdateProfile && (
         <View style={styles.accountMenu}>
           <View style={styles.topSection}>
             <Text style={styles.accountText}>Name</Text>
@@ -216,37 +276,40 @@ export default function App({ navigation }) {
           <View style={styles.middleSection}>
             <TouchableOpacity
               style={styles.menuButton}
-              onPress={() => setShowUpdateProfile(true)}
+              onPress={() => navigation.navigate("UpdateProfile")} // Navigate to the new UpdateProfile screen
             >
               <Text style={styles.menuButtonText}>Update Profile</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.menuButton}
               onPress={() => {
                 setShowAccountMenu(false); // Sluit de standaard zijbalk
-                setShowMyPoints(true); 
+                setShowMyPoints(true);
               }}
             >
               <Text style={styles.menuButtonText}>My Points</Text>
             </TouchableOpacity>
             <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => navigation.navigate("HistoryScreen")} // Navigate to the history page
+              style={styles.menuButton}
+              onPress={() => navigation.navigate("HistoryScreen")} // Navigate to the history page
             >
-            <Text style={styles.menuButtonText}>History</Text>
-          </TouchableOpacity>
+              <Text style={styles.menuButtonText}>History</Text>
+            </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuButton}
-            onPress={() => navigation.navigate("TermsAndConditions")}
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => navigation.navigate("TermsAndConditions")}
             >
               <Text style={styles.menuButtonText}>Terms & Conditions</Text>
             </TouchableOpacity>
-            
           </View>
           <View style={styles.bottomSection}>
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
               <Text style={styles.logoutButtonText}>Log out</Text>
-
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleAccountMenu}>
               <Text style={styles.closeButton}>Close</Text>
@@ -255,31 +318,6 @@ export default function App({ navigation }) {
         </View>
       )}
 
-      {showUpdateProfile && (
-        <View style={styles.accountMenu}>
-          <View style={styles.topSection}>
-            <Text style={styles.accountText}>Update Profile</Text>
-          </View>
-          <View style={styles.middleSection}>
-            <TextInput style={styles.inputField} placeholder="Name" />
-            <TextInput style={styles.inputField} placeholder="E-mail" />
-            <TextInput style={styles.inputField} placeholder="Phone number" />
-          </View>
-          <View style={styles.bottomSection}>
-            <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
-              <Text style={styles.menuButtonText}>Done</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => setShowUpdateProfile(false)}
-            >
-              <Text style={styles.menuButtonText}>Back to menu</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-    
       {/* My Points Sectie */}
       {showMyPoints && (
         <View style={styles.accountMenu}>
@@ -299,73 +337,70 @@ export default function App({ navigation }) {
             </Text>
           </View>
           <View style={styles.bottomSection}>
-          <TouchableOpacity
-        onPress={() => {
-          setShowMyPoints(false); // Sluit de My Points-sectie
-          setShowAccountMenu(true); // Heropen de standaard zijbalk
-        }}
-      >
-        <Text style={styles.closeButton}>Back to Menu</Text>
-      </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setShowMyPoints(false); // Sluit de My Points-sectie
+                setShowAccountMenu(true); // Heropen de standaard zijbalk
+              }}
+            >
+              <Text style={styles.closeButton}>Back to Menu</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
 
-      
-
-
-
       <MapView ref={mapRef} style={styles.map} region={mapLocation}>
         {liveLocation && (
           <Marker coordinate={liveLocation}>
-              <View style={styles.markerContainer}>
-             <Image
-              source={require("../assets/car.png")} 
-              style={styles.markerImage}
-            />
-          </View>
+            <View style={styles.markerContainer}>
+              <Image
+                source={require("../assets/car.png")}
+                style={styles.markerImage}
+              />
+            </View>
             <Callout>
               <Text>Dit ben jij!</Text>
             </Callout>
           </Marker>
         )}
-        
+
         {/* Firestore marker */}
         {spotsDatabase.map((spot) => (
           <Marker
-          key={spot.id}
-          coordinate={{
-            latitude: spot.latitude,
-            longitude: spot.longitude,
-          }}
-          
-          onPress={() => handleSpotPress(spot)}
-        >
-          {/* Gebruik aangepaste afbeelding afhankelijk van de status */}
-    <View style={styles.markerContainer}>
-      <Image
-        source={
-          spot.status === "available"
-            ? require("../assets/available.png")
-            : require("../assets/notAvailable.png")
-        }
-        style={styles.markerImage}
-      />
-    </View>  
-        </Marker>
-      ))}
+            key={spot.id}
+            coordinate={{
+              latitude: spot.latitude,
+              longitude: spot.longitude,
+            }}
+            onPress={() => handleSpotPress(spot)}
+          >
+            {/* Gebruik aangepaste afbeelding afhankelijk van de status */}
+            <View style={styles.markerContainer}>
+              <Image
+                source={
+                  spot.status === "available"
+                    ? require("../assets/available.png")
+                    : require("../assets/notAvailable.png")
+                }
+                style={styles.markerImage}
+              />
+            </View>
+          </Marker>
+        ))}
       </MapView>
 
       {selectedSpot && (
         <View style={styles.bottomSheet}>
           <Text style={styles.description}>{selectedSpot.description}</Text>
-          <Text style={styles.price}>{"price: " + selectedSpot.price + " euro"}</Text>
-          <Text style={styles.Timestamp}>{"timestamp: " + selectedSpot.Timestamp}</Text>
+          <Text style={styles.price}>
+            {"price: " + selectedSpot.price + " euro"}
+          </Text>
+          <Text style={styles.Timestamp}>
+            {"timestamp: " + selectedSpot.Timestamp}
+          </Text>
           <Button title="Close" onPress={closeBottomSheet} />
         </View>
       )}
-
-      
 
       {/*{!showAccountMenu && (
        <FlatList
@@ -507,15 +542,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   markerImage: {
-    width: 50, 
-    height: 50, 
+    width: 50,
+    height: 50,
     resizeMode: "contain", // keep the ratio the same
   },
 
   locationButton: {
     position: "absolute",
     bottom: 40, // Zet de knop 20 eenheden van de onderkant
-    left: 30,  // Zet de knop 10 eenheden van de linkerkant
+    left: 30, // Zet de knop 10 eenheden van de linkerkant
     zIndex: 1, // Zorg ervoor dat de knop boven andere componenten komt
   },
   locationButtonImage: {

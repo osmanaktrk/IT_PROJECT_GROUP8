@@ -12,7 +12,7 @@ import ConfirmPasswordResetScreen from './App/ConfirmPasswordResetScreen';
 import SignUpScreen from "./App/SignUpScreen";
 import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
-import { LoaderProvider } from "./App/LoaderContextPage";
+import UpdateProfile from './App/UpdateProfile';import { LoaderProvider } from "./App/LoaderContextPage";
 //test Pages
 
 import TestHomePage from './App/TestDatabase/TestHomePage';
@@ -86,6 +86,9 @@ function App() {
         {/* HistoryScreen Page */}
         <Stack.Screen name="HistoryScreen" component={HistoryScreen} />
 
+
+        {/* UpdateProfile Page */}
+        <Stack.Screen name="UpdateProfile" component={UpdateProfile} />
         {/* Test Pages */}
         <Stack.Screen name="TestHomePage" component={TestHomePage} />
         <Stack.Screen name="TestProfilePage" component={TestProfilePage} />
