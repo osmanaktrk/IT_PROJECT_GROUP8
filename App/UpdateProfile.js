@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  Alert,
 } from "react-native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import { getAuth } from "firebase/auth";
+import { FontAwesome } from "@expo/vector-icons";
+import { getAuth,deleteUser } from "firebase/auth";
 
 export default function UpdateProfile({ navigation }) {
   const [username, setUsername] = useState("");
@@ -28,6 +29,41 @@ export default function UpdateProfile({ navigation }) {
       setUsername(displayName.charAt(0).toUpperCase() + displayName.slice(1));
     }
   }, []);
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            try {
+              const auth = getAuth();
+              const currentUser = auth.currentUser;
+
+              if (currentUser) {
+                await deleteUser(currentUser);
+                Alert.alert("Account Deleted", "Your account has been deleted.");
+                navigation.replace("LoginSignupChoiceScreen");
+              }
+            } catch (error) {
+              console.error("Error deleting account:", error);
+              Alert.alert(
+                "Error",
+                "There was an issue deleting your account. Please try again."
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ImageBackground
       source={require("../assets/background.png")} // Update the path to your background image
@@ -99,7 +135,7 @@ export default function UpdateProfile({ navigation }) {
         {/* Delete Account */}
 
         <TouchableOpacity
-          onPress={() => console.log("Delete Account")}
+          onPress={handleDeleteAccount} // Call the delete account function
           style={styles.deleteAccount}
         >
           <Text style={styles.deleteAccountText}>Delete Account</Text>
