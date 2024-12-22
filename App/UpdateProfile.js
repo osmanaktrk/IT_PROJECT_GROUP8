@@ -12,18 +12,25 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { FontAwesome } from "@expo/vector-icons";
-import { getAuth, deleteUser,updateProfile,updatePassword } from "firebase/auth";
-
-
-
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import {
+  getAuth,
+  deleteUser,
+  updateProfile,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
 
 export default function UpdateProfile({ navigation }) {
   const [username, setUsername] = useState("");
   const [newUsername, setNewUsername] = useState(""); // Added state for the new username
   const [newPassword, setNewPassword] = useState(""); // State for new password
   const [confirmPassword, setConfirmPassword] = useState(""); // State for confirming new password
-
+  const [currentPassword, setCurrentPassword] = useState(""); // State for current password
+  const [passwordVisible, setPasswordVisible] = useState(false); // Toggle visibility for new password
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle visibility for confirm password
+  const [currentPasswordVisible, setCurrentPasswordVisible] = useState(false); // Toggle visibility for current password
 
   // Fetch the currently logged-in user's displayName
   useEffect(() => {
@@ -37,16 +44,29 @@ export default function UpdateProfile({ navigation }) {
     }
   }, []);
 
-  // Handle username  and password change
+  // Handle username and password change
   const handleSave = async () => {
     const auth = getAuth();
     const currentUser = auth.currentUser;
+
+    if (!currentPassword.trim()) {
+      Alert.alert("Error", "Please enter your current password.");
+      return;
+    }
 
     if (!newUsername.trim() && !newPassword.trim()) {
       Alert.alert("Error", "Please enter a new username, password, or both.");
       return;
     }
+
     try {
+      // NEW: Reauthenticate the user
+      const credential = EmailAuthProvider.credential(
+        currentUser.email,
+        currentPassword
+      );
+      await reauthenticateWithCredential(currentUser, credential);
+
       // Update username if provided
       if (newUsername.trim()) {
         await updateProfile(currentUser, { displayName: newUsername });
@@ -54,7 +74,12 @@ export default function UpdateProfile({ navigation }) {
       }
 
       // Update password if provided
-      if (newPassword.trim() || confirmPassword.trim()) {
+      if (newPassword.trim()) {
+        if (newPassword.length < 6) {
+          Alert.alert("Error", "Password must be at least 6 characters long.");
+          return;
+        }
+
         if (newPassword !== confirmPassword) {
           Alert.alert("Error", "Passwords do not match.");
           return;
@@ -64,17 +89,31 @@ export default function UpdateProfile({ navigation }) {
 
       Alert.alert("Success", "Your profile has been successfully updated!");
     } catch (error) {
-      console.error("Error updating profile:", error);
-      Alert.alert(
-        "Error",
-        "There was an issue updating your profile. Please try again."
-      );
+      // NEW: Handle errors specifically
+      if (error.code === "auth/wrong-password") {
+        Alert.alert("Error", "Incorrect current password.");
+      } else if (error.code === "auth/invalid-credential") {
+        Alert.alert(
+          "Invalid Credential",
+          "The provided current password is incorrect. Please try again."
+        );
+      } else if (error.code === "auth/requires-recent-login") {
+        Alert.alert(
+          "Reauthentication Required",
+          "Please log in again to perform this action."
+        );
+        navigation.replace("LoginScreen");
+      } else {
+        console.error("Error updating profile:", error);
+        Alert.alert(
+          "Error",
+          "There was an issue updating your profile. Please try again."
+        );
+      }
     }
   };
 
-
-
-// Handle Delete Account 
+  // Handle Delete Account
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -92,27 +131,43 @@ export default function UpdateProfile({ navigation }) {
               const auth = getAuth();
               const currentUser = auth.currentUser;
 
-              if (currentUser) {
-                await deleteUser(currentUser);
+              if (!currentPassword.trim()) {
                 Alert.alert(
-                  "Account Deleted",
-                  "Your account has been deleted."
-                );
-                navigation.replace("LoginSignupChoiceScreen");
+                  "Error",
+                  "Please enter your current password to delete your account."
+                ); // Ensure current password is entered
+                return;
               }
-            } catch (error) {
-              console.error("Error deleting account:", error);
-              Alert.alert(
-                "Error",
-                "There was an issue deleting your account. Please try again."
+              //Reauthenticate the user before deletion
+              const credential = EmailAuthProvider.credential(
+                currentUser.email,
+                currentPassword
               );
+              await reauthenticateWithCredential(currentUser, credential);
+
+              await deleteUser(currentUser);
+              Alert.alert("Account Deleted", "Your account has been deleted.");
+              navigation.replace("LoginSignupChoiceScreen");
+            } catch (error) {
+              if (error.code === "auth/requires-recent-login") {
+                Alert.alert(
+                  "Reauthentication Required",
+                  "Please log in again to perform this action."
+                );
+                navigation.replace("LoginScreen");
+              } else {
+                console.error("Error deleting account:", error);
+                Alert.alert(
+                  "Error",
+                  "There was an issue deleting your account. Please try again."
+                );
+              }
             }
           },
         },
       ]
     );
   };
-
   return (
     <ImageBackground
       source={require("../assets/background.png")} // Update the path to your background image
@@ -141,6 +196,33 @@ export default function UpdateProfile({ navigation }) {
           />
         </View>
 
+        {/* Current Password Input */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="lock"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Current Password"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            secureTextEntry={!currentPasswordVisible}
+          />
+          <TouchableOpacity
+            onPress={() => setCurrentPasswordVisible(!currentPasswordVisible)}
+            style={styles.eyeIcon}
+          >
+            <Ionicons
+              name={currentPasswordVisible ? "eye-off" : "eye"}
+              size={hp(3)}
+              color="#B0BEC5"
+            />
+          </TouchableOpacity>
+        </View>
         {/* New Password Input */}
 
         <View style={styles.inputContainer}>
@@ -156,8 +238,18 @@ export default function UpdateProfile({ navigation }) {
             style={styles.input}
             value={newPassword}
             onChangeText={setNewPassword}
-            secureTextEntry={true}
+            secureTextEntry={!passwordVisible}
           />
+          <TouchableOpacity
+            onPress={() => setPasswordVisible(!passwordVisible)}
+            style={styles.eyeIcon}
+          >
+            <Ionicons
+              name={passwordVisible ? "eye-off" : "eye"}
+              size={hp(3)}
+              color="#B0BEC5"
+            />
+          </TouchableOpacity>
         </View>
         {/* Confirm Password Input */}
 
@@ -175,19 +267,25 @@ export default function UpdateProfile({ navigation }) {
             style={styles.input}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
-            secureTextEntry={true}
+            secureTextEntry={!confirmPasswordVisible}
           />
+          <TouchableOpacity
+            onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+            style={styles.eyeIcon}
+          >
+            <Ionicons
+              name={confirmPasswordVisible ? "eye-off" : "eye"}
+              size={hp(3)}
+              color="#B0BEC5"
+            />
+          </TouchableOpacity>
         </View>
 
-       {/* Save Button */}
-       <TouchableOpacity
-          style={styles.saveButton}
-          onPress={handleSave}
-        >
+        {/* Save Button */}
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
 
-   
         {/* Delete Account */}
 
         <TouchableOpacity
