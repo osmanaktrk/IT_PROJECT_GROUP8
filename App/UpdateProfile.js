@@ -13,11 +13,16 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { FontAwesome } from "@expo/vector-icons";
-import { getAuth, deleteUser,updateProfile } from "firebase/auth";
+import { getAuth, deleteUser,updateProfile,updatePassword } from "firebase/auth";
+
+
+
 
 export default function UpdateProfile({ navigation }) {
   const [username, setUsername] = useState("");
   const [newUsername, setNewUsername] = useState(""); // Added state for the new username
+  const [newPassword, setNewPassword] = useState(""); // State for new password
+  const [confirmPassword, setConfirmPassword] = useState(""); // State for confirming new password
 
 
   // Fetch the currently logged-in user's displayName
@@ -32,29 +37,44 @@ export default function UpdateProfile({ navigation }) {
     }
   }, []);
 
-  // Handle username change
+  // Handle username  and password change
   const handleSave = async () => {
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
-    if (!newUsername.trim()) {
-      Alert.alert("Error", "Username cannot be empty.");
+    if (!newUsername.trim() && !newPassword.trim()) {
+      Alert.alert("Error", "Please enter a new username, password, or both.");
       return;
     }
-
     try {
-      await updateProfile(currentUser, { displayName: newUsername });
-      setUsername(newUsername.charAt(0).toUpperCase() + newUsername.slice(1));
-      Alert.alert("Success", "Your username has been successfully changed!");
+      // Update username if provided
+      if (newUsername.trim()) {
+        await updateProfile(currentUser, { displayName: newUsername });
+        setUsername(newUsername.charAt(0).toUpperCase() + newUsername.slice(1));
+      }
+
+      // Update password if provided
+      if (newPassword.trim() || confirmPassword.trim()) {
+        if (newPassword !== confirmPassword) {
+          Alert.alert("Error", "Passwords do not match.");
+          return;
+        }
+        await updatePassword(currentUser, newPassword);
+      }
+
+      Alert.alert("Success", "Your profile has been successfully updated!");
     } catch (error) {
-      console.error("Error updating username:", error);
+      console.error("Error updating profile:", error);
       Alert.alert(
         "Error",
-        "There was an issue updating your username. Please try again."
+        "There was an issue updating your profile. Please try again."
       );
     }
   };
 
+
+
+// Handle Delete Account 
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -134,6 +154,8 @@ export default function UpdateProfile({ navigation }) {
             placeholder="New Password"
             placeholderTextColor="#B0BEC5"
             style={styles.input}
+            value={newPassword}
+            onChangeText={setNewPassword}
             secureTextEntry={true}
           />
         </View>
@@ -151,6 +173,8 @@ export default function UpdateProfile({ navigation }) {
             placeholder="Confirm Password"
             placeholderTextColor="#B0BEC5"
             style={styles.input}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
             secureTextEntry={true}
           />
         </View>
@@ -163,6 +187,7 @@ export default function UpdateProfile({ navigation }) {
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
 
+   
         {/* Delete Account */}
 
         <TouchableOpacity
