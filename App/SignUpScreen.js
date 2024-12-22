@@ -21,8 +21,10 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signOut,
-  updateProfile
+  updateProfile,
 } from "firebase/auth";
+import { firestoreDB } from "../FirebaseConfig"; // Import Firestore database instance
+import { doc, setDoc } from "firebase/firestore"; // Import Firestore methods
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -128,9 +130,26 @@ const SignUpScreen = ({ navigation }) => {
       );
       const user = userCredential.user;
 
-      await updateProfile(user, {
-        displayName: username,
+      try {
+        // Update the display name for the user
+        await updateProfile(user, {
+          displayName: username,
+        });
+        await user.reload(); // Reload user data to confirm the displayName
+        console.log("Display Name updated successfully:", user.displayName);
+      } catch (error) {
+        console.error("Error updating displayName:", error.message);
+        Alert.alert("Error", "Failed to update username. Please try again.");
+        return;
+      }
+
+      // Save the user data to Firestore
+      await setDoc(doc(firestoreDB, "users", user.uid), {
+        username: username, // Save username in Firestore
+        email: email, // Save email in Firestore
+        createdAt: new Date().toISOString(), // Add a timestamp
       });
+
       // Send email verification
       await sendEmailVerification(user);
       Alert.alert(
