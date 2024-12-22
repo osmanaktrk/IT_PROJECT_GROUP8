@@ -50,10 +50,7 @@ const LoginScreen = ({ navigation }) => {
           );
           navigation.replace("HomePage");
         } catch (error) {
-          Alert.alert(
-            "Auto-login failed",
-            "Please log in again."
-          );
+          Alert.alert("Auto-login failed", "Please log in again.");
 
           //console.error("Auto-login failed:", error.message);
         }
@@ -135,8 +132,6 @@ const LoginScreen = ({ navigation }) => {
           setModalMessage("Password is required. Please provide a password.");
           setModalVisible(true);
           break;
-
-       
 
         case "auth/invalid-email":
           // Invalid email format entered
@@ -293,9 +288,9 @@ const LoginScreen = ({ navigation }) => {
               value={rememberMe}
               onValueChange={setRememberMe}
               style={{ marginRight: wp(2) }}
-              ios_backgroundColor="#B2DDF9"
-              trackColor={{ false: "#B2DDF9", true: "#008000" }}
-              thumbColor={rememberMe ? "#B2DDF9" : "#f4f3f4"}
+              ios_backgroundColor="#FFFFFF"
+              trackColor={{ false: "#FFFFFF", true: "#B2DDF9" }}
+              thumbColor={rememberMe ? "#FFFFFF" : "#FFFFFF"}
             />
             <Text style={styles.rememberText}>Keep me logged in</Text>
           </View>
