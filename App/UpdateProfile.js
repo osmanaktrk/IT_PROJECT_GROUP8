@@ -7,7 +7,11 @@ import {
   StyleSheet,
   ImageBackground,
 } from "react-native";
-
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 export default function UpdateProfile({ navigation }) {
   return (
     <ImageBackground
@@ -15,29 +19,67 @@ export default function UpdateProfile({ navigation }) {
       style={styles.background}
     >
       <View style={styles.container}>
-        <TextInput
-          style={styles.inputField}
-          placeholder="Change Username"
-          placeholderTextColor="#aaa"
-        />
-        <TextInput
-          style={styles.inputField}
-          placeholder="New Password"
-          placeholderTextColor="#aaa"
-          secureTextEntry={true}
-        />
-        <TextInput
-          style={styles.inputField}
-          placeholder="Confirm Password"
-          placeholderTextColor="#aaa"
-          secureTextEntry={true}
-        />
+        <Text style={styles.title}>Update Profile</Text>
+
+        {/* Username Input */}
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="user"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Change Username"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+          />
+        </View>
+
+        {/* New Password Input */}
+
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="lock"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="New Password"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            secureTextEntry={true}
+          />
+        </View>
+        {/* Confirm Password Input */}
+
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            name="lock"
+            size={hp(3)}
+            color="#B0BEC5"
+            style={styles.icon}
+          />
+
+          <TextInput
+            placeholder="Confirm Password"
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            secureTextEntry={true}
+          />
+        </View>
+
+        {/* Save Button */}
         <TouchableOpacity
           style={styles.saveButton}
           onPress={() => navigation.goBack()} // Navigate back to the previous screen
         >
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
+
+        {/* Delete Account */}
+
         <TouchableOpacity
           onPress={() => console.log("Delete Account")}
           style={styles.deleteAccount}
@@ -52,50 +94,75 @@ export default function UpdateProfile({ navigation }) {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    resizeMode: "cover", // Ensure the background image covers the entire screen
-    justifyContent: "center",
+    resizeMode: "cover",
   },
   container: {
     flex: 1,
-    padding: 20,
     justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    alignItems: "center",
+    padding: wp(5),
   },
   title: {
-    fontSize: 32,
+    fontSize: hp(4),
     fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 40,
+    color: "#B2DDF9",
+    marginBottom: hp(2),
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: wp(7),
+    paddingHorizontal: wp(4),
+    marginVertical: hp(1.5),
+    width: "90%",
+    height: hp(7),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  input: {
+    flex: 1,
+    fontSize: hp(2),
+    color: "#000",
+    marginLeft: wp(3),
+  },
+  icon: {
+    marginRight: wp(2),
+  },
+
+  icon: {
+    marginRight: 10,
   },
   inputField: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)", // Slightly transparent white background
-    borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    flex: 1,
     fontSize: 16,
     color: "#000",
-    marginBottom: 20,
   },
   saveButton: {
-    backgroundColor: "#333", // Button background color
-    borderRadius: 25,
-    paddingVertical: 15,
+    backgroundColor: "#424242",
+    paddingVertical: hp(2),
+    borderRadius: wp(7),
+    width: "90%",
     alignItems: "center",
     marginTop: 20,
+    borderColor: "#B2DDF9",
+    borderWidth: 1,
   },
   saveButtonText: {
-    color: "#fff", // Button text color
-    fontSize: 16,
+    color: "#B2DDF9", // Button text color
+    fontSize: hp(2.5),
     fontWeight: "bold",
   },
   deleteAccount: {
-    marginTop: 20,
+    marginTop: hp(2),
     alignItems: "center",
   },
   deleteAccountText: {
-    color: "#fff",
-    fontSize: 14,
+    color: "#B2DDF9",
+    fontSize: hp(2),
     textDecorationLine: "underline",
   },
 });
