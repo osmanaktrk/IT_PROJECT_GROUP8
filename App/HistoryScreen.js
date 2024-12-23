@@ -1,5 +1,5 @@
-// Importing React and required libraries
-import React, { useEffect, useState } from "react";
+// Importing React and required libraries// Importing React and required libraries
+import React, { useEffect, useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,6 +8,11 @@ import { firestoreDB } from '../FirebaseConfig';
 import { getAuth } from "firebase/auth";
 
 
+
+
+// Initializing the component with state for history data and user IDimport { collection, query, where, getDocs, addDoc, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { firestoreDB } from '../FirebaseConfig'; 
+import { getAuth } from "firebase/auth";
 
 
 // Initializing the component with state for history data and user ID
@@ -101,7 +106,17 @@ export default function HistoryPage({ navigation }) {
       <Ionicons name="trash-outline" size={30} color="white" />
     </TouchableOpacity>
   );
+  // Swipeable action for deletion
+  const renderRightActions = (id) => (
+    <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(id)}>
+      <Ionicons name="trash-outline" size={30} color="white" />
+    </TouchableOpacity>
+  );
 
+  
+  if (!userID) {
+    return <Text>Loading user data...</Text>;
+  }
   
   if (!userID) {
     return <Text>Loading user data...</Text>;
@@ -111,12 +126,16 @@ export default function HistoryPage({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.header}>Recent History</Text>
       <FlatList
-        data={historyData} 
-        keyExtractor={(item) => item.id} 
+        data={historyData}  
+        keyExtractor={(item) => item.id}  
         renderItem={({ item }) => (
+          <Swipeable renderRightActions={() => renderRightActions(item.id)}>
           <Swipeable renderRightActions={() => renderRightActions(item.id)}>
             <View style={styles.historyItem}>
               <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
+              <Text style={styles.itemText}>
+                {item.name || `${Math.abs(item.coords.latitude).toFixed(4)}° ${item.coords.latitude >= 0 ? "N" : "S"}, ${Math.abs(item.coords.longitude).toFixed(4)}° ${item.coords.longitude >= 0 ? "E" : "W"}`}
+              </Text>
               <Text style={styles.itemText}>
                 {item.name || `${Math.abs(item.coords.latitude).toFixed(4)}° ${item.coords.latitude >= 0 ? "N" : "S"}, ${Math.abs(item.coords.longitude).toFixed(4)}° ${item.coords.longitude >= 0 ? "E" : "W"}`}
               </Text>
@@ -131,10 +150,19 @@ export default function HistoryPage({ navigation }) {
       >
         <Text style={styles.backButtonText}>Back to menu</Text>
       </TouchableOpacity>
+        )}
+      />
+      {/* Back button to navigate to the main menu */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.backButtonText}>Back to menu</Text>
+      </TouchableOpacity>
     </View>
   );
 }
-   // style
+   // style// style
 const styles = StyleSheet.create({
     container: {
       flex: 1,

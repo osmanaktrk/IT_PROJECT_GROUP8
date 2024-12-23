@@ -1,16 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  StyleSheet,
-  View,
-  TextInput,
-  Button,
-  Dimensions,
-  Alert,
-  Text,
-  Image,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image, TouchableOpacity, FlatList } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
@@ -216,6 +205,12 @@ export default function App({ navigation }) {
     );
   };
 
+  const handleMapPress = () => {
+    setShowAccountMenu(false);
+    setShowUpdateProfile(false);
+    setShowMyPoints(false);
+  };
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.clear();
@@ -238,8 +233,9 @@ export default function App({ navigation }) {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={handleMapPress}>
     <View style={styles.container}>
-      {!showAccountMenu && (
+      {!showAccountMenu && !showMyPoints && !showUpdateProfile &&(
         <View style={styles.searchContainer}>
           <TouchableOpacity onPress={() => setShowAccountMenu(true)}>
             <Ionicons name="person-circle-outline" size={40} color="black" />
@@ -318,6 +314,31 @@ export default function App({ navigation }) {
         </View>
       )}
 
+      {showUpdateProfile && (
+        <View style={styles.accountMenu}>
+          <View style={styles.topSection}>
+            <Text style={styles.accountText}>Update Profile</Text>
+          </View>
+          <View style={styles.middleSection}>
+            <TextInput style={styles.inputField} placeholder="Name" />
+            <TextInput style={styles.inputField} placeholder="E-mail" />
+            <TextInput style={styles.inputField} placeholder="Phone number" />
+          </View>
+          <View style={styles.bottomSection}>
+            <TouchableOpacity style={styles.menuButton} onPress={toggleAccountMenu}>
+              <Text style={styles.menuButtonText}>Done</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setShowUpdateProfile(false)}
+            >
+              <Text style={styles.menuButtonText}>Back to menu</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+    
       {/* My Points Sectie */}
       {showMyPoints && (
         <View style={styles.accountMenu}>
@@ -348,6 +369,10 @@ export default function App({ navigation }) {
           </View>
         </View>
       )}
+
+      
+
+
 
       <MapView ref={mapRef} style={styles.map} region={mapLocation}>
         {liveLocation && (
@@ -419,6 +444,7 @@ export default function App({ navigation }) {
         /> 
       )}*/}
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -590,4 +616,31 @@ const styles = StyleSheet.create({
   pointsText: { fontSize: 48, textAlign: "center" },
   pointsInfo: { textAlign: "center", marginTop: 10 },
   linkText: { color: "blue", textDecorationLine: "underline" },
+
+  updateProfile: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "white",
+    zIndex: 3,
+    padding: 20,
+  },
+  
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: 8,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  
 });

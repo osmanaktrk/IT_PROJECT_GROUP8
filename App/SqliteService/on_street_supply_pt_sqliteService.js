@@ -1,84 +1,48 @@
 import * as SQLite from "expo-sqlite";
-import proj4 from "proj4";
-//import geoJsonData from "../ApiService/on_street_supply_pt.json";
-proj4.defs(
-  "EPSG:31370",
-  "+proj=lcc +lat_1=49.8333339 +lat_2=51.16666723333333 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=-106.868628,52.297783,-103.723893,-0.33657,0.456955,-1.84218,1 +units=m +no_defs"
-);
+import * as FileSystem from "expo-file-system";
+import { Asset } from "expo-asset";
 
-// create a new SQLite database
-const db = SQLite.openDatabaseSync("on_street_supply_pt.db");
+export const setupSQLiteDatabase = async () => {
+  const sqliteDir = `${FileSystem.documentDirectory}SQLite`;
+  const dbPath = `${FileSystem.documentDirectory}SQLite/on_street_supply_pt.db`;
+
+  const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
+
+  if (!pathExists) {
+    await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true });
+  }
+
+  const fileExists = (await FileSystem.getInfoAsync(dbPath)).exists;
+  if (!fileExists) {
+    const asset = Asset.fromModule(
+      require("../../assets/Database/on_street_supply_pt.db")
+    );
+    await asset.downloadAsync();
+
+    await FileSystem.copyAsync({ from: asset.localUri, to: dbPath });
+    console.log("Database copied to local directory.");
+  } else {
+    console.log("Database already exists in local directory.");
+  }
+};
 
 export const createDatabase = async () => {
   const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
-}
-
-
-// create a new table in the database
-export const createTable = async () => {
-  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
-  await db.execAsync(`
-    PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS on_street_supply_pt (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          latitude REAL,
-          longitude REAL,
-          typreg INTEGER,
-          typres INTEGER,
-          evp INTEGER,
-          city_id INTEGER,
-          status TEXT DEFAULT 'unknown',
-          timestamp TEXT DEFAULT '0001-01-01T00:00:00.000Z'
-        );`);
-};
-
-// insert data into the SQLite database
-export const insertDataIntoSQLite = async (geoJsonData) => {
-  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
-  const preparedData = geoJsonData.features.map((feature) => {
-    const [longitude, latitude] = proj4(
-      "EPSG:31370",
-      "EPSG:4326",
-      feature.geometry.coordinates[0]
-    );
-    const { typreg, typres, evp, city_id } = feature.properties;
-
-    const status = "unknown"; 
-    const timestamp = "0001-01-01T00:00:00.000Z"; 
-
-
-    return [
-      latitude,
-      longitude,
-      typreg,
-      typres,
-      evp,
-      city_id,
-      status || "unknown",
-      timestamp || "0001-01-01T00:00:00.000Z",
-    ];
-  });
-
-  preparedData.forEach((data) => {
-    db.runAsync(
-      `INSERT INTO on_street_supply_pt (latitude, longitude, typreg, typres, evp, city_id, status, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      data
-    );
-  });
+  return db;
 };
 
 // fetch all data from the SQLite database
 export const fetchAllData = async () => {
-  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+  const db = await createDatabase();
   const result = await db.getAllAsync("SELECT * FROM on_street_supply_pt");
-
   return result;
 };
 
 // fetch data from the SQLite database based on the visible region
 
-export const fetchVisibleData = async (region, expansionFactor = 1) => {
-  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+export const fetchVisibleData = async (region, expansionFactor = 1.5) => {
+  const db = await createDatabase();
+
   const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
   const expandedLatitudeDelta = latitudeDelta * expansionFactor;
   const expandedLongitudeDelta = longitudeDelta * expansionFactor;
@@ -98,22 +62,45 @@ export const fetchVisibleData = async (region, expansionFactor = 1) => {
 
 // clear the SQLite database
 export const clearDatabase = async () => {
-  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+  const db = await createDatabase();
   await db.execAsync(`DROP TABLE IF EXISTS on_street_supply_pt`);
+  console.log("on_street_supply_pt Database cleared");
 };
-
-
 
 export const deleteDatabase = async () => {
-  const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
+  const db = await createDatabase();
   await db.closeAsync();
   await SQLite.deleteDatabaseAsync("on_street_supply_pt.db");
-  console.log("Database deleted");
+  console.log("on_street_supply_pt Database deleted");
 };
 
-
 // initialize the SQLite database
-export const initializeDatabase = () => {
-  createTable();
-  insertDataIntoSQLite();
+export const initializeDatabase = async (showLoader, hideLoader) => {
+  try {
+    showLoader();
+    await setupSQLiteDatabase();
+    const db = await createDatabase();
+
+    const result = await db.getAllAsync(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='on_street_supply_pt';"
+    );
+
+    if (result.length === 0) {
+      console.log(
+        "on_street_supply_pt Database not initialized. Initializing now..."
+      );
+      await setupSQLiteDatabase();
+      const db = await createDatabase();
+    } else {
+      console.log("on_street_supply_pt Database already initialized.");
+    }
+  } catch (error) {
+    console.error(
+      "on_street_supply_pt Error during database initialization check:",
+      error
+    );
+    throw error;
+  } finally {
+    hideLoader();
+  }
 };

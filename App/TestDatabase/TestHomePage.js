@@ -12,7 +12,7 @@ import {
   Easing,
   TouchableOpacity,
 } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Circle } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,25 +20,28 @@ import { firebaseAuth } from "../../FirebaseConfig";
 import { signOut } from "firebase/auth";
 import { getDocs, collection } from "firebase/firestore";
 import { firestoreDB } from "../../FirebaseConfig";
+import { useLoader } from "../LoaderContextPage";
 import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqliteService";
 import * as PublicParkingSqliteService from "../SqliteService/public_parking_sqliteService";
+import * as ParkingSpacesProprietySqliteService from "../SqliteService/on_street_acar_sqliteService";
+import * as ParkingSpacesSqliteService from "../SqliteService/on_street_supply_pt_sqliteService";
 
 export default function App({ navigation }) {
   const [userLocation, setUserLocation] = useState(null);
   const [spotsDatabase, setSpotsDatabase] = useState([]);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
-  const [public_parking, setPublic_parking] = useState([]);
-  const [park_and_ride, setPark_and_ride] = useState([]);
+
   const [region, setRegion] = useState({
     latitude: 50.8503,
     longitude: 4.3517,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.04,
+    longitudeDelta: 0.04,
   });
 
   const slideAnim = useRef(
     new Animated.Value(-Dimensions.get("window").width * 0.6)
   ).current; // Menü animasyonu için
+
   const mapRef = useRef(null);
 
   // Kullanıcı konumunu alma
@@ -53,63 +56,23 @@ export default function App({ navigation }) {
         accuracy: Location.Accuracy.High,
       });
 
-      setUserLocation({
+      const userRegion = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.03,
-        longitudeDelta: 0.03,
-      });
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      };
+
+      setUserLocation(userRegion);
 
       // Haritayı kullanıcı konumuna odakla
       if (mapRef.current) {
-        mapRef.current.animateToRegion({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.03,
-          longitudeDelta: 0.03,
-        });
+        mapRef.current.animateToRegion(userRegion, 1000);
       }
     } catch (error) {
       Alert.alert("Error", `Failed to fetch location: ${error.message}`);
     }
   };
-
-  useEffect(() => {
-    //ParkAndRideSqliteService.clearDatabase();
-    //PublicParkingSqliteService.clearDatabase();
-    //ParkAndRideSqliteService.deleteDatabase();
-    //PublicParkingSqliteService.deleteDatabase();
-
-    const setupDatabases = async () => {
-      try {
-        const [parkAndRideData, publicParkingData] = await Promise.all([
-          (async () => {
-            await ParkAndRideSqliteService.initializeDatabase();
-            return await ParkAndRideSqliteService.fetchSelectedData();
-          })(),
-          (async () => {
-            await PublicParkingSqliteService.initializeDatabase();
-            return await PublicParkingSqliteService.fetchSelectedData();
-          })(),
-        ]);
-
-        //console.log("ParkAndRideData", parkAndRideData);
-        //console.log("PublicParkingData", publicParkingData);
-
-        setPark_and_ride(parkAndRideData);
-        setPublic_parking(publicParkingData);
-
-        console.log("Databases initialized successfully.");
-      } catch (error) {
-        Alert.alert(
-          "Error",
-          `Database initialization failed: ${error.message}`
-        );
-      }
-    };
-
-    setupDatabases();
-  }, []);
 
   // Firestore'dan marker verilerini çekme
   const fetchSpots = async () => {
@@ -133,6 +96,127 @@ export default function App({ navigation }) {
     fetchUserLocation();
     fetchSpots();
   }, []);
+
+  const { showLoader, hideLoader } = useLoader();
+
+  //clear databases
+
+  // useEffect(() => {
+  //   const setupDatabases = async () => {
+  //     try {
+  //       await ParkAndRideSqliteService.deleteDatabase();
+  //       await PublicParkingSqliteService.deleteDatabase();
+  //       await ParkingSpacesProprietySqliteService.deleteDatabase();
+  //       await ParkingSpacesSqliteService.deleteDatabase();
+  //       console.log("Databases deleted successfully.");
+  //     } catch (error) {
+  //       Alert.alert(
+  //         "Error",
+  //         `Database initialization failed: ${error.message}`
+  //       );
+  //     }
+  //   };
+  //   setupDatabases();
+  // }, []);
+
+  const [park_and_ride, setPark_and_ride] = useState([]);
+  useEffect(() => {
+    const initializeParkAndRide = async () => {
+      try {
+        showLoader();
+        //await ParkAndRideSqliteService.deleteDatabase();
+        await ParkAndRideSqliteService.initializeDatabase(
+          showLoader,
+          hideLoader
+        );
+        const parkAndRideData =
+          await ParkAndRideSqliteService.fetchSelectedData();
+        setPark_and_ride(parkAndRideData);
+        console.log("park_and_ride", parkAndRideData);
+        console.log("park_and_ride initialized successfully.");
+      } catch (error) {
+        console.error("ParkAndRide initialization failed:", error);
+      } finally {
+        hideLoader();
+      }
+    };
+
+    initializeParkAndRide();
+  }, []);
+
+  const [public_parking, setPublic_parking] = useState([]);
+  useEffect(() => {
+    const initializePublicParking = async () => {
+      try {
+        showLoader();
+        //await PublicParkingSqliteService.deleteDatabase();
+        await PublicParkingSqliteService.initializeDatabase(
+          showLoader,
+          hideLoader
+        );
+        const publicParkingData =
+          await PublicParkingSqliteService.fetchSelectedData();
+        setPublic_parking(publicParkingData);
+        console.log("public_parking", publicParkingData);
+        console.log("public_parking initialized successfully.");
+      } catch (error) {
+        console.error("PublicParking initialization failed:", error);
+      } finally {
+        hideLoader();
+      }
+    };
+
+    initializePublicParking();
+  }, []);
+
+  // const [on_street_acar, setOn_street_acar] = useState([]);
+  // useEffect(() => {
+  //   const initializeParkingSpacesPropriety = async () => {
+  //     try {
+  //       showLoader();
+  //       //await ParkingSpacesProprietySqliteService.deleteDatabase();
+  //       await ParkingSpacesProprietySqliteService.initializeDatabase(showLoader, hideLoader);
+  //       const parkingPropriety = await ParkingSpacesProprietySqliteService.fetchVisibleData(region, 1.5);
+  //       //const parkingPropriety = await ParkingSpacesProprietySqliteService.fetchAllData();
+  //       setOn_street_acar(parkingPropriety);
+  //       //console.log("on_street_acar", on_street_acar);
+  //       console.log("on_street_acar initialized successfully.");
+  //     } catch (error) {
+  //       console.error("ParkingSpacesPropriety initialization failed:", error);
+  //     } finally {
+  //       hideLoader();
+  //     }
+  //   };
+
+  //   initializeParkingSpacesPropriety();
+  // }, [region]);
+
+  // const [on_street_parking, setOn_street_parking] = useState([]);
+  // useEffect(() => {
+  //   const initializeParkingSpaces = async () => {
+  //     try {
+  //       showLoader();
+  //       //await ParkingSpacesSqliteService.deleteDatabase();
+  //       await ParkingSpacesSqliteService.initializeDatabase(
+  //         showLoader,
+  //         hideLoader
+  //       );
+  //       const parkingSpaces = await ParkingSpacesSqliteService.fetchVisibleData(
+  //         region,
+  //         1.5
+  //       );
+  //       setOn_street_parking(parkingSpaces);
+  //       //console.log("on_street_parking", on_street_parking);
+  //       console.log("on_street_supply_pt initialized successfully.");
+  //     } catch (error) {
+  //       console.error("ParkingSpaces initialization failed:", error);
+  //     } finally {
+  //       hideLoader();
+  //     }
+  //   };
+
+  //   initializeParkingSpaces();
+  // }, [region]);
 
   //Update document
 
@@ -247,16 +331,9 @@ export default function App({ navigation }) {
 
       {/* Harita */}
       <MapView
-        ref={mapRef}
         style={styles.map}
-        region={
-          userLocation || {
-            latitude: 50.8503,
-            longitude: 4.3517,
-            latitudeDelta: 0.03,
-            longitudeDelta: 0.03,
-          }
-        }
+        initialRegion={region}
+        onRegionChangeComplete={setRegion}
       >
         {/* Kullanıcı konumu */}
         {userLocation && (
@@ -281,6 +358,21 @@ export default function App({ navigation }) {
           />
         ))}
 
+        {/* {spotsDatabase.map((item, index) => (
+          <Circle
+            key={index}
+            center={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            radius={5}
+            fillColor="blue"
+            strokeColor="rgba(0,0,0,0)"
+          />
+        ))} */}
+
+       
+
         {public_parking.map((item, index) => (
           <Marker
             key={index}
@@ -302,12 +394,60 @@ export default function App({ navigation }) {
               longitude: item.longitude,
             }}
             title={item.name_du}
-            description={` Capacity (Car): ${item.capacity_car}, Status: ${
-              item.status || "Unk"
-            }, Timestamp: ${item.timestamp}`}
+            description={` Capacity (Car): ${item.capacity_car}, Status: ${item.status}, Timestamp: ${item.timestamp}`}
             image={require("../../assets/parking40.png")}
           ></Marker>
         ))}
+
+        {/* {on_street_acar.map((item, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            description={`Status: ${item.status}, Timestamp: ${item.timestamp}`}
+            pinColor="brown"
+          />
+        ))} */}
+
+        {/* {on_street_acar.map((item, index) => (
+          <Circle
+            key={index}
+            center={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            radius={5}
+            fillColor="blue"
+            strokeColor="blue"
+          />
+        ))} */}
+
+        {/* {on_street_parking.map((item, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            description={`Status: ${item.status}, Timestamp: ${item.timestamp}`}
+            pinColor="red"
+          />
+        ))} */}
+
+        {/* {on_street_parking.map((item, index) => (
+          <Circle
+            key={index}
+            center={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            radius={5}
+            fillColor="blue"
+            strokeColor="blue"
+          />
+        ))} */}
       </MapView>
     </View>
   );
@@ -407,129 +547,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-
-// import React, { useEffect, useState } from "react";
-// import { View, Alert, StyleSheet, Image } from "react-native";
-// import MapView, { Marker } from "react-native-maps";
-// import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqliteService";
-// import * as PublicParkingSqliteService from "../SqliteService/public_parking_sqliteService";
-
-// export default function App() {
-//   const [markers, setMarkers] = useState([]);
-//   const [public_parking, setPublic_parking] = useState([]);
-//   const [park_and_ride, setPark_and_ride] = useState([]);
-//   const [region, setRegion] = useState({
-//     latitude: 50.8503,
-//     longitude: 4.3517,
-//     latitudeDelta: 0.01,
-//     longitudeDelta: 0.01,
-//   });
-
-//   useEffect(() => {
-//     //ParkAndRideSqliteService.clearDatabase();
-//     //PublicParkingSqliteService.clearDatabase();
-//     //ParkAndRideSqliteService.deleteDatabase();
-//     //PublicParkingSqliteService.deleteDatabase();
-
-//     const setupDatabases = async () => {
-//       try {
-//         const [parkAndRideData, publicParkingData] = await Promise.all([
-//           (async () => {
-//             await ParkAndRideSqliteService.initializeDatabase();
-//             return await ParkAndRideSqliteService.fetchSelectedData();
-//           })(),
-//           (async () => {
-//             await PublicParkingSqliteService.initializeDatabase();
-//             return await PublicParkingSqliteService.fetchSelectedData();
-//           })(),
-//         ]);
-
-//         console.log("ParkAndRideData", parkAndRideData);
-//         console.log("PublicParkingData", publicParkingData);
-
-//         setPark_and_ride(parkAndRideData);
-//         setPublic_parking(publicParkingData);
-
-//         console.log("Databases initialized successfully.");
-//       } catch (error) {
-//         Alert.alert(
-//           "Error",
-//           `Database initialization failed: ${error.message}`
-//         );
-//       }
-//     };
-
-//     setupDatabases();
-//   }, []);
-
-//   return (
-//     <View style={styles.container}>
-//       <MapView
-//         style={styles.map}
-//         initialRegion={region}
-//         //onRegionChangeComplete={handleRegionChangeComplete}
-//       >
-//         {/* {markers.map((item, index) => (
-//           <Marker
-//             key={index}
-//             coordinate={{
-//               latitude: item.latitude,
-//               longitude: item.longitude,
-//             }}
-//             title={item.name_fr || "Unnamed Location"}
-//             description={`City: ${item.city_fr}, Capacity (Car): ${item.capacity_car}`}
-//             pinColor="gray"
-//           />
-//         ))} */}
-
-//         {public_parking.map((item, index) => (
-//           <Marker
-//             key={index}
-//             coordinate={{
-//               latitude: item.latitude,
-//               longitude: item.longitude,
-//             }}
-//             title={item.name_du}
-//             description={`Capacity (Car): ${item.capacity_car}, Status: ${
-//               item.status
-//             }, Timestamp: ${item.timestamp}`}
-//             image={require("../../assets/parking40.png")}
-//           >
-
-//           </Marker>
-//         ))}
-
-//         {park_and_ride.map((item, index) => (
-//           <Marker
-//             key={index}
-//             coordinate={{
-//               latitude: item.latitude,
-//               longitude: item.longitude,
-//             }}
-//             title={item.name_du}
-//             description={` Capacity (Car): ${item.capacity_car}, Status: ${
-//               item.status || "Unk"
-//             }, Timestamp: ${item.timestamp}`}
-//             image={require("../../assets/parking40.png")}
-//           >
-
-//           </Marker>
-//         ))}
-
-//       </MapView>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//   },
-//   map: {
-//     flex: 1,
-//   },
-//   markerImage: {
-//     width: 40,
-//     height: 40,
-//   },
-// });
