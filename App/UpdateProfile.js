@@ -173,6 +173,15 @@ export default function UpdateProfile({ navigation }) {
       source={require("../assets/background.png")} // Update the path to your background image
       style={styles.background}
     >
+
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={30} color="#B2DDF9" />
+      </TouchableOpacity>
+
       <View style={styles.container}>
         <Text style={styles.title}>Update Profile</Text>
         <Text style={styles.welcomeText}>
@@ -303,6 +312,12 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: "cover",
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 3,
   },
   container: {
     flex: 1,

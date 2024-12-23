@@ -326,6 +326,23 @@ export default function App({ navigation }) {
         </View>
       )}
 
+      {showUpdateProfile && (
+          <View style={styles.updateProfile}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => {
+                setShowUpdateProfile(false);
+                setShowAccountMenu(true);
+              }}
+            >
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+            <View style={styles.topSection}>
+              <Text style={styles.accountText}>Update Profile</Text>
+            </View>
+          </View>
+        )}
+
       {/* My Points Sectie */}
       {showMyPoints && (
         <View style={styles.accountMenu}>
@@ -599,4 +616,31 @@ const styles = StyleSheet.create({
   pointsText: { fontSize: 48, textAlign: "center" },
   pointsInfo: { textAlign: "center", marginTop: 10 },
   linkText: { color: "blue", textDecorationLine: "underline" },
+
+  updateProfile: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "white",
+    zIndex: 3,
+    padding: 20,
+  },
+  
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: 8,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  
 });
