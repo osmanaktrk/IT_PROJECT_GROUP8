@@ -247,7 +247,7 @@ export default function App({ navigation }) {
   return (
     <TouchableWithoutFeedback onPress={handleMapPress}>
     <View style={styles.container}>
-      {!showAccountMenu && (
+      {!showAccountMenu && !showMyPoints && !showUpdateProfile &&(
         <View style={styles.searchContainer}>
           <TouchableOpacity onPress={() => setShowAccountMenu(true)}>
             <Ionicons name="person-circle-outline" size={40} color="black" />
