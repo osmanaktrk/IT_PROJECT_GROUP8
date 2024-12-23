@@ -12,7 +12,8 @@ import ConfirmPasswordResetScreen from './App/ConfirmPasswordResetScreen';
 import SignUpScreen from "./App/SignUpScreen";
 import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
-import UpdateProfile from './App/UpdateProfile';import UpdateProfile from './App/UpdateProfile';import { LoaderProvider } from "./App/LoaderContextPage";
+import UpdateProfile from './App/UpdateProfile';
+import { LoaderProvider } from "./App/LoaderContextPage";
 //test Pages
 
 import TestHomePage from './App/TestDatabase/TestHomePage';
