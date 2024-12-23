@@ -10,6 +10,7 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  TouchableWithoutFeedback,
 } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
@@ -216,6 +217,12 @@ export default function App({ navigation }) {
     );
   };
 
+  const handleMapPress = () => {
+    setShowAccountMenu(false);
+    setShowUpdateProfile(false);
+    setShowMyPoints(false);
+  };
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.clear();
@@ -238,6 +245,7 @@ export default function App({ navigation }) {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={handleMapPress}>
     <View style={styles.container}>
       {!showAccountMenu && (
         <View style={styles.searchContainer}>
@@ -349,7 +357,7 @@ export default function App({ navigation }) {
         </View>
       )}
 
-      <MapView ref={mapRef} style={styles.map} region={mapLocation}>
+      <MapView ref={mapRef} style={styles.map} region={mapLocation} onPress={handleMapPress}>
         {liveLocation && (
           <Marker coordinate={liveLocation}>
             <View style={styles.markerContainer}>
@@ -419,6 +427,7 @@ export default function App({ navigation }) {
         /> 
       )}*/}
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
