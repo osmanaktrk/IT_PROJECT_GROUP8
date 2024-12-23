@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image, TouchableOpacity, FlatList } from "react-native";
+import { StyleSheet, View, TextInput, Button, Dimensions, Alert, Text, Image, TouchableOpacity,TouchableWithoutFeedback, FlatList } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
