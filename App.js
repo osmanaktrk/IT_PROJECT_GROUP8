@@ -12,7 +12,7 @@ import ConfirmPasswordResetScreen from './App/ConfirmPasswordResetScreen';
 import SignUpScreen from "./App/SignUpScreen";
 import VerifyEmailScreen from './App/VerifyEmailScreen';
 import TermsAndConditions from './App/TermsAndConditions';
-
+import { LoaderProvider } from "./App/LoaderContextPage";
 //test Pages
 
 import TestHomePage from './App/TestDatabase/TestHomePage';
@@ -27,6 +27,9 @@ const Stack = createStackNavigator();
 
 function App() {
   return (
+    <LoaderProvider>
+
+    
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="FrontPage"
@@ -92,6 +95,7 @@ function App() {
         {/* Test Pages */}
       </Stack.Navigator>
     </NavigationContainer>
+    </LoaderProvider>
   );
 }
 
