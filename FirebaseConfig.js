@@ -21,6 +21,7 @@ import {
   updateDoc, 
   deleteDoc  
 } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -33,6 +34,7 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyCDD4kKOdRXMfG5CDxvCOPgnFMSe3LaVE0",
   authDomain: "spotable-9d53c.firebaseapp.com",
+  databaseURL: "https://spotable-9d53c-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "spotable-9d53c",
   storageBucket: "spotable-9d53c.firebasestorage.app",
   messagingSenderId: "84993728511",
@@ -50,6 +52,9 @@ export const firebaseAuth = initializeAuth(firebaseApp, {
 
 // Firestore initialize
 export const firestoreDB = getFirestore(firebaseApp);
+
+export const firebaseRealDB = getDatabase(firebaseApp);
+
 
 export const registerUser = async (email, password) => {
   try {
