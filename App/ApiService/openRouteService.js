@@ -11,7 +11,7 @@ const OpenRouteServiceApiKey =
 // This method does not accept any request body or parameters other than
 // profile, start coordinate, and end coordinate.
 
-export const directionServise = async (
+export const directionsServise = async (
   originLongitude,
   originLatitude,
   destinationLongitude,
@@ -191,10 +191,187 @@ export const directionServise = async (
   //   }
 };
 
+
+
+//Calculates the driving route between two points.
+//Returns a route between two or more locations for a selected profile and its settings as JSON
+
+
+export const directionsServiseJson = async (
+  originLongitude,
+  originLatitude,
+  destinationLongitude,
+  destinationLatitude
+) => {
+  try {
+
+    const response = await axios.post(
+      "https://api.openrouteservice.org/v2/directions/driving-car",
+      {
+        coordinates: [
+          [originLongitude, originLatitude],
+          [destinationLongitude, destinationLatitude],
+        ],
+        continue_straight: true, 
+        geometry_simplify: true, 
+        units: "km", 
+      },
+      {
+        headers: {
+          Accept: "application/json, application/geo+json; charset=utf-8",
+          Authorization: OpenRouteServiceApiKey, 
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      }
+    );
+
+    
+    const data = response.data;
+    return data;
+  } catch (error) {
+    
+    console.error("Error in directionServise:", error.message);
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Response status:", error.response.status);
+    }
+    throw error;
+  }
+
+  // sample output
+
+  //originLongitude:8.681495,
+  //originLatitude:49.41461
+  //destinationLongitude:8.690123
+  //destinationLatitude:49.420514
+
+
+  // {
+  //   "bbox": [8.681423, 49.414599, 8.690123, 49.420514],
+  //   "routes": [
+  //     {
+  //       "summary": { "distance": 1.409, "duration": 281.9 },
+  //       "segments": [
+  //         {
+  //           "distance": 1.409,
+  //           "duration": 281.9,
+  //           "steps": [
+  //             {
+  //               "distance": 0.002,
+  //               "duration": 0.4,
+  //               "type": 11,
+  //               "instruction": "Head west on Gerhart-Hauptmann-Straße",
+  //               "name": "Gerhart-Hauptmann-Straße",
+  //               "way_points": [0, 1]
+  //             },
+  //             {
+  //               "distance": 0.314,
+  //               "duration": 75.3,
+  //               "type": 1,
+  //               "instruction": "Turn right onto Wielandtstraße",
+  //               "name": "Wielandtstraße",
+  //               "way_points": [1, 6]
+  //             },
+  //             {
+  //               "distance": 0.501,
+  //               "duration": 76.4,
+  //               "type": 1,
+  //               "instruction": "Turn right onto Mönchhofstraße",
+  //               "name": "Mönchhofstraße",
+  //               "way_points": [6, 9]
+  //             },
+  //             {
+  //               "distance": 0.252,
+  //               "duration": 60.5,
+  //               "type": 0,
+  //               "instruction": "Turn left onto Erwin-Rohde-Straße",
+  //               "name": "Erwin-Rohde-Straße",
+  //               "way_points": [9, 11]
+  //             },
+  //             {
+  //               "distance": 0.127,
+  //               "duration": 30.4,
+  //               "type": 1,
+  //               "instruction": "Turn right onto Moltkestraße",
+  //               "name": "Moltkestraße",
+  //               "way_points": [11, 12]
+  //             },
+  //             {
+  //               "distance": 0.083,
+  //               "duration": 7.5,
+  //               "type": 2,
+  //               "instruction": "Turn sharp left onto Handschuhsheimer Landstraße, B 3",
+  //               "name": "Handschuhsheimer Landstraße, B 3",
+  //               "way_points": [12, 13]
+  //             },
+  //             {
+  //               "distance": 0.131,
+  //               "duration": 31.4,
+  //               "type": 0,
+  //               "instruction": "Turn left onto Roonstraße",
+  //               "name": "Roonstraße",
+  //               "way_points": [13, 14]
+  //             },
+  //             {
+  //               "distance": 0,
+  //               "duration": 0,
+  //               "type": 10,
+  //               "instruction": "Arrive at Roonstraße, straight ahead",
+  //               "name": "-",
+  //               "way_points": [14, 14]
+  //             }
+  //           ]
+  //         }
+  //       ],
+  //       "bbox": [8.681423, 49.414599, 8.690123, 49.420514],
+  //       "geometry": "ghrlHir~s@?BIC{ELgDo@aBa@}@IF}a@AsCCuBaDP_H|@g@wIgC|Ad@bJ",
+  //       "way_points": [0, 14]
+  //     }
+  //   ],
+  //   "metadata": {
+  //     "attribution": "openrouteservice.org | OpenStreetMap contributors",
+  //     "service": "routing",
+  //     "timestamp": 1735233186614,
+  //     "query": {
+  //       "coordinates": [
+  //         [8.681495, 49.41461],
+  //         [8.687872, 49.420318]
+  //       ],
+  //       "profile": "driving-car",
+  //       "profileName": "driving-car",
+  //       "format": "json",
+  //       "units": "km",
+  //       "continue_straight": true,
+  //       "geometry_simplify": true
+  //     },
+  //     "engine": {
+  //       "version": "9.0.0",
+  //       "build_date": "2024-12-02T11:09:21Z",
+  //       "graph_date": "2024-12-12T05:07:37Z"
+  //     }
+  //   }
+  // }
+  
+
+
+
+
+
+};
+
+
+
+
+
+
+
+
+
 //Calculates distances and durations between multiple points.
 //Returns duration or distance matrix for multiple source and destination points.
 //By default a square duration matrix is returned where every point in locations is paired with each other.
 //The result is null if a value can’t be determined.
+
 
 export const matrixService = async (locations) => {
   try {
