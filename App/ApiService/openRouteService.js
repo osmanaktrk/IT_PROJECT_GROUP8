@@ -325,6 +325,11 @@ export const forwardGeocodeService = async (address) => {
           api_key: OpenRouteServiceApiKey,
           text: address,
           "boundary.country": "BE",
+          "boundary.rect.min_lon": 4.25,
+          "boundary.rect.min_lat": 50.77,
+          "boundary.rect.max_lon": 4.42,
+          "boundary.rect.max_lat": 50.92,
+          size: 5,
         },
         headers: {
           Accept: "application/json, application/geo+json; charset=utf-8",
@@ -547,6 +552,11 @@ export const geocodeAutocompleteService = async (address) => {
           api_key: OpenRouteServiceApiKey,
           text: address,
           "boundary.country": "BE",
+          "boundary.rect.min_lon": 4.25,
+          "boundary.rect.min_lat": 50.77,
+          "boundary.rect.max_lon": 4.42,
+          "boundary.rect.max_lat": 50.92,
+          size: 5,
         },
         headers: {
           Accept: "application/json, application/geo+json; charset=utf-8",
@@ -556,6 +566,9 @@ export const geocodeAutocompleteService = async (address) => {
 
     const data = response.data;
 
+
+    
+
     return data;
   } catch (error) {
     console.error("Error in geocodeAutocompleteService:", error.message);
@@ -563,7 +576,7 @@ export const geocodeAutocompleteService = async (address) => {
   }
 
   // sample data
-  // coordinates = response.data.features.map((feature) => feature.geometry.coordinates;
+  // coordinates = response.data.features.map((feature) => feature.geometry.coordinates);
   //adress = ehb, response = 3
 
   //   {
