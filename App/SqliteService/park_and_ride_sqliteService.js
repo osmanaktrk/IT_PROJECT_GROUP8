@@ -110,7 +110,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
       "park_and_ride Error during database initialization check:",
       error
     );
-    throw error;
+    
   } finally {
     hideLoader();
   }

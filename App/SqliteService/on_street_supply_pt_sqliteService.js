@@ -5,6 +5,7 @@ import { Asset } from "expo-asset";
 export const setupSQLiteDatabase = async () => {
   const sqliteDir = `${FileSystem.documentDirectory}SQLite`;
   const dbPath = `${FileSystem.documentDirectory}SQLite/on_street_supply_pt.db`;
+  console.log(sqliteDir);
 
   const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
 
@@ -91,6 +92,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
       );
       await setupSQLiteDatabase();
       const db = await createDatabase();
+      console.log("on_street_supply_pt insert Database.");
     } else {
       console.log("on_street_supply_pt Database already initialized.");
     }
@@ -99,7 +101,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
       "on_street_supply_pt Error during database initialization check:",
       error
     );
-    throw error;
+    
   } finally {
     hideLoader();
   }

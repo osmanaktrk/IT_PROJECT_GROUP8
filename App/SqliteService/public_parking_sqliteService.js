@@ -108,7 +108,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
       "public_parking Error during database initialization check:",
       error
     );
-    throw error;
+    
   } finally {
     hideLoader();
   }
