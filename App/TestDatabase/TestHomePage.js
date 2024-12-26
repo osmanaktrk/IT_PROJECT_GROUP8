@@ -12,28 +12,25 @@ import {
   Easing,
   TouchableOpacity,
   FlatList,
-  StatusBar
+  StatusBar,
 } from "react-native";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker, Circle, Polygon } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseAuth, firestoreDB } from "../../FirebaseConfig";
-
 import { signOut } from "firebase/auth";
-
 import { getDocs, collection } from "firebase/firestore";
-
 import { useLoader } from "../LoaderContextPage";
-
 import debounce from "lodash.debounce";
-
 import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqliteService";
 import * as PublicParkingSqliteService from "../SqliteService/public_parking_sqliteService";
-import * as ParkingSpacesProprietySqliteService from "../SqliteService/on_street_acar_sqliteService";
+// import * as ParkingSpacesProprietySqliteService from "../SqliteService/on_street_acar_sqliteService";
 import * as ParkingSpacesSqliteService from "../SqliteService/on_street_supply_pt_sqliteService";
-import * as FireBaseUploader from "../Database/firebaseUploader";
+// import * as FireBaseUploader from "../Database/firebaseUploader";
 import * as OpenRouteServise from "../ApiService/openRouteService";
 
 export default function App({ navigation }) {
@@ -48,100 +45,23 @@ export default function App({ navigation }) {
   const [searchText, setSearchText] = useState("");
   const [searchedSuggestions, setSearchedSuggestions] = useState([]);
   const [searchedLocations, setSearchedLocations] = useState([]);
+  const [isSearchedSuggestions, setIsSearchedSuggestions] = useState(true);
+  const [isSearched, setIsSearched] = useState(false);
 
-  const [region, setRegion] = useState({
+  const [initialRegion, setInitialRegion] = useState({
     latitude: 50.8503,
     longitude: 4.3517,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
 
+  const [region, setRegion] = useState({});
+
   const slideAnim = useRef(
     new Animated.Value(-Dimensions.get("window").width * 0.6)
   ).current;
 
   const mapRef = useRef(null);
-
-  const handleSearch = async (text) => {
-    if (!searchText) {
-      return;
-    }
-
-    try {
-      setSearchedLocations([]);
-      setSearchedSuggestions([]);
-
-      const data = await OpenRouteServise.geocodeAutocompleteService(text);
-
-      const suggestions = data.features.map((feature) => ({
-        id: feature.properties.id || Math.random().toString(),
-        name: feature.properties.label || "No label available",
-        coordinates: feature.geometry.coordinates,
-        country: feature.properties.country || "Unknown",
-        region: feature.properties.region || "Unknown",
-      }));
-
-      setSearchedSuggestions(suggestions);
-
-      if (suggestions.length === 1) {
-        const [longitude, latitude] = suggestions[0].coordinates;
-        const newRegion = {
-          longitude,
-          latitude,
-          latitudeDelta: 0.001,
-          longitudeDelta: 0.001,
-        };
-
-        setSearchedLocations(suggestions);
-        setRegion(newRegion);
-        mapRef.current.animateToRegion(newRegion, 1000);
-      } else {
-        const coordinates = suggestions.map((item) => item.coordinates);
-        const minLongitude = Math.min(...coordinates.map(([lng, lat]) => lng));
-        const maxLongitude = Math.max(...coordinates.map(([lng, lat]) => lng));
-        const minLatitude = Math.min(...coordinates.map(([lng, lat]) => lat));
-        const maxLatitude = Math.max(...coordinates.map(([lng, lat]) => lat));
-
-        const latitudeDelta = maxLatitude - minLatitude;
-        const longitudeDelta = maxLongitude - minLongitude;
-
-        const newRegion = {
-          latitude: (maxLatitude + minLatitude) / 2,
-          longitude: (maxLongitude + minLongitude) / 2,
-          latitudeDelta: latitudeDelta * 1.2,
-          longitudeDelta: longitudeDelta * 1.2,
-        };
-
-        setSearchedLocations(suggestions);
-        setRegion(newRegion);
-      }
-
-      console.log(suggestions);
-    } catch (error) {
-      console.error("Error during search:", error);
-    }
-  };
-
-  const handleSuggestionSelect = (suggestion) => {
-    const [longitude, latitude] = suggestion.coordinates;
-    const newRegion = {
-      longitude,
-      latitude,
-      latitudeDelta: 0.001,
-      longitudeDelta: 0.001,
-    };
-
-    setSearchText(suggestion.name);
-    setSearchedLocations([suggestion]);
-    setSearchedSuggestions([]);
-    setRegion(newRegion);
-    mapRef.current.animateToRegion(newRegion, 1000);
-    setSearchText("");
-  };
-
-  const debouncedHandleSearch = debounce((text) => {
-    handleSearch(text);
-  }, 300);
 
   const fetchUserLocation = async () => {
     try {
@@ -169,6 +89,106 @@ export default function App({ navigation }) {
     } catch (error) {
       Alert.alert("Error", `Failed to fetch location: ${error.message}`);
     }
+  };
+
+  const goToUserLocation = () => {
+    if (userLocation) {
+      mapRef.current?.animateToRegion({
+        ...userLocation,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+    } else {
+      console.log("User location not available");
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchText) {
+      return;
+    }
+
+    try {
+      setSearchedLocations([]);
+      setSearchedSuggestions([]);
+
+      const data = await OpenRouteServise.geocodeAutocompleteService(
+        searchText
+      );
+
+      const suggestions = data.features.map((feature) => ({
+        id: feature.properties.id || Math.random().toString(),
+        name: feature.properties.label || "No label available",
+        coordinates: feature.geometry.coordinates,
+        country: feature.properties.country || "Unknown",
+        region: feature.properties.region || "Unknown",
+      }));
+
+      if (suggestions.length === 1) {
+        const [longitude, latitude] = suggestions[0].coordinates;
+        const newRegion = {
+          longitude,
+          latitude,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001,
+        };
+        setSearchedLocations(suggestions);
+        setRegion(newRegion);
+        mapRef.current.animateToRegion(newRegion, 1000);
+        setSearchText("");
+      }
+
+      if (suggestions.length > 1) {
+        setSearchedSuggestions(suggestions);
+        const coordinates = suggestions.map((item) => item.coordinates);
+        const minLongitude = Math.min(...coordinates.map(([lng, lat]) => lng));
+        const maxLongitude = Math.max(...coordinates.map(([lng, lat]) => lng));
+        const minLatitude = Math.min(...coordinates.map(([lng, lat]) => lat));
+        const maxLatitude = Math.max(...coordinates.map(([lng, lat]) => lat));
+
+        const latitudeDelta = maxLatitude - minLatitude;
+        const longitudeDelta = maxLongitude - minLongitude;
+
+        const newRegion = {
+          latitude: (maxLatitude + minLatitude) / 2,
+          longitude: (maxLongitude + minLongitude) / 2,
+          latitudeDelta: latitudeDelta * 1.2,
+          longitudeDelta: longitudeDelta * 1.2,
+        };
+
+        setSearchedLocations(suggestions);
+        setRegion(newRegion);
+        mapRef.current.animateToRegion(newRegion, 1000);
+        setIsSearchedSuggestions(true);
+      }
+      if (suggestions.length === 0) {
+        setIsSearchedSuggestions(false);
+      }
+      setIsSearched(true);
+      console.log(suggestions);
+    } catch (error) {
+      console.error("Error during search:", error);
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion) => {
+    if (searchedSuggestions.length < 1) {
+      return;
+    }
+    const [longitude, latitude] = suggestion.coordinates;
+    const newRegion = {
+      longitude,
+      latitude,
+      latitudeDelta: 0.001,
+      longitudeDelta: 0.001,
+    };
+
+    setSearchText(suggestion.name);
+    setSearchedLocations([suggestion]);
+    setSearchedSuggestions([]);
+    setRegion(newRegion);
+    mapRef.current.animateToRegion(newRegion, 1000);
+    setSearchText("");
   };
 
   const fetchSpots = async () => {
@@ -445,8 +465,10 @@ export default function App({ navigation }) {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor="white" barStyle="dark-content" />
+
         <View style={styles.container}>
           {/* Menü ve arama */}
+
           <View style={styles.headerContainer}>
             <View style={styles.header}>
               <TouchableOpacity onPress={toggleAccountMenu}>
@@ -457,16 +479,24 @@ export default function App({ navigation }) {
                 />
               </TouchableOpacity>
 
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search for a location"
-                onChangeText={(text) => {
-                  setSearchText(text);
-                  debouncedHandleSearch(text);
-                }}
-                value={searchText}
-              />
+              <View style={styles.searchBox}>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search for a location"
+                  onChangeText={setSearchText}
+                  onSubmitEditing={handleSearch}
+                  value={searchText}
+                  onFocus={() => setIsSearched(false)}
+                />
+                <TouchableOpacity
+                  style={styles.searchButton}
+                  onPress={handleSearch}
+                >
+                  <Ionicons name="search" size={20} color="black" />
+                </TouchableOpacity>
+              </View>
             </View>
+
             {searchedSuggestions.length > 0 && (
               <View style={styles.suggestionsContainer}>
                 <FlatList
@@ -480,9 +510,41 @@ export default function App({ navigation }) {
                       <Text style={styles.suggestionText}>{item.name}</Text>
                     </TouchableOpacity>
                   )}
+                  persistentScrollbar={true}
+                  scrollIndicatorInsets={{ right: 1 }}
+                  showsVerticalScrollIndicator={true}
+                  ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                      <Text style={styles.emptyText}>
+                        No result, please search again
+                      </Text>
+                    </View>
+                  }
                 />
+
+                {searchedSuggestions.length > 0 && (
+                  <View style={styles.scrollHint}>
+                    <Ionicons
+                      name="chevron-down-outline"
+                      size={24}
+                      color="gray"
+                    />
+                  </View>
+                )}
               </View>
             )}
+            {searchText &&
+              !isSearchedSuggestions &&
+              searchedSuggestions.length === 0 &&
+              isSearched && (
+                <View style={styles.suggestionsContainer}>
+                  <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>
+                      No result, please search again
+                    </Text>
+                  </View>
+                </View>
+              )}
           </View>
           {/* Sol taraftan açılan menü */}
           <Animated.View
@@ -543,6 +605,7 @@ export default function App({ navigation }) {
           <MapView
             ref={mapRef}
             style={styles.map}
+            initialRegion={initialRegion}
             region={region}
             onRegionChangeComplete={setRegion}
           >
@@ -558,45 +621,16 @@ export default function App({ navigation }) {
 
             {/* Firestore marker'ları */}
             {/* {spotsDatabase.map((spot) => (
-          <Marker
-            key={spot.id}
-            coordinate={{
-              latitude: spot.latitude,
-              longitude: spot.longitude,
-            }}
-            title={spot.title}
-            pinColor={spot.status === "available" ? "green" : "red"}
-          />
-          
-        ))} */}
-
-            {/* {spotsDatabase.map((item, index) => (
-          <React.Fragment key={index}>
-            <Circle
-              //key={index}
-              center={{
-                latitude: item.latitude,
-                longitude: item.longitude,
-              }}
-              radius={5}
-              fillColor="blue"
-              strokeColor="rgba(0,0,0,0)"
-            />
-
-            <Marker
-              
-              coordinate={{
-                latitude: item.latitude,
-                longitude: item.longitude,
-              }}
-              title={item.title}
-              opacity={0}
-              onPress={() => {
-                console.log("pressed");
-              }}
-            />
-          </React.Fragment>
-        ))} */}
+              <Marker
+                key={spot.id}
+                coordinate={{
+                  latitude: spot.latitude,
+                  longitude: spot.longitude,
+                }}
+                title={spot.title}
+                pinColor={spot.status === "available" ? "green" : "red"}
+              />
+            ))} */}
 
             {public_parking.map((item, index) => (
               <Marker
@@ -634,31 +668,6 @@ export default function App({ navigation }) {
               ></Marker>
             ))}
 
-            {/* {on_street_acar.map((item, index) => (
-          <Marker
-            key={index}
-            coordinate={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-            }}
-            description={`Status: ${item.status}, Timestamp: ${item.timestamp}`}
-            pinColor="brown"
-          />
-        ))} */}
-
-            {/* {on_street_acar.map((item, index) => (
-          <Circle
-            key={index}
-            center={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-            }}
-            radius={5}
-            fillColor="blue"
-            strokeColor="blue"
-          />
-        ))} */}
-
             {on_street_parking.map((item, index) => (
               <Marker
                 key={index}
@@ -678,65 +687,38 @@ export default function App({ navigation }) {
               />
             ))}
 
-            {searchedLocations.map((item, index) => (
-              <Marker
-                key={index}
-                coordinate={{
-                  longitude: item.coordinates[0],
-                  latitude: item.coordinates[1],
-                }}
-                title={item.name}
-                description={item.label}
-                pinColor="red"
-              />
-            ))}
-
-            {/* {on_street_parking.map((item, index) => (
-          <Circle
-            key={index}
-            center={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-            }}
-            radius={1}
-            fillColor="blue"
-            strokeColor="black"
-          />
-        ))} */}
-
-            {/* {dataDeneme.map((item, index) => (
-          <Circle
-            key={index}
-            center={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-            }}
-            radius={1}
-            fillColor="blue"
-            strokeColor="black"
-          />
-        ))} */}
-
-            {/* {visibleFirst.map((item, index) => (
-          <Circle
-            key={index}
-            center={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-            }}
-            radius={1}
-            fillColor="blue"
-            strokeColor="black"
-          />
-        ))} */}
+            {searchedLocations.length > 0 &&
+              searchedLocations.map((item, index) => (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    longitude: item.coordinates[0],
+                    latitude: item.coordinates[1],
+                  }}
+                  title={item.name}
+                  description={item.label}
+                  // pinColor="red"
+                >
+                  <MaterialIcons name="location-pin" size={50} color="purple" />
+                </Marker>
+              ))}
           </MapView>
-          {showZoomMessage && (
+
+          {/* {showZoomMessage && (
             <View style={styles.showZoomMessageContainer}>
               <Text style={styles.showZoomMessageText}>
                 Zoom in to see all the locations on the map!
               </Text>
             </View>
-          )}
+          )} */}
+
+          {/* Kullanıcı Konumu Butonu */}
+          <TouchableOpacity
+            style={styles.locationButton}
+            onPress={goToUserLocation}
+          >
+            <MaterialIcons name="my-location" size={24} color="black" />
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -871,5 +853,48 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: "column",
+  },
+  locationButton: {
+    position: "absolute",
+    bottom: 50,
+    right: 30,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchBox: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    marginLeft: 10,
+    overflow: "hidden",
+  },
+  searchButton: {
+    height: 40,
+    width: 40,
+    // backgroundColor: "#007bff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scrollHint: {
+    position: "absolute",
+    bottom: 10,
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  emptyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+  },
+  emptyText: {
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 16,
+    color: "gray",
   },
 });

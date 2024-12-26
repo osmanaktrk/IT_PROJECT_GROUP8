@@ -329,7 +329,7 @@ export const forwardGeocodeService = async (address) => {
           "boundary.rect.min_lat": 50.77,
           "boundary.rect.max_lon": 4.42,
           "boundary.rect.max_lat": 50.92,
-          size: 5,
+          // size: 5,
         },
         headers: {
           Accept: "application/json, application/geo+json; charset=utf-8",
@@ -556,7 +556,7 @@ export const geocodeAutocompleteService = async (address) => {
           "boundary.rect.min_lat": 50.77,
           "boundary.rect.max_lon": 4.42,
           "boundary.rect.max_lat": 50.92,
-          size: 5,
+          // size: 5,
         },
         headers: {
           Accept: "application/json, application/geo+json; charset=utf-8",
