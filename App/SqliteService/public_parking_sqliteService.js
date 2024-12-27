@@ -6,8 +6,13 @@ export const setupSQLiteDatabase = async () => {
   const sqliteDir = `${FileSystem.documentDirectory}SQLite`;
   const dbPath = `${FileSystem.documentDirectory}SQLite/public_parking.db`;
 
-  const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
+  //  const sqliteDir = SQLite.defaultDatabaseDirectory;
+  //  const dbPath = `${SQLite.defaultDatabaseDirectory}/public_parking.db`;
 
+  const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
+  console.log("pathExists public_parking", pathExists);
+
+  
   if (!pathExists) {
     await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true });
   }
@@ -24,6 +29,7 @@ export const setupSQLiteDatabase = async () => {
   } else {
     console.log("Database already exists in local directory.");
   }
+  return true;
 };
 
 export const createDatabase = async () => {
@@ -87,7 +93,7 @@ export const deleteDatabase = async () => {
 export const initializeDatabase = async (showLoader, hideLoader) => {
   try {
     showLoader();
-    await setupSQLiteDatabase();
+    const databaseInitialResult = await setupSQLiteDatabase();
     const db = await createDatabase();
     const result = await db.getAllAsync(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='public_parking';"
@@ -103,11 +109,13 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
     } else {
       console.log("public_parking Database already initialized.");
     }
+    return databaseInitialResult;
   } catch (error) {
     console.error(
       "public_parking Error during database initialization check:",
       error
     );
+    return false;
     
   } finally {
     hideLoader();

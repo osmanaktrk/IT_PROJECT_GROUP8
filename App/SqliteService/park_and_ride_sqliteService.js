@@ -5,8 +5,11 @@ import { Asset } from "expo-asset";
 export const setupSQLiteDatabase = async () => {
   const sqliteDir = `${FileSystem.documentDirectory}SQLite`;
   const dbPath = `${FileSystem.documentDirectory}SQLite/park_and_ride.db`;
+    // const sqliteDir = SQLite.defaultDatabaseDirectory;
+    // const dbPath = `${SQLite.defaultDatabaseDirectory}/park_and_ride.db`;
 
   const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
+  console.log("pathExists park_and_ride", pathExists);
 
   if (!pathExists) {
     await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true });
@@ -24,6 +27,7 @@ export const setupSQLiteDatabase = async () => {
   } else {
     console.log("Database already exists in local directory.");
   }
+  return true;
 };
 
 export const createDatabase = async () => {
@@ -86,7 +90,7 @@ export const deleteDatabase = async () => {
 export const initializeDatabase = async (showLoader, hideLoader) => {
   try {
     showLoader();
-    await setupSQLiteDatabase();
+    const databaseInitialResult = await setupSQLiteDatabase();
     const db = await createDatabase();
 
     const result = await db.getAllAsync(
@@ -104,13 +108,14 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
     } else {
       console.log("park_and_ride Database already initialized.");
     }
-    
+    return databaseInitialResult;
   } catch (error) {
+    
     console.error(
       "park_and_ride Error during database initialization check:",
       error
     );
-    
+    return false;
   } finally {
     hideLoader();
   }
