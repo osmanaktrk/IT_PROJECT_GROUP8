@@ -7,11 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getDocs, collection, Timestamp } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseAuth, firestoreDB } from "../FirebaseConfig"; //user authentication
-import {
-  signOut,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
+import { signOut, reauthenticateWithCredential, EmailAuthProvider,} from "firebase/auth";
 
 export default function App({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,41 +28,23 @@ export default function App({ navigation }) {
 
   const mapRef = useRef(null);
 
-  const markers = [
-    {
-      id: 1,
-      latitude: 50.8466,
-      longitude: 4.3528,
-      title: "Grote Markt",
-      price: 10,
-      status: "available",
-    },
-    {
-      id: 2,
-      latitude: 50.8503,
-      longitude: 4.3497,
-      title: "Manneken Pis",
-      price: "free",
-      status: "unavailable",
-    },
-    {
-      id: 3,
-      latitude: 50.8456,
-      longitude: 4.3572,
-      title: "Koninklijke Sint-Hubertusgalerijen",
-      price: 7.5,
-      status: "available",
-    },
-    {
-      id: 4,
-      latitude: 50.8505,
-      longitude: 4.3488,
-      title: "Stadhuis van Brussel",
-      price: 3.5,
-      status: "available",
-    },
-  ];
-
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371e3; // Radius van de aarde in meters
+    const toRadians = (degrees) => (degrees * Math.PI) / 180;
+  
+    const φ1 = toRadians(lat1);
+    const φ2 = toRadians(lat2);
+    const Δφ = toRadians(lat2 - lat1);
+    const Δλ = toRadians(lon2 - lon1);
+  
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+    return R * c; // Afstand in meters
+  };
+  
   const fetchSpots = async () => {
     try {
       const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
@@ -225,7 +203,24 @@ export default function App({ navigation }) {
   };
 
   const handleSpotPress = (spot) => {
-    setSelectedSpot(spot); // Stel de geselecteerde spot in
+    if (!liveLocation) {
+      Alert.alert("Locatie onbekend", "Je huidige locatie is niet beschikbaar.");
+      return;
+    }
+  
+    const distance = calculateDistance(
+      liveLocation.latitude,
+      liveLocation.longitude,
+      spot.latitude,
+      spot.longitude
+    );
+  
+    if (distance < 100) {
+      // extra optie als je minder dan 100meter bent
+      setSelectedSpot({ ...spot, extraOption: true });
+    } else {
+      setSelectedSpot(spot);
+    }
   };
 
   const closeBottomSheet = () => {
@@ -423,6 +418,9 @@ export default function App({ navigation }) {
           <Text style={styles.Timestamp}>
             {"timestamp: " + selectedSpot.Timestamp}
           </Text>
+          {selectedSpot.extraOption && (
+          <Button title="Is the spot available?" onPress={() => Alert.alert("test aanpassing")}/>
+    )}
           <Button title="Close" onPress={closeBottomSheet} />
         </View>
       )}
