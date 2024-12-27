@@ -28,6 +28,7 @@ export default function App({ navigation }) {
 
   const mapRef = useRef(null);
 
+  // afstand berekening lat - long naar meters
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371e3; // Radius van de aarde in meters
     const toRadians = (degrees) => (degrees * Math.PI) / 180;
@@ -203,6 +204,11 @@ export default function App({ navigation }) {
   };
 
   const handleSpotPress = (spot) => {
+    if (selectedSpot && selectedSpot.id === spot.id) {
+      // Als dezelfde spot al is geselecteerd, doe niets
+      return;
+    }
+  
     if (!liveLocation) {
       Alert.alert("Locatie onbekend", "Je huidige locatie is niet beschikbaar.");
       return;
