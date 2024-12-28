@@ -15,7 +15,11 @@ import {
   StatusBar,
   ScrollView,
   SafeAreaView,
+  Modal,
+  PanResponder,
+  TouchableWithoutFeedback,
 } from "react-native";
+import * as Speech from "expo-speech";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -37,7 +41,9 @@ import * as ParkingSpacesSqliteService from "../SqliteService/on_street_supply_p
 import * as OpenRouteServise from "../ApiService/openRouteService";
 
 export default function App({ navigation }) {
-  const [userLocation, setUserLocation] = useState(null);
+  const [isSynchronizationActive, setIsSynchronizationActive] = useState(false);
+  const [userCurrentLocation, setUserCurrentLocation] = useState(null);
+  const [userLocationHeading, setUserLocationHeading] = useState(0);
   const [spotsDatabase, setSpotsDatabase] = useState([]);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const { showLoader, hideLoader } = useLoader();
@@ -59,9 +65,13 @@ export default function App({ navigation }) {
   ] = useState(false);
 
   const [routeCoordinates, setRouteCoordinates] = useState([]);
-  const [routeInfo, setRouteInfo] = useState(null);
-
-  const [showZoomMessage, setShowZoomMessage] = useState(false);
+  const [routeSteps, setRouteSteps] = useState([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [routeInfo, setRouteInfo] = useState({});
+  const [navigationStarted, setNavigationStarted] = useState(false);
+  const [navigationStepsInstnstruction, setNavigationStepsInstruction] =
+    useState("");
+  const [navigationIntervalId, setNavigationIntervalId] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [searchedSuggestions, setSearchedSuggestions] = useState([]);
   const [searchedLocations, setSearchedLocations] = useState([]);
@@ -75,114 +85,213 @@ export default function App({ navigation }) {
     longitudeDelta: 0.005,
   });
 
-  const [region, setRegion] = useState({});
-
-  //clear all databases
+  const [region, setRegion] = useState({
+    latitude: 50.8503,
+    longitude: 4.3517,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
+  });
 
   // useEffect(() => {
-  //   const setupDatabases = async () => {
-  //     try {
-  //       await ParkAndRideSqliteService.deleteDatabase();
-  //       await PublicParkingSqliteService.deleteDatabase();
-  //       await ParkingSpacesSqliteService.deleteDatabase();
-  //       console.log("Databases deleted successfully.");
-  //     } catch (error) {
-  //       Alert.alert(
-  //         "Error",
-  //         `Database deleting failed: ${error.message}`
-  //       );
-  //     }
+  //   const updateDatabase = async () => {
+  //     await ParkingSpacesSqliteService.updateSQLiteWithAvailableRecords();
+  //     await ParkingSpacesSqliteService.updateSQLiteWithUnavailableRecords();
   //   };
-  //   setupDatabases();
+
+  //   updateDatabase();
   // }, []);
+
+  // useEffect(() => {
+
+  //   const syncFirestoreToSQLite = async () => {
+  //     await ParkingSpacesSqliteService.syncFirestoreToSQLite();
+  //   };
+
+  //   if(!isSynchronizationActive){
+
+  //     syncFirestoreToSQLite();
+  //     setIsSynchronizationActive(true);
+  //     console.log("guncelleme çalisti");
+  //   }
+  // }, []);
+
+  const mapRef = useRef(null);
+  const slideAnim = useRef(
+    new Animated.Value(-Dimensions.get("window").width * 0.6)
+  ).current;
+
+  const screenHeight = Dimensions.get("window").height;
+  const screenWidth = Dimensions.get("window").width;
+
+  const translateY = useRef(new Animated.Value(screenHeight)).current;
+
+  const translateX = useRef(new Animated.Value(screenWidth)).current;
+
+  const [activeModule, setActiveModule] = useState(null);
+  const [isNavigationSoundOn, setIsNavigationSoundOn] = useState(true);
+  const [isAligningHeading, setIsAligningHeading] = useState(false);
+  const [userLocationWatcher, setUserLocationWatcher] = useState(null);
+  const [userLocationHeaderWatcher, setUserLocationHeaderWatcher] =
+    useState(null);
+  const [userHeading, setUserHeading] = useState(0);
+
+  //modullerin isimlerine gore yukseklik belilr
+  const moduleHeights = {
+    navigationModal: screenHeight,
+    module2: screenHeight * 0.5,
+    module3: screenHeight * 0.4,
+  };
+
+  const openModule = (moduleName) => {
+    setActiveModule(moduleName);
+
+    Animated.timing(translateY, {
+      toValue: screenHeight - moduleHeights[moduleName],
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeModule = () => {
+    Animated.timing(translateY, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setActiveModule(null));
+  };
+
+  const rightCornerTranslateY = translateY.interpolate({
+    inputRange: [0, screenHeight],
+    outputRange: [-screenHeight * 0.2, 0],
+    extrapolate: "clamp",
+  });
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dy) > 10;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        const newTranslateY = gestureState.dy > 0 ? gestureState.dy : 0;
+        translateY.setValue(newTranslateY);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 100) {
+          openModule("navigationModal");
+        } else {
+          closeModule();
+        }
+      },
+    })
+  ).current;
+
+  //clear all databases
+  const deleteDatabases = async () => {
+    try {
+      await ParkAndRideSqliteService.deleteDatabase();
+      await PublicParkingSqliteService.deleteDatabase();
+      await ParkingSpacesSqliteService.deleteDatabase();
+      console.log("Databases deleted successfully.");
+    } catch (error) {
+      Alert.alert("Error", `Database deleting failed: ${error.message}`);
+    }
+  };
 
   const handleMapRefresher = () => {
     setIsParkAndRideDatabaseInitialized(false);
     setIsParkingSpacesDatabaseInitialized(false);
     setIsPublicParkingDatabaseInitialized(false);
     setRouteCoordinates([]);
-    setRouteInfo(null);
+    setRouteInfo({});
+    closeModule();
+    setNavigationIntervalId(null);
+  };
+
+  const initializePublicParkingDatabase = async () => {
+    try {
+      showLoader();
+      // await PublicParkingSqliteService.deleteDatabase();
+      const result = await PublicParkingSqliteService.initializeDatabase(
+        showLoader,
+        hideLoader
+      );
+      setIsPublicParkingDatabaseInitialized(result);
+
+      if (result) {
+        console.log("PublicParking database initialized successfully.");
+      } else {
+        console.log("PublicParking database not initialized.");
+      }
+    } catch (error) {
+      setIsPublicParkingDatabaseInitialized(false);
+      console.error("PublicParking database initialization failed:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
+  const initializeParkAndRideDatabase = async () => {
+    try {
+      showLoader();
+      // await ParkAndRideSqliteService.deleteDatabase();
+      const result = await ParkAndRideSqliteService.initializeDatabase(
+        showLoader,
+        hideLoader
+      );
+      setIsParkAndRideDatabaseInitialized(result);
+
+      if (result) {
+        console.log("ParkAndRide database initialized successfully.");
+      } else {
+        console.log("ParkAndRide database not initialized.");
+      }
+    } catch (error) {
+      setIsParkAndRideDatabaseInitialized(false);
+      console.error("ParkAndRide database initialization failed:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
+  const initializeParkingSpacesDatabase = async () => {
+    try {
+      showLoader();
+      // await ParkingSpacesSqliteService.deleteDatabase();
+      const result = await ParkingSpacesSqliteService.initializeDatabase(
+        showLoader,
+        hideLoader
+      );
+      setIsParkingSpacesDatabaseInitialized(result);
+      if (result) {
+        console.log("ParkingSpaces database initialized successfully.");
+      } else {
+        console.log("ParkingSpaces database not initialized.");
+      }
+    } catch (error) {
+      setIsParkingSpacesDatabaseInitialized(false);
+      console.error("ParkingSpaces database initialization failed:", error);
+    } finally {
+      hideLoader();
+    }
   };
 
   useEffect(() => {
-    const initializeParkingSpaces = async () => {
-      try {
-        showLoader();
-        // await PublicParkingSqliteService.deleteDatabase();
-        await PublicParkingSqliteService.initializeDatabase(
-          showLoader,
-          hideLoader
-        );
-        setIsPublicParkingDatabaseInitialized(true);
-
-        console.log("PublicParking database initialized successfully.");
-      } catch (error) {
-        setIsPublicParkingDatabaseInitialized(false);
-        console.error("PublicParking database initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
     if (!isPublicParkingDatabaseInitialized) {
-      initializeParkingSpaces();
+      initializePublicParkingDatabase();
     }
   }, [isPublicParkingDatabaseInitialized]);
 
   useEffect(() => {
-    const initializeParkingSpaces = async () => {
-      try {
-        showLoader();
-        // await ParkAndRideSqliteService.deleteDatabase();
-        await ParkAndRideSqliteService.initializeDatabase(
-          showLoader,
-          hideLoader
-        );
-        setIsParkAndRideDatabaseInitialized(true);
-
-        console.log("ParkAndRide database initialized successfully.");
-      } catch (error) {
-        setIsParkAndRideDatabaseInitialized(false);
-        console.error("ParkAndRide database initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-
     if (!isParkAndRideDatabaseInitialized) {
-      initializeParkingSpaces();
+      initializeParkAndRideDatabase();
     }
   }, [isParkAndRideDatabaseInitialized]);
 
   useEffect(() => {
-    const initializeParkingSpaces = async () => {
-      try {
-        showLoader();
-        // await ParkingSpacesSqliteService.deleteDatabase();
-        await ParkingSpacesSqliteService.initializeDatabase(
-          showLoader,
-          hideLoader
-        );
-        setIsParkingSpacesDatabaseInitialized(true);
-
-        console.log("ParkingSpaces database initialized successfully.");
-      } catch (error) {
-        setIsParkingSpacesDatabaseInitialized(false);
-        console.error("ParkingSpaces database initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-
     if (!isParkingSpacesDatabaseInitialized) {
-      initializeParkingSpaces();
+      initializeParkingSpacesDatabase();
     }
   }, [isParkingSpacesDatabaseInitialized]);
-
-  const slideAnim = useRef(
-    new Animated.Value(-Dimensions.get("window").width * 0.6)
-  ).current;
-
-  const mapRef = useRef(null);
 
   const fetchUserLocation = async () => {
     try {
@@ -191,31 +300,103 @@ export default function App({ navigation }) {
         Alert.alert("Permission Denied", "Location access is required.");
         return;
       }
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
 
-      const userRegion = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      };
+      const positionSubscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 2000,
+          distanceInterval: 5,
+        },
+        (location) => {
+          const latitude = location.coords.latitude;
+          const longitude = location.coords.longitude;
 
-      setUserLocation(userRegion);
+          // Kullanıcı konumunu güncelle
+          setUserCurrentLocation({
+            latitude,
+            longitude,
+          });
 
-      if (mapRef.current) {
-        mapRef.current.animateToRegion(userRegion, 1000);
-      }
+          // Haritayı güncel konuma taşı
+          if (mapRef.current) {
+            mapRef.current.animateToRegion({ latitude, longitude }, 1000);
+          }
+        }
+      );
+
+      setUserLocationWatcher(positionSubscription);
     } catch (error) {
       Alert.alert("Error", `Failed to fetch location: ${error.message}`);
     }
   };
 
+  useEffect(() => {
+    fetchUserLocation();
+
+    return () => {
+      if (userLocationWatcher) {
+        userLocationWatcher.remove();
+      }
+    };
+  }, []);
+
+  const startAligningMapToUserHeading = async () => {
+    try {
+      if (userLocationHeaderWatcher?.remove) {
+        userLocationHeaderWatcher.remove();
+      }
+
+      const headingSubscription = await Location.watchHeadingAsync(
+        (headingData) => {
+          const trueHeading = headingData.trueHeading || 0;
+          setUserHeading(trueHeading);
+
+          if (mapRef.current && userCurrentLocation) {
+            mapRef.current.animateCamera(
+              {
+                center: {
+                  latitude: userCurrentLocation.latitude,
+                  longitude: userCurrentLocation.longitude,
+                },
+                heading: trueHeading,
+                zoom: 17,
+              },
+              { duration: 500 }
+            );
+          }
+
+          // console.log(`Heading updated: ${trueHeading}`);
+        }
+      );
+
+      setUserLocationHeaderWatcher(headingSubscription);
+    } catch (error) {
+      console.error("Error aligning map to heading:", error.message);
+    }
+  };
+
+  const stopAligningMapToUserHeading = () => {
+    if (userLocationHeaderWatcher) {
+      userLocationHeaderWatcher.remove();
+
+      setUserLocationHeaderWatcher(null);
+
+      console.log("Stopped aligning map to heading.");
+    }
+  };
+
+  useEffect(() => {
+    if (isAligningHeading) {
+      startAligningMapToUserHeading();
+    } else {
+      stopAligningMapToUserHeading();
+    }
+  }, [isAligningHeading]);
+
   const goToUserLocation = () => {
-    if (userLocation) {
+    if (userCurrentLocation) {
       mapRef.current?.animateToRegion({
-        ...userLocation,
+        ...userCurrentLocation,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
@@ -317,17 +498,22 @@ export default function App({ navigation }) {
   };
 
   const handleDirection = async (destinationLongitude, destinationLatitude) => {
-    if (!userLocation || !userLocation.longitude || !userLocation.latitude) {
+    if (
+      !userCurrentLocation ||
+      !userCurrentLocation.longitude ||
+      !userCurrentLocation.latitude
+    ) {
       console.error("User location is incomplete or not available.");
       return;
     }
     setRouteCoordinates([]);
-    setRouteInfo(null);
+    setRouteInfo({});
 
     try {
+      showLoader();
       const data = await OpenRouteServise.directionsServiseJson(
-        userLocation.longitude,
-        userLocation.latitude,
+        userCurrentLocation.longitude,
+        userCurrentLocation.latitude,
         destinationLongitude,
         destinationLatitude
       );
@@ -343,6 +529,10 @@ export default function App({ navigation }) {
         const summary = route.summary;
         const bbox = route.bbox;
         const geometry = route.geometry;
+        const distance = summary.distance.toFixed(2);
+        const duration = (summary.duration / 60).toFixed(1);
+
+        setRouteInfo({ distance: distance, duration: duration });
 
         const decodedCoordinates = polyline
           .decode(geometry)
@@ -350,7 +540,12 @@ export default function App({ navigation }) {
             latitude: lat,
             longitude: lng,
           }));
+
         setRouteCoordinates(decodedCoordinates);
+
+        setRouteSteps(route.segments[0].steps);
+        setCurrentStep(0);
+        openModule("navigationModal");
 
         if (bbox.length === 4) {
           const [minLng, minLat, maxLng, maxLat] = bbox;
@@ -365,39 +560,143 @@ export default function App({ navigation }) {
           mapRef.current.animateToRegion(newRegion, 1000);
         }
 
-        setRouteInfo({
-          distance: `${summary.distance.toFixed(2)} km`,
-          duration: `${(summary.duration / 60).toFixed(1)} mins`,
-        });
+        console.log(routeInfo);
+        console.log(data);
       } else {
         console.error("No valid routes or geometry found.");
       }
     } catch (error) {
       console.error("Error fetching directions:", error.message);
+    } finally {
+      hideLoader();
     }
   };
 
-  const fetchSpots = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
-      const spots = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        latitude: doc.data().coords.latitude,
-        longitude: doc.data().coords.longitude,
-        title: doc.data().title || `Spot ${doc.id}`,
-        status: doc.data().status,
-        timestamp: doc.data().timestamp,
-      }));
-      setSpotsDatabase(spots);
-    } catch (error) {
-      Alert.alert("Error", `Failed to load spots: ${error.message}`);
+  const startNavigation = async () => {
+    console.log("Navigation started!");
+
+    if (userCurrentLocation && routeSteps.length > 0) {
+      const firstStep = routeSteps[0];
+      if (isNavigationSoundOn) {
+        Speech.speak(firstStep.instruction);
+      }
+      setNavigationStepsInstruction(firstStep.instruction);
+
+      mapRef.current?.animateToRegion({
+        latitude: userCurrentLocation.latitude,
+        longitude: userCurrentLocation.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+
+      let currentStepIndex = 0;
+
+      try {
+        const navigationSubscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            timeInterval: 2000,
+            distanceInterval: 5,
+          },
+          (location) => {
+            const userLat = location.coords.latitude;
+            const userLng = location.coords.longitude;
+
+            let nearestStepIndex = -1;
+            let minDistance = Infinity;
+
+            routeSteps.forEach((step, index) => {
+              const stepLat = step.latitude;
+              const stepLng = step.longitude;
+
+              const distance = Math.sqrt(
+                Math.pow(stepLat - userLat, 2) + Math.pow(stepLng - userLng, 2)
+              );
+
+              if (distance < minDistance) {
+                minDistance = distance;
+                nearestStepIndex = index;
+              }
+            });
+
+            if (
+              nearestStepIndex !== -1 &&
+              nearestStepIndex !== currentStepIndex
+            ) {
+              currentStepIndex = nearestStepIndex;
+              const nextStep = routeSteps[currentStepIndex];
+              console.log(`Next step: ${nextStep.instruction}`);
+              setNavigationStepsInstruction(nextStep.instruction);
+
+              if (isNavigationSoundOn) {
+                Speech.speak(nextStep.instruction);
+              }
+
+              mapRef.current?.animateCamera(
+                {
+                  center: {
+                    latitude: nextStep.latitude,
+                    longitude: nextStep.longitude,
+                  },
+                  heading: userLocationHeading || 0,
+                  // pitch: 60,
+                  zoom: 17,
+                },
+                { duration: 500 }
+              );
+            }
+          }
+        );
+
+        setIsAligningHeading(true);
+        setNavigationIntervalId(navigationSubscription);
+      } catch (error) {
+        console.error("Error starting navigation:", error.message);
+      }
+    } else {
+      console.log("User location or route steps not available");
     }
   };
 
-  useEffect(() => {
-    fetchUserLocation();
-    fetchSpots();
-  }, []);
+  const resetNavigation = () => {
+    clearInterval(navigationIntervalId);
+    setNavigationIntervalId(null);
+    setNavigationStepsInstruction("");
+    setRouteCoordinates([]);
+    setRouteInfo({});
+    closeModule();
+    setIsAligningHeading(false);
+    if (userCurrentLocation) {
+      mapRef.current?.animateToRegion({
+        ...userCurrentLocation,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+    } else {
+      console.log("User location not available");
+    }
+    console.log("Route reset!");
+  };
+
+  // const fetchSpots = async () => {
+  //   try {
+  //     const querySnapshot = await getDocs(collection(firestoreDB, "spots"));
+  //     const spots = querySnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       latitude: doc.data().coords.latitude,
+  //       longitude: doc.data().coords.longitude,
+  //       title: doc.data().title || `Spot ${doc.id}`,
+  //       status: doc.data().status,
+  //       timestamp: doc.data().timestamp,
+  //     }));
+  //     setSpotsDatabase(spots);
+  //   } catch (error) {
+  //     Alert.alert("Error", `Failed to load spots: ${error.message}`);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchSpots();
+  // }, []);
 
   useEffect(() => {
     const initializeParkAndRide = async () => {
@@ -443,7 +742,7 @@ export default function App({ navigation }) {
   }, [isPublicParkingDatabaseInitialized]);
 
   useEffect(() => {
-    const initializeParkingSpaces = async () => {
+    const fetchVisibleParkingSpaces = async () => {
       try {
         showLoader();
 
@@ -451,7 +750,7 @@ export default function App({ navigation }) {
           const visibleParkingSpaces =
             await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
           setOn_street_parking(visibleParkingSpaces);
-          // console.log("visible data", on_street_parking);
+          // console.log("visible data", visibleParkingSpaces);
           // console.log("park_and_ride", park_and_ride);
           // console.log("public_parking", public_parking);
           // console.log("gorunur data eklendi");
@@ -461,31 +760,24 @@ export default function App({ navigation }) {
 
         // console.log("ParkingSpaces initialized successfully.");
       } catch (error) {
-        console.error("ParkingSpaces initialization failed:", error);
+        console.error(
+          "fetchVisibleParkingSpaces initialization failed:",
+          error
+        );
       } finally {
         hideLoader();
       }
     };
+
     if (isParkingSpacesDatabaseInitialized) {
-      initializeParkingSpaces();
+      fetchVisibleParkingSpaces();
     }
   }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
-
-  useEffect(() => {
-    if (region.latitudeDelta <= 0.006 && region.longitudeDelta <= 0.006) {
-      if (showZoomMessage) {
-        setShowZoomMessage(false);
-      }
-    } else {
-      if (!showZoomMessage) {
-        setShowZoomMessage(true);
-      }
-    }
-  }, [region, showZoomMessage]);
 
   //Update document
 
   // example code
+
   const handleUpdateSpot = () => {
     const spotId = "spot123";
 
@@ -538,9 +830,6 @@ export default function App({ navigation }) {
       <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor="white" barStyle="dark-content" />
 
-        {/* <View style={styles.container}> */}
-        {/* Menü ve arama */}
-
         <View style={styles.headerContainer}>
           <View style={styles.header}>
             <TouchableOpacity onPress={toggleAccountMenu}>
@@ -555,7 +844,7 @@ export default function App({ navigation }) {
                 onSubmitEditing={() => {
                   handleSearch();
                   setRouteCoordinates([]);
-                  setRouteInfo(null);
+                  setRouteInfo({});
                 }}
                 value={searchText}
                 onFocus={() => setIsSearched(false)}
@@ -595,6 +884,7 @@ export default function App({ navigation }) {
               )}
             </View>
           )}
+
           {searchText &&
             !isSearchedSuggestions &&
             searchedSuggestions.length === 0 &&
@@ -607,8 +897,17 @@ export default function App({ navigation }) {
                 </View>
               </View>
             )}
+
+          {navigationStepsInstnstruction && (
+            <View style={styles.suggestionsContainer}>
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  {navigationStepsInstnstruction}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
-        {/* Sol taraftan açılan menü */}
 
         {/* <Animated.View
           style={[
@@ -616,7 +915,6 @@ export default function App({ navigation }) {
             { transform: [{ translateX: slideAnim }] },
           ]}
         >
-          
           <TouchableOpacity
             style={styles.closeButton}
             onPress={toggleAccountMenu}
@@ -664,36 +962,37 @@ export default function App({ navigation }) {
           </View>
         </Animated.View> */}
 
-        {/* Harita */}
         <MapView
           ref={mapRef}
           style={styles.map}
-          initialRegion={initialRegion}
-          region={region}
+          initialRegion={region}
+          // region={region}
           onRegionChangeComplete={setRegion}
         >
-          {/* Kullanıcı konumu */}
-          {userLocation && (
-            <Marker coordinate={userLocation} title="Your Location" opacity={1}>
+          {userCurrentLocation && (
+            <Marker
+              coordinate={userCurrentLocation}
+              title="Your Location"
+              opacity={1}
+            >
               <Image
-                source={require("../../assets/car.png")}
+                source={require("../../assets/car4.png")}
                 style={styles.markerImage}
               />
             </Marker>
           )}
 
-          {/* Firestore marker'ları */}
           {/* {spotsDatabase.map((spot) => (
-              <Marker
-                key={spot.id}
-                coordinate={{
-                  latitude: spot.latitude,
-                  longitude: spot.longitude,
-                }}
-                title={spot.title}
-                pinColor={spot.status === "available" ? "green" : "red"}
-              />
-            ))} */}
+            <Marker
+              key={spot.id}
+              coordinate={{
+                latitude: spot.latitude,
+                longitude: spot.longitude,
+              }}
+              title={spot.title}
+              pinColor={spot.status === "available" ? "green" : "red"}
+            />
+          ))} */}
 
           {public_parking.map((item, index) => (
             <Marker
@@ -703,7 +1002,7 @@ export default function App({ navigation }) {
                 longitude: item.longitude,
               }}
               title={item.name_du}
-              description={`Capacity (Car): ${item.capacity_car}, Status: ${item.status}, Timestamp: ${item.timestamp}`}
+              description={`Capacity (Car): ${item.capacity_car}`}
               image={require("../../assets/parking40.png")}
               onPress={() => {
                 handleDirection(item.longitude, item.latitude);
@@ -723,44 +1022,40 @@ export default function App({ navigation }) {
                 longitude: item.longitude,
               }}
               title={item.name_du}
-              description={` Capacity (Car): ${item.capacity_car}, Status: ${item.status}, Timestamp: ${item.timestamp}`}
+              description={` Capacity (Car): ${item.capacity_car}`}
               image={require("../../assets/parking40.png")}
               onPress={() => {
                 handleDirection(item.longitude, item.latitude);
-                console.log(
-                  `park and ride selected latitude: ${item.latitude}, longitude: ${item.longitude}`
-                );
               }}
               opacity={1}
             ></Marker>
           ))}
 
-          {on_street_parking.map((item, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: item.latitude,
-                longitude: item.longitude,
-              }}
-              description={`Status: ${item.status}, Timestamp: ${new Date(
-                item.timestamp
-              )}`}
-              pinColor={
-                item.status === "unknown"
-                  ? "gray"
-                  : item.status === "available"
-                  ? "green"
-                  : "red"
-              }
-              opacity={1}
-              onPress={() => {
-                handleDirection(item.longitude, item.latitude);
-                console.log(
-                  `on street parking pressed Status: ${item.status}, latitude: ${item.latitude}, longitude: ${item.longitude}`
-                );
-              }}
-            />
-          ))}
+          {!navigationIntervalId &&
+            on_street_parking.map((item, index) => (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: item.latitude,
+                  longitude: item.longitude,
+                }}
+                title={`Status: ${item.status}`}
+                description={`Last Change: ${new Date(
+                  item.timestamp
+                ).toLocaleString()}`}
+                pinColor={
+                  item.status === "unknown"
+                    ? "gray"
+                    : item.status === "available"
+                    ? "green"
+                    : "red"
+                }
+                opacity={1}
+                onPress={() => {
+                  handleDirection(item.longitude, item.latitude);
+                }}
+              />
+            ))}
 
           {searchedLocations.length > 0 &&
             searchedLocations.map((item, index) => (
@@ -790,6 +1085,26 @@ export default function App({ navigation }) {
             />
           )}
 
+          {/* {routeSteps[currentStep] && (
+            <Marker coordinate={routeCoordinates[routeCoordinates.length - 1]}>
+              <View style={styles.navigationBox}>
+                <TouchableOpacity
+                  style={styles.navigationCloseButton}
+                  onPress={() => {
+                    setRouteCoordinates([]);
+                    setRouteSteps([]);
+                   
+                  }}
+                >
+                  <MaterialIcons name="close" size={20} color="red" />
+                </TouchableOpacity>
+                <Text style={styles.navigationText}>
+                  {routeSteps[currentStep].instruction}
+                </Text>
+              </View>
+            </Marker>
+          )} */}
+
           {/* {routeInfo && (
             <Marker
               coordinate={
@@ -807,8 +1122,10 @@ export default function App({ navigation }) {
             </Marker>
           )} */}
 
-          {routeInfo && (
-            <Marker coordinate={routeCoordinates[routeCoordinates.length - 1]}>
+          {/* routeCoordinates.length - 1 */}
+
+          {/* {routeInfo && (
+            <Marker coordinate={routeCoordinates[0]}> 
               <View style={styles.routeInfoContainer}>
                 <TouchableOpacity
                   style={styles.closeRouteInfoButton}
@@ -821,7 +1138,7 @@ export default function App({ navigation }) {
                   <Ionicons name="close-circle" size={24} color="red" />
                 </TouchableOpacity>
 
-                {/* Rota Bilgileri */}
+              
                 <Text style={styles.routeInfoText}>
                   {`Distance: ${routeInfo.distance}`}
                 </Text>
@@ -830,18 +1147,34 @@ export default function App({ navigation }) {
                 </Text>
               </View>
             </Marker>
-          )}
+          )} */}
         </MapView>
 
-        {/* {showZoomMessage && (
-            <View style={styles.showZoomMessageContainer}>
-              <Text style={styles.showZoomMessageText}>
-                Zoom in to see all the locations on the map!
-              </Text>
-            </View>
-          )} */}
+        <Animated.View
+          style={[
+            styles.rightcornerButtonsContainer,
+            { transform: [{ translateY: rightCornerTranslateY }] },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.alignHeadingButton}
+            onPress={() => setIsAligningHeading(!isAligningHeading)}
+          >
+            <MaterialIcons
+              name={isAligningHeading ? "navigation" : "explore"}
+              size={24}
+              color="black"
+            />
+            {/* <Ionicons name={isAligningHeading ? "compass" : "compass-outline"} size={24} color="#black" /> */}
+          </TouchableOpacity>
 
-        <View style={styles.rightcornerButtonsContainer}>
+          <TouchableOpacity
+            style={styles.mapRefreshButton}
+            onPress={deleteDatabases}
+          >
+            <MaterialIcons name="delete" size={24} color="black" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.mapRefreshButton}
             onPress={handleMapRefresher}
@@ -850,14 +1183,63 @@ export default function App({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={styles.navigationSoundButton}
+            onPress={() => setIsNavigationSoundOn(!isNavigationSoundOn)}
+          >
+            <Ionicons
+              name={
+                isNavigationSoundOn
+                  ? "volume-high-outline"
+                  : "volume-mute-outline"
+              }
+              size={24}
+              color={"black"}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={styles.locationButton}
             onPress={goToUserLocation}
           >
             <MaterialIcons name="my-location" size={24} color="black" />
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
-        {/* </View> */}
+        {activeModule === "navigationModal" && (
+          <Animated.View
+            style={[
+              styles.navigationModalContainer,
+              { transform: [{ translateY }] },
+            ]}
+            {...panResponder.panHandlers}
+          >
+            <View style={styles.navigationModalHandle} />
+
+            <View style={styles.navigationModalTextContainer}>
+              <Text style={styles.navigationModalText}>
+                Distance: {routeInfo.distance} km
+              </Text>
+              <Text style={styles.navigationModalText}>
+                Duration: {routeInfo.duration} mins
+              </Text>
+            </View>
+
+            <View style={styles.navigationModalButtons}>
+              <TouchableOpacity
+                style={styles.navigationStartButton}
+                onPress={startNavigation}
+              >
+                <Text style={styles.navigationStartButtonText}>Start</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.navigationCancelButton}
+                onPress={resetNavigation}
+              >
+                <Text style={styles.navigationCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        )}
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -1007,6 +1389,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+    borderWidth: 1,
+  },
+  navigationSoundButton: {
+    width: 50,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 25,
+    backgroundColor: "white",
+    elevation: 3,
+    marginBottom: 10,
+    borderWidth: 1,
   },
   locationButton: {
     backgroundColor: "white",
@@ -1014,6 +1408,16 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+  },
+  alignHeadingButton: {
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+    borderWidth: 1,
   },
   searchBox: {
     flex: 1,
@@ -1078,7 +1482,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    marginBottom: 10,
+    marginBottom: 100,
     zIndex: 10,
   },
   routeInfoText: {
@@ -1091,5 +1495,68 @@ const styles = StyleSheet.create({
     top: -10,
     right: -10,
     zIndex: 10,
+  },
+
+  navigationModalContainer: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: "20%",
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  navigationModalHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: "#ccc",
+    borderRadius: 2.5,
+    alignSelf: "center",
+    marginBottom: 10,
+  },
+
+  navigationModalTextContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+  navigationModalText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#B2DDF9",
+  },
+  navigationModalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
+  },
+  navigationStartButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  navigationStartButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  navigationCancelButton: {
+    backgroundColor: "#f44336",
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  navigationCancelButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
