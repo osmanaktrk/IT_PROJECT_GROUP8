@@ -19,7 +19,7 @@ export const setupSQLiteDatabase = async () => {
   // const dbPath = `${SQLite.defaultDatabaseDirectory}/on_street_supply_pt.db`;
 
   const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
-  console.log("pathExists on_street_supply_pt", pathExists);
+  console.log("path", dbPath);
 
   if (!pathExists) {
     await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true });
@@ -93,7 +93,6 @@ export const fetchAllDataFromFirestore = async () => {
   }
 };
 
-
 export const fetchStatusDataFromFirestore = async (status) => {
   const db = getFirestore();
   const collectionRef = collection(db, "on_street_supply_pt");
@@ -113,7 +112,8 @@ export const fetchStatusDataFromFirestore = async (status) => {
       userID: data.userID,
     };
   });
-  console.log(`${status}`, results);
+
+  // console.log(`${status}`, results);
 
   return results;
 };
@@ -145,25 +145,48 @@ export const updateSQLiteWithAvailableRecords = async () => {
   try {
     const availableData = await fetchStatusDataFromFirestore("available");
 
+    const selectQuery = `
+      SELECT timestamp FROM on_street_supply_pt WHERE latitude = ? AND longitude = ?
+    `;
+
     const updateQuery = `
-      UPDATE on_street_supply_pt
-      SET status = ?, timestamp = ?, userID = ?
-      WHERE latitude = ? AND longitude = ?
+      UPDATE on_street_supply_pt SET status = ?, timestamp = ?, userID = ?, price = ? WHERE latitude = ? AND longitude = ?
     `;
 
     for (const record of availableData) {
-      await db.runAsync(updateQuery, [
-        record.status,
-        record.timestamp,
-        record.userID,
+      const existingRecordTimestamp = await db.getFirstAsync(selectQuery, [
         record.latitude,
         record.longitude,
       ]);
-    }
 
-    console.log(
-      `SQLite database updated with ${availableData.length} 'available' records.`
-    );
+      if (existingRecordTimestamp) {
+        const existingTimestamp = new Date(existingRecordTimestamp.timestamp);
+        const newTimestamp = new Date(record.timestamp);
+
+        if (newTimestamp > existingTimestamp) {
+          await db.runAsync(updateQuery, [
+            record.status,
+            record.timestamp,
+            record.userID,
+            record.price,
+            record.latitude,
+            record.longitude,
+          ]);
+
+          console.log(
+            `Updated record at (${record.latitude}, ${record.longitude})`
+          );
+        } else {
+          console.log(
+            `Skipped update for (${record.latitude}, ${record.longitude}): Newer timestamp not found`
+          );
+        }
+      } else {
+        console.log(
+          `No existing record found for (${record.latitude}, ${record.longitude})`
+        );
+      }
+    }
   } catch (error) {
     console.error("Error updating 'available' records:", error.message);
   }
@@ -194,29 +217,54 @@ export const updateSQLiteWithUnavailableRecords = async () => {
   const db = await createDatabase();
 
   try {
-  
-    const unavailableData = await fetchStatusDataFromFirestore("unavailable")
+    const unavailableData = await fetchStatusDataFromFirestore("unavailable");
 
-   
+    const selectQuery = `
+      SELECT timestamp 
+      FROM on_street_supply_pt 
+      WHERE latitude = ? AND longitude = ?
+    `;
+
     const updateQuery = `
       UPDATE on_street_supply_pt
-      SET status = ?, timestamp = ?, userID = ?
+      SET status = ?, timestamp = ?, userID = ?, price = ?
       WHERE latitude = ? AND longitude = ?
     `;
 
     for (const record of unavailableData) {
-      await db.runAsync(updateQuery, [
-        record.status,
-        record.timestamp,
-        record.userID,
+      const existingRecordTimestamp = await db.getFirstAsync(selectQuery, [
         record.latitude,
         record.longitude,
       ]);
-    }
 
-    console.log(
-      `SQLite database updated with ${unavailableData.length} 'unavailable' records.`
-    );
+      if (existingRecordTimestamp) {
+        const existingTimestamp = new Date(existingRecordTimestamp.timestamp);
+        const newTimestamp = new Date(record.timestamp);
+
+        if (newTimestamp > existingTimestamp) {
+          await db.runAsync(updateQuery, [
+            record.status,
+            record.timestamp,
+            record.userID,
+            record.price,
+            record.latitude,
+            record.longitude,
+          ]);
+
+          console.log(
+            `Updated record at (${record.latitude}, ${record.longitude})`
+          );
+        } else {
+          console.log(
+            `Skipped update for (${record.latitude}, ${record.longitude}): Newer timestamp not found`
+          );
+        }
+      } else {
+        console.log(
+          `No existing record found for (${record.latitude}, ${record.longitude})`
+        );
+      }
+    }
   } catch (error) {
     console.error("Error updating 'unavailable' records:", error.message);
   }
