@@ -7,8 +7,16 @@ import {
   query,
   where,
   getDocs,
+  onSnapshot,
+  limit,
+  startAfter,
+  orderBy,
+  serverTimestamp,
+  GeoPoint,
+  getDoc,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
-import { GeoPoint } from "firebase/firestore";
 import { firestoreDB } from "../../FirebaseConfig";
 
 export const setupSQLiteDatabase = async () => {
@@ -93,29 +101,156 @@ export const fetchAllDataFromFirestore = async () => {
   }
 };
 
-export const fetchStatusDataFromFirestore = async (status) => {
-  const db = getFirestore();
-  const collectionRef = collection(db, "on_street_supply_pt");
+const updateLocationDataFirebase = async (
+  latitude,
+  longitude,
+  status,
+  userID,
+  timestamp
+) => {
+  try {
+    const docId = `${latitude}_${longitude}`;
+    const docRef = doc(firestoreDB, "on_street_supply_pt", docId);
 
-  const queryRef = query(collectionRef, where("status", "==", status));
-  const querySnapshot = await getDocs(queryRef);
+    const docSnapshot = await getDoc(docRef);
 
-  const results = querySnapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      latitude: data.coords.latitude,
-      longitude: data.coords.longitude,
-      price: data.price,
-      status: data.status,
-      timestamp: data.timestamp.toDate().toISOString(),
-      userID: data.userID,
-    };
-  });
+    await updateDoc(docRef, {
+      status: status,
+      timestamp: timestamp,
+      userID: userID,
+    });
+    console.log(`Document with ID: ${docId} updated successfully.`);
+  } catch (error) {
+    console.error("Error in upsert operation: ", error);
+  }
+};
 
-  // console.log(`${status}`, results);
+const updateLocationDataSQLiteDatabase = async (
+  latitude,
+  longitude,
+  status,
+  userID,
+  timestamp
+) => {
+  const db = await createDatabase();
 
-  return results;
+  try {
+    console.log(status, userID, timestamp, latitude, longitude);
+
+    await db.runAsync(
+      `UPDATE on_street_supply_pt SET status = ?, userID = ?, timestamp = ? WHERE latitude = ? AND longitude = ?`,
+      [status, userID, timestamp, latitude, longitude]
+    );
+
+    console.log(
+      `Location at (${latitude}, ${longitude}) updated successfully.`
+    );
+  } catch (error) {
+    console.error("Error updating location in sqlite:", error.message);
+  }
+};
+
+export const updateLocationStatus = async (
+  latitude,
+  longitude,
+  status,
+  userID
+) => {
+  const timestamp = new Date().toISOString();
+
+  try {
+    await updateLocationDataFirebase(
+      latitude,
+      longitude,
+      status,
+      userID,
+      timestamp
+    );
+    await updateLocationDataSQLiteDatabase(
+      latitude,
+      longitude,
+      status,
+      userID,
+      timestamp
+    );
+
+    console.log("updateLocationStatus successful");
+  } catch (error) {
+    console.log("Error updateLocationStatus: ", error.message);
+  }
+};
+
+// export const fetchStatusDataFromFirestore = async (status) => {
+//   const db = getFirestore();
+//   const collectionRef = collection(db, "on_street_supply_pt");
+
+//   const queryRef = query(collectionRef, where("status", "==", status));
+//   const querySnapshot = await getDocs(queryRef);
+
+//   const results = querySnapshot.docs.map((doc) => {
+//     const data = doc.data();
+//     return {
+//       id: doc.id,
+//       latitude: data.coords.latitude,
+//       longitude: data.coords.longitude,
+//       price: data.price,
+//       status: data.status,
+//       timestamp: data.timestamp.toDate().toISOString(),
+//       userID: data.userID,
+//     };
+//   });
+
+//   // console.log(`${status}`, results);
+
+//   return results;
+// };
+
+export const fetchStatusDataFromFirestore = async (status, batchSize = 100) => {
+  const collectionRef = collection(firestoreDB, "on_street_supply_pt");
+  let lastDoc = null;
+  const allResults = [];
+
+  while (true) {
+    const queryRef = lastDoc
+      ? query(
+          collectionRef,
+          where("status", "==", status),
+          orderBy("timestamp"),
+          startAfter(lastDoc),
+          limit(batchSize)
+        )
+      : query(
+          collectionRef,
+          where("status", "==", status),
+          orderBy("timestamp"),
+          limit(batchSize)
+        );
+
+    const querySnapshot = await getDocs(queryRef);
+
+    const results = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        latitude: data.coords.latitude,
+        longitude: data.coords.longitude,
+        price: data.price,
+        status: data.status,
+        timestamp: data.timestamp.toDate().toISOString(),
+        userID: data.userID,
+      };
+    });
+
+    allResults.push(...results);
+
+    if (querySnapshot.size < batchSize) {
+      break;
+    }
+
+    lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+  }
+
+  return allResults;
 };
 
 // export const fetchAvailableDataFromFirestore = async () => {
@@ -164,14 +299,16 @@ export const updateSQLiteWithAvailableRecords = async () => {
         const newTimestamp = new Date(record.timestamp);
 
         if (newTimestamp > existingTimestamp) {
-          await db.runAsync(updateQuery, [
-            record.status,
-            record.timestamp,
-            record.userID,
-            record.price,
-            record.latitude,
-            record.longitude,
-          ]);
+          db.withTransactionAsync(
+            await db.runAsync(updateQuery, [
+              record.status,
+              record.timestamp,
+              record.userID,
+              record.price,
+              record.latitude,
+              record.longitude,
+            ])
+          );
 
           console.log(
             `Updated record at (${record.latitude}, ${record.longitude})`
@@ -242,14 +379,16 @@ export const updateSQLiteWithUnavailableRecords = async () => {
         const newTimestamp = new Date(record.timestamp);
 
         if (newTimestamp > existingTimestamp) {
-          await db.runAsync(updateQuery, [
-            record.status,
-            record.timestamp,
-            record.userID,
-            record.price,
-            record.latitude,
-            record.longitude,
-          ]);
+          db.withTransactionAsync(
+            await db.runAsync(updateQuery, [
+              record.status,
+              record.timestamp,
+              record.userID,
+              record.price,
+              record.latitude,
+              record.longitude,
+            ])
+          );
 
           console.log(
             `Updated record at (${record.latitude}, ${record.longitude})`
@@ -267,6 +406,61 @@ export const updateSQLiteWithUnavailableRecords = async () => {
     }
   } catch (error) {
     console.error("Error updating 'unavailable' records:", error.message);
+  }
+};
+
+export const syncFirestoreToSQLite = async (batchSize = 100) => {
+  const db = await createDatabase();
+
+  console.log("Syncing Firestore to SQLite started...");
+
+  try {
+    const collectionRef = collection(firestoreDB, "on_street_supply_pt");
+
+    onSnapshot(collectionRef, async (snapshot) => {
+      try {
+        snapshot.docChanges().forEach(async (change) => {
+          const data = change.doc.data();
+          const { latitude, longitude, price, status, timestamp, userID } =
+            data;
+
+          if (change.type === "added") {
+            await db.withTransactionAsync(
+              await db.runAsync(
+                `INSERT INTO on_street_supply_pt (latitude, longitude, price, status, timestamp, userID) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
+                [latitude, longitude, price, status, timestamp, userID]
+              )
+            );
+            console.log("syc data added");
+          } else if (change.type === "modified") {
+            await db.withTransactionAsync(
+              await db.execAsync(
+                `UPDATE on_street_supply_pt 
+             SET price = ?, status = ?, timestamp = ?, userID = ? 
+             WHERE latitude = ? AND longitude = ?`,
+                [price, status, timestamp, userID, latitude, longitude]
+              )
+            );
+            console.log("syc data modified");
+          } else if (change.type === "removed") {
+            await db.withTransactionAsync(
+              await db.execAsync(
+                `DELETE FROM on_street_supply_pt WHERE latitude = ? AND longitude = ?`,
+                [latitude, longitude]
+              )
+            );
+            console.log("syc data removed");
+          }
+        });
+
+        console.log("guncelleme basarili");
+      } catch (innerError) {
+        console.error("Error during Firestore sync processing:", innerError);
+      }
+    });
+  } catch (error) {
+    console.error("Error initializing Firestore sync:", error.message);
   }
 };
 
