@@ -16,8 +16,16 @@ import {
   getDoc,
   updateDoc,
   doc,
+  startAt,
+  endAt,
+  setDoc,
 } from "firebase/firestore";
 import { firestoreDB } from "../../FirebaseConfig";
+import { GeoFirestore } from "geofirestore";
+import * as geofire from "geofire-common";
+import { disableNetwork, enableNetwork } from "firebase/firestore";
+import NetInfo from "@react-native-community/netinfo";
+import { Alert } from "react-native";
 
 export const setupSQLiteDatabase = async () => {
   const sqliteDir = `${FileSystem.documentDirectory}SQLite`;
@@ -100,6 +108,11 @@ export const fetchAllDataFromFirestore = async () => {
     return [];
   }
 };
+const convertTimestamp = (timestamp) => {
+  const milliseconds =
+    timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1e6);
+  return new Date(milliseconds);
+};
 
 const updateLocationDataFirebase = async (
   latitude,
@@ -137,35 +150,48 @@ const updateLocationDataSQLiteDatabase = async (
   try {
     console.log(status, userID, timestamp, latitude, longitude);
 
-    await db.runAsync(
-      `UPDATE on_street_supply_pt SET status = ?, userID = ?, timestamp = ? WHERE latitude = ? AND longitude = ?`,
-      [status, userID, timestamp, latitude, longitude]
+    db.withTransactionAsync(
+      await db.runAsync(
+        `UPDATE on_street_supply_pt SET status = ?, userID = ?, timestamp = ? WHERE latitude = ? AND longitude = ?`,
+        [status, userID, timestamp, latitude, longitude]
+      )
     );
 
     console.log(
       `Location at (${latitude}, ${longitude}) updated successfully.`
     );
   } catch (error) {
-    console.error("Error updating location in sqlite:", error.message);
+    console.error("Error updating location in sqlite:", error);
   }
+};
+
+// const checkInternetConnection = async () => {
+//   try {
+//     const response = await fetch("https://www.google.com", { method: "HEAD" });
+//     return response.ok;
+//   } catch (error) {
+//     console.error("No internet connection:", error);
+//     return false;
+//   }
+// };
+
+const checkInternetConnection = async () => {
+  const state = await NetInfo.fetch();
+  return state.isConnected;
 };
 
 export const updateLocationStatus = async (
   latitude,
   longitude,
   status,
-  userID
+  userID,
+  setOfflineModeActive
 ) => {
   const timestamp = new Date().toISOString();
 
+  const isOnline = await checkInternetConnection();
+
   try {
-    await updateLocationDataFirebase(
-      latitude,
-      longitude,
-      status,
-      userID,
-      timestamp
-    );
     await updateLocationDataSQLiteDatabase(
       latitude,
       longitude,
@@ -174,36 +200,46 @@ export const updateLocationStatus = async (
       timestamp
     );
 
-    console.log("updateLocationStatus successful");
+    console.log("SQLite update successful");
   } catch (error) {
-    console.log("Error updateLocationStatus: ", error.message);
+    console.log("Error updating SQLite database:", error);
   }
+
+  if (isOnline) {
+    try {
+      // Firestore güncellemesi
+      await updateLocationDataFirebase(
+        latitude,
+        longitude,
+        status,
+        userID,
+        timestamp
+      );
+      console.log("Firestore update successful");
+    } catch (error) {
+      console.error("Firestore update error:", error);
+    }
+  } else {
+    setOfflineModeActive(true);
+    console.log("No internet connection. Changes will sync later.");
+    Alert.alert("No internet connection.", "Changes will sync later.");
+    const docRef = doc(
+      firestoreDB,
+      "on_street_supply_pt",
+      `${latitude}_${longitude}`
+    );
+    await updateDoc(docRef, {
+      status,
+      userID,
+      timestamp,
+    }); // Kuyruğa ekler, bağlantı geldiğinde işler
+
+    console.log("Changes queued to Firestore");
+  }
+
+
+
 };
-
-// export const fetchStatusDataFromFirestore = async (status) => {
-//   const db = getFirestore();
-//   const collectionRef = collection(db, "on_street_supply_pt");
-
-//   const queryRef = query(collectionRef, where("status", "==", status));
-//   const querySnapshot = await getDocs(queryRef);
-
-//   const results = querySnapshot.docs.map((doc) => {
-//     const data = doc.data();
-//     return {
-//       id: doc.id,
-//       latitude: data.coords.latitude,
-//       longitude: data.coords.longitude,
-//       price: data.price,
-//       status: data.status,
-//       timestamp: data.timestamp.toDate().toISOString(),
-//       userID: data.userID,
-//     };
-//   });
-
-//   // console.log(`${status}`, results);
-
-//   return results;
-// };
 
 export const fetchStatusDataFromFirestore = async (status, batchSize = 100) => {
   const collectionRef = collection(firestoreDB, "on_street_supply_pt");
@@ -236,7 +272,7 @@ export const fetchStatusDataFromFirestore = async (status, batchSize = 100) => {
         longitude: data.coords.longitude,
         price: data.price,
         status: data.status,
-        timestamp: data.timestamp.toDate().toISOString(),
+        timestamp: data.timestamp,
         userID: data.userID,
       };
     });
@@ -252,27 +288,6 @@ export const fetchStatusDataFromFirestore = async (status, batchSize = 100) => {
 
   return allResults;
 };
-
-// export const fetchAvailableDataFromFirestore = async () => {
-//   try {
-//     const queryRef = query(
-//       collection(firestoreDB, "on_street_supply_pt"),
-//       where("status", "==", "available")
-//     );
-
-//     const querySnapshot = await getDocs(queryRef);
-//     const results = [];
-//     querySnapshot.forEach((doc) => {
-//       results.push({ id: doc.id, ...doc.data() });
-//     });
-
-//     console.log("Available Data from firestore :", results);
-//     return results;
-//   } catch (error) {
-//     console.error("Error fetching available data:", error);
-//     return [];
-//   }
-// };
 
 export const updateSQLiteWithAvailableRecords = async () => {
   const db = await createDatabase();
@@ -325,30 +340,9 @@ export const updateSQLiteWithAvailableRecords = async () => {
       }
     }
   } catch (error) {
-    console.error("Error updating 'available' records:", error.message);
+    console.error("Error updating 'available' records:", error);
   }
 };
-
-// export const fetchUnavailableDataFromFirestore = async () => {
-//   try {
-//     const queryRef = query(
-//       collection(firestoreDB, "on_street_supply_pt"),
-//       where("status", "==", "unavailable")
-//     );
-
-//     const querySnapshot = await getDocs(queryRef);
-//     const results = [];
-//     querySnapshot.forEach((doc) => {
-//       results.push({ id: doc.id, ...doc.data() });
-//     });
-
-//     console.log("Unavailable Data fron firestore:", results);
-//     return results;
-//   } catch (error) {
-//     console.error("Error fetching unavailable data:", error);
-//     return [];
-//   }
-// };
 
 export const updateSQLiteWithUnavailableRecords = async () => {
   const db = await createDatabase();
@@ -405,7 +399,7 @@ export const updateSQLiteWithUnavailableRecords = async () => {
       }
     }
   } catch (error) {
-    console.error("Error updating 'unavailable' records:", error.message);
+    console.error("Error updating 'unavailable' records:", error);
   }
 };
 
@@ -460,44 +454,81 @@ export const syncFirestoreToSQLite = async (batchSize = 100) => {
       }
     });
   } catch (error) {
-    console.error("Error initializing Firestore sync:", error.message);
+    console.error("Error initializing Firestore sync:", error);
   }
 };
 
-export const fetchVisibleDataFromFirestore = async (
-  region,
-  expansionFactor = 1.5
+export const fetchLocationsFromFirestoreWithCenter = async (
+  latitude,
+  longitude,
+  radiusInMeters
 ) => {
-  const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
-  const expandedLatitudeDelta = latitudeDelta * expansionFactor;
-  const expandedLongitudeDelta = longitudeDelta * expansionFactor;
-
-  const northEastLat = latitude + expandedLatitudeDelta / 2;
-  const northEastLng = longitude + expandedLongitudeDelta / 2;
-  const southWestLat = latitude - expandedLatitudeDelta / 2;
-  const southWestLng = longitude - expandedLongitudeDelta / 2;
-
   try {
-    // Firestore sorgusu
-    const collectionRef = collection(firestoreDB, "on_street_supply_pt");
+    const center = [latitude, longitude];
 
-    const q = query(
-      collectionRef,
-      where("coords", ">=", new GeoPoint(southWestLat, southWestLng)),
-      where("coords", "<=", new GeoPoint(northEastLat, northEastLng))
-    );
-
-    const querySnapshot = await getDocs(q);
+    console.log("center", center);
+    console.log("mesafe", radiusInMeters);
+    const bounds = geofire.geohashQueryBounds(center, radiusInMeters);
     const results = [];
 
-    querySnapshot.forEach((doc) => {
-      results.push({ id: doc.id, ...doc.data() });
-    });
+    for (const b of bounds) {
+      const q = query(
+        collection(firestoreDB, "on_street_supply_pt"),
+        orderBy("geohash"),
+        startAt(b[0]),
+        endAt(b[1]),
+        where("status", "==", "available")
+      );
 
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        const distanceInMeters =
+          geofire.distanceBetween(center, [
+            data.coords.latitude,
+            data.coords.longitude,
+          ]) * 1000;
+
+        const latitude = data.coords.latitude;
+        const longitude = data.coords.longitude;
+        const status = data.status;
+        const timestamp = data.timestamp;
+        const userID = data.userID;
+
+        results.push({
+          id: doc.id,
+          latitude: latitude,
+          longitude: longitude,
+          price: data.price,
+          status: status,
+          timestamp: timestamp,
+          userID: userID,
+        });
+
+        try {
+          await updateLocationDataSQLiteDatabase(
+            latitude,
+            longitude,
+            status,
+            userID,
+            timestamp
+          );
+          console.log(
+            "firebase den alinan veriler sqlite database guncellendi"
+          );
+        } catch (error) {
+          console.log("firebaseden alinan veriler guncellenemedi", error);
+        }
+
+    
+      });
+    }
+
+    console.log("Filtered Locations success:", results.length);
     return results;
   } catch (error) {
-    console.error("Error fetching Firestore data:", error);
-    return [];
+    console.error("Error fetching locations:", error);
   }
 };
 

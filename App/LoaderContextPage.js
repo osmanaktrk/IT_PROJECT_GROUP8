@@ -7,12 +7,12 @@ const LoaderProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const showLoader = () => {
-    console.log("Loader shown");
+    // console.log("Loader shown");
     setIsLoading(true);
   };
 
   const hideLoader = () => {
-    console.log("Loader hidden");
+    // console.log("Loader hidden");
     setIsLoading(false);
   };
 

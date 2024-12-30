@@ -50,7 +50,7 @@ export const fetchSelectedData = async () => {
   const result = await db.getAllAsync(
     "SELECT latitude, longitude, name_du, capacity_car, status, timestamp FROM public_parking"
   );
-  console.log("public_parking_data");
+ 
   return result;
 };
 
