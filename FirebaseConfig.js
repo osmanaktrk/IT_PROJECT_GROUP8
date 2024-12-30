@@ -19,9 +19,11 @@ import {
   getDocs, 
   doc, 
   updateDoc, 
-  deleteDoc  
+  deleteDoc,
+  initializeFirestore, 
+  CACHE_SIZE_UNLIMITED
 } from "firebase/firestore";
-import { getDatabase } from "firebase/database";
+import { getDatabase, ref, update  } from "firebase/database";
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -51,9 +53,23 @@ export const firebaseAuth = initializeAuth(firebaseApp, {
 });
 
 // Firestore initialize
-export const firestoreDB = getFirestore(firebaseApp);
+// export const firestoreDB = getFirestore(firebaseApp);
+// Firestore initialize with unlimited cache size
+export const firestoreDB = initializeFirestore(firebaseApp, {
+  cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+});
 
 export const firebaseRealDB = getDatabase(firebaseApp);
+
+
+
+
+
+
+
+
+
+
 
 
 export const registerUser = async (email, password) => {

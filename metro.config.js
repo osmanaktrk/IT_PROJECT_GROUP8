@@ -1,9 +1,8 @@
-const { getDefaultConfig } = require('expo/metro-config');
+// Learn more https://docs.expo.io/guides/customizing-metro
+const { getDefaultConfig } = require('@expo/metro-config');
 
-module.exports = {
-  resolver: {
-    blockList: /.*node_modules\/\.bin.*/, // Ignore symlinks in node_modules/.bin
-  },
-  ...getDefaultConfig(__dirname),
-};
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getDefaultConfig(__dirname);
+config.resolver.sourceExts.push('cjs');
 
+module.exports = config;
