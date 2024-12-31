@@ -394,15 +394,15 @@ export const matrixService = async (locations) => {
 
     const data = response.data;
 
-    const sortedData = data.distances[0]
-      .map((distance, index) => ({
-        index,
-        distance,
-        source: data.sources[index].location,
-      }))
-      .sort((a, b) => a.distance - b.distance);
+    // const sortedData = data.distances[0]
+    //   .map((distance, index) => ({
+    //     index,
+    //     distance,
+    //     source: data.sources[index].location,
+    //   }))
+    //   .sort((a, b) => a.distance - b.distance);
 
-    return sortedData;
+    return data;
   } catch (error) {
     console.error("Error in calculateDrivingMatrix:", error.message);
     throw error;
