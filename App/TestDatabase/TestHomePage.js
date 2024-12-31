@@ -43,7 +43,7 @@ import * as ParkAndRideSqliteService from "../SqliteService/park_and_ride_sqlite
 import * as PublicParkingSqliteService from "../SqliteService/public_parking_sqliteService";
 // import * as ParkingSpacesProprietySqliteService from "../SqliteService/on_street_acar_sqliteService";
 import * as ParkingSpacesSqliteService from "../SqliteService/on_street_supply_pt_sqliteService";
-import * as FireBaseUploader from "../Database/firebaseUploader";
+// import * as FireBaseUploader from "../Database/firebaseUploader";
 import * as OpenRouteServise from "../ApiService/openRouteService";
 
 const screenHeight = Dimensions.get("window").height;
@@ -112,14 +112,18 @@ export default function App({ navigation }) {
     longitudeDelta: 0.005,
   });
 
-  // useEffect(() => {
-  //   const updateDatabase = async () => {
-  //     await ParkingSpacesSqliteService.updateSQLiteWithAvailableRecords();
-  //     await ParkingSpacesSqliteService.updateSQLiteWithUnavailableRecords();
-  //   };
+  useEffect(() => {
+    const updateDatabase = async () => {
+      await ParkingSpacesSqliteService.updateSQLiteWithAvailableRecords();
+      await ParkingSpacesSqliteService.updateSQLiteWithUnavailableRecords();
+    };
 
-  //   updateDatabase();
-  // }, []);
+    if (isSynchronizationActive) {
+      setIsSynchronizationActive(false);
+      updateDatabase();
+      console.log("update started");
+    }
+  }, [isSynchronizationActive]);
 
   // useEffect(() => {
 
@@ -186,13 +190,31 @@ export default function App({ navigation }) {
     }).start();
   };
 
-  const closeModule = () => {
-    setActiveModule("");
+  const closeModule = (moduleName) => {
+    switch (moduleName) {
+      case "navigationModule":
+        clearInterval(navigationIntervalId);
+        // setNavigationIntervalId("");
+        setNavigationStepsInstruction("");
+        setRouteCoordinates([]);
+        setRouteInfo({});
+        setIsAligningHeading(false);
+        break;
+      case "updateLocationModule":
+        setSelectedParkingLocation({});
+
+        break;
+      case "locationSelectedModule":
+        setSelectedLocationCircle(null);
+
+        break;
+    }
+
     Animated.timing(translateY, {
       toValue: screenHeight,
       duration: 400,
       useNativeDriver: true,
-    }).start(() => setActiveModule(null));
+    }).start(() => setActiveModule(""));
   };
 
   const panResponder = PanResponder.create({
@@ -238,6 +260,7 @@ export default function App({ navigation }) {
     setRouteInfo({});
     closeModule();
     setNavigationIntervalId(null);
+    isSynchronizationActive(true)
   };
 
   const initializePublicParkingDatabase = async () => {
@@ -442,6 +465,7 @@ export default function App({ navigation }) {
     if (!searchText) {
       return;
     }
+    closeLocationSearchModule();
     setSelectedLocationCircle(null);
     try {
       setSearchedLocations([]);
@@ -467,17 +491,18 @@ export default function App({ navigation }) {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         };
-        console.log("suggestions[0] tekli arama", suggestions[0]);
+        // console.log("suggestions[0] tekli arama", suggestions[0]);
         setSearchedLocations(suggestions);
         setSelectedLocationCircle(suggestions[0]);
-        openLocationSelectedModule(suggestions[0]);
+        setGetLiveLocationsSelectedArea(true);
+        // openLocationSelectedModule();
 
         setRegion(newRegion);
         mapRef.current.animateToRegion(newRegion, 1000);
         // eger arama tek sonuç verirse buraya direkt yonlendirme
         setSearchText("");
 
-        console.log("tekli sonuclari lat lon", selectedLocationCircle);
+        // console.log("tekli sonuclari lat lon", selectedLocationCircle);
       }
 
       if (suggestions.length > 1) {
@@ -524,8 +549,8 @@ export default function App({ navigation }) {
     if (searchedSuggestions.length < 1) {
       return;
     }
+    setGetLiveLocationsSelectedArea(true);
     setSelectedLocationCircle(item);
-
     //arama yaoildiktan sonra harita uzerinde bir çok noktadan birinin seçilmesi ile sonuçleniyor
 
     const [longitude, latitude] = item.coordinates;
@@ -537,18 +562,9 @@ export default function App({ navigation }) {
       longitudeDelta: 0.01,
     };
 
-    console.log("item coklu arama", item);
-    // console.log(
-    //   "item sonuclari lat lon",
-    //   selectedLocationCircle.coordinates[1],
-    //   selectedLocationCircle.coordinates[0],
-    //   liveLocationsDistance
-    // );
+    
 
-    console.log("item çoklu sonuclari lat lon", selectedLocationCircle);
-    setTimeout(() => {}, 1000);
-
-    openLocationSelectedModule(item);
+    // openLocationSelectedModule();
 
     setSearchText(item.name);
     setSearchedLocations([item]);
@@ -620,8 +636,8 @@ export default function App({ navigation }) {
           mapRef.current.animateToRegion(newRegion, 1000);
         }
 
-        console.log(routeInfo);
-        console.log(data);
+        // console.log(routeInfo);
+        // console.log(data);
       } else {
         console.error("No valid routes or geometry found.");
       }
@@ -718,14 +734,14 @@ export default function App({ navigation }) {
     }
   };
 
-  const resetNavigation = () => {
-    clearInterval(navigationIntervalId);
-    setNavigationIntervalId(null);
-    setNavigationStepsInstruction("");
-    setRouteCoordinates([]);
-    setRouteInfo({});
-    closeModule();
-    setIsAligningHeading(false);
+  const closeNavigationModule = () => {
+    // clearInterval(navigationIntervalId);
+    // setNavigationIntervalId("");
+    // setNavigationStepsInstruction("");
+    // setRouteCoordinates([]);
+    // setRouteInfo({});
+    closeModule("navigationModule");
+    // setIsAligningHeading(false);
 
     // if (userCurrentLocation) {
     //   mapRef.current?.animateToRegion({
@@ -736,11 +752,11 @@ export default function App({ navigation }) {
     // } else {
     //   console.log("User location not available");
     // }
-    console.log("Route reset!");
+    // console.log("Route reset!");
   };
 
   const openNavigationModule = (item) => {
-    console.log(item);
+    // console.log(item);
     if (item.latitude && item.longitude) {
       handleDirection(item.longitude, item.latitude);
     } else {
@@ -750,11 +766,14 @@ export default function App({ navigation }) {
     openModule("navigationModule");
     mapRef.current.animateToRegion(directionRegio, 1000);
   };
-  const closeNavigationModule = () => {};
 
   const openUpdateLocationModule = (item) => {
     setSelectedParkingLocation(item);
     openModule("updateLocationModule");
+  };
+  const closeUpdateLocationModule = () => {
+    // setSelectedParkingLocation({});
+    closeModule("updateLocationModule");
   };
 
   //Haversine Formula
@@ -783,19 +802,21 @@ export default function App({ navigation }) {
     setSelectedParkingLocation(item);
 
     const distance = calculateDistance(item.latitude, item.longitude);
-    console.log("distance", Math.floor(distance));
+    // console.log("distance", Math.floor(distance));
+    // closeLocationSearchModule();
+    setSelectedLocationCircle(null);
 
-    if (distance <= 100) {
+    if (distance <= 200) {
       openUpdateLocationModule(item);
     } else {
       // openUpdateLocationModule(item);
 
       openNavigationModule(item);
-      console.log(item);
+      // console.log(item);
     }
   };
 
-  const handlefirebaseFetchedLocations = async (fetchedItems) => {
+  const handleFirebaseFetchedLocations = async (fetchedItems) => {
     try {
       const fetchedLocations = fetchedItems.map((data) => [
         data.longitude,
@@ -808,12 +829,14 @@ export default function App({ navigation }) {
 
       const result = await OpenRouteServise.matrixService(allLocations);
 
+      // console.log(result);
       const sortedSuggestions = result.distances
         .map((distance, index) => {
           if (index === 0) return null;
+
           return {
             latitude: allLocations[index][1],
-          longitude: allLocations[index][0],
+            longitude: allLocations[index][0],
             distance: distance[0],
             duration: result.durations[index][0],
           };
@@ -821,11 +844,43 @@ export default function App({ navigation }) {
         .filter(Boolean)
         .sort((a, b) => a.distance - b.distance);
 
-      setSearchedLocationSuggections(sortedSuggestions);
+      const results = [];
 
-      console.log("Updated Location Suggestions:", sortedSuggestions);
+      for (const item of sortedSuggestions) {
+        // console.log("item: ", item);
+        try {
+          const data = await OpenRouteServise.reverseGeocodeService(
+            item.longitude,
+            item.latitude
+          );
+          const address =
+            data.features[0]?.properties?.name || "Unknown Address";
+
+          results.push({
+            latitude: item.latitude,
+            longitude: item.longitude,
+            distance: item.distance,
+            duration: item.duration,
+            address: address,
+          });
+        } catch (error) {
+          console.error(
+            "Error fetching address for item:",
+            item,
+            error.response?.data || error.message
+          );
+          results.push({
+            ...item,
+            address: "Error Fetching Address",
+          });
+        }
+      }
+
+      setSearchedLocationSuggections(results);
+
+      // console.log("Updated Location Suggestions:", results);
     } catch (error) {
-      console.error("Error in handlefirebaseFetchedLocations:", error.message);
+      console.error("Error in handleFirebaseFetchedLocations:", error.message);
     }
   };
 
@@ -834,9 +889,13 @@ export default function App({ navigation }) {
 
   useEffect(() => {
     const fetchLiveLocations = async () => {
+      console.log("selectedLocationCircle", selectedLocationCircle);
+      console.log("liveLocationsDistance", liveLocationsDistance);
+
+      setFirebaseFetchedLocations([]);
+
+      showLoader();
       try {
-        showLoader();
-        setFirebaseFetchedLocations([]);
         const result =
           await ParkingSpacesSqliteService.fetchLocationsFromFirestoreWithCenter(
             selectedLocationCircle.coordinates[1],
@@ -850,17 +909,28 @@ export default function App({ navigation }) {
         //   new Date(result[0].timestamp).toLocaleString()
         // );
         setFirebaseFetchedLocations(result);
-        await handlefirebaseFetchedLocations(result);
-        console.log("result lenght", result.length);
+        if (result.length > 0) {
+          await handleFirebaseFetchedLocations(result);
+          openLocationSelectedModule();
+          Alert.alert(
+            "Data Update",
+            "The latest data has been retrieved successfully. Please tap on the map to view it."
+          );
+        } else {
+          
+          Alert.alert(
+            "No Nearby Available Parking Spots",
+            "Unfortunately, we couldn't find a available parking spot near your searched location. Please try searching in a different area."
+          );
+          setSearchedLocationSuggections("");
+        }
+        // console.log("result lenght", result.length);
 
-        Alert.alert(
-          "Data Update",
-          "The latest data has been retrieved successfully. Please tap on the map to view it."
-        );
-        hideLoader();
       } catch (error) {
         console.log("error firestore fetch", error);
       }
+              hideLoader();
+
     };
 
     if (getLiveLocationsSelectedArea && selectedLocationCircle) {
@@ -869,13 +939,16 @@ export default function App({ navigation }) {
     }
   }, [getLiveLocationsSelectedArea]);
 
-  const openLocationSelectedModule = (item) => {
+  const openLocationSelectedModule = () => {
     openModule("locationSelectedModule");
-    setGetLiveLocationsSelectedArea(true);
+    
     // calculateRegionForDistance(item);
   };
 
-  const closeLocationSearchModule = () => {};
+  const closeLocationSearchModule = () => {
+    // setSelectedLocationCircle(null);
+    closeModule("locationSelectedModule");
+  };
 
   // const calculateRegionForDistance = (item) => {
   //   const latitude = item.coordinates[1];
@@ -891,11 +964,6 @@ export default function App({ navigation }) {
   //     longitudeDelta: 0.001,
   //   };
   // };
-
-  const closeUpdateLocationModule = () => {
-    setSelectedParkingLocation({});
-    closeModule();
-  };
 
   const handleBackgroundPress = () => {
     // closeNavigationModule();
@@ -1118,7 +1186,7 @@ export default function App({ navigation }) {
               <View style={styles.suggestionsContainer}>
                 <FlatList
                   data={searchedSuggestions}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item, index) => index}
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       style={styles.suggestionItem}
@@ -1224,6 +1292,7 @@ export default function App({ navigation }) {
             initialRegion={region}
             // region={region}
             onRegionChangeComplete={setRegion}
+            showsTraffic={true}
           >
             {userCurrentLocation && (
               <Marker
@@ -1262,7 +1331,7 @@ export default function App({ navigation }) {
                 image={require("../../assets/parking40.png")}
                 onPress={() => openNavigationModule(item)}
                 opacity={1}
-              ></Marker>
+              ></Marker>  
             ))}
 
             {park_and_ride.map((item, index) => (
@@ -1315,8 +1384,8 @@ export default function App({ navigation }) {
                       item.status === "unknown"
                         ? "gray"
                         : item.status === "available"
-                        ? "green"
-                        : "red"
+                        ? "gray"
+                        : "gray"
                     }
                     opacity={1}
                     onPress={() => handleParkingMarker(item)}
@@ -1839,7 +1908,7 @@ export default function App({ navigation }) {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.navigationCancelButton}
-                    onPress={resetNavigation}
+                    onPress={closeNavigationModule}
                   >
                     <Text style={styles.navigationCancelButtonText}>
                       Cancel
@@ -1855,10 +1924,10 @@ export default function App({ navigation }) {
                 <View style={styles.locationSearchModuleSuggestionsContainer}>
                   {searchedLocationSuggections.length > 0 && (
                     <View>
-                      <View style={{height:290}}>
+                      <View style={{ height: 290 }}>
                         <FlatList
                           data={searchedLocationSuggections}
-                          keyExtractor={(item) => item.id}
+                          keyExtractor={(item, index) => index}
                           renderItem={({ item }) => (
                             <TouchableOpacity
                               style={
@@ -1870,15 +1939,27 @@ export default function App({ navigation }) {
                               <View
                                 style={styles.locationSearchModuleSuggestion}
                               >
-                                <Text
+                                <View
                                   style={
-                                    styles.locationSearchModuleSuggestionText
+                                    styles.locationSearchModuleSuggestionTextContainer
                                   }
                                 >
-                                  Distance: {item.distance} duration:{" "}
-                                  {item.duration}
-                                </Text>
-
+                                  <Text
+                                    style={
+                                      styles.locationSearchModuleSuggestionText
+                                    }
+                                  >
+                                    Adress: {item.address}
+                                  </Text>
+                                  <Text
+                                    style={
+                                      styles.locationSearchModuleSuggestionText
+                                    }
+                                  >
+                                    Distance: {item.distance} Duration:
+                                    {item.duration}
+                                  </Text>
+                                </View>
                                 <FontAwesome5
                                   name="parking"
                                   size={30}
@@ -1918,8 +1999,6 @@ export default function App({ navigation }) {
               </View>
             )}
           </Animated.View>
-
-         
         </SafeAreaView>
       </TouchableWithoutFeedback>
     </SafeAreaProvider>
@@ -2455,7 +2534,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   locationSearchModuleSuggestionsContainer: {
-    height:"100%",
+    height: "100%",
     flexDirection: "column",
     alignItems: "center",
   },
@@ -2470,8 +2549,10 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     width: screenWidth * 0.8,
   },
+  locationSearchModuleSuggestionTextContainer: {
+    width: "90%",
+  },
   locationSearchModuleSuggestion: {
-    width: "100%",
     justifyContent: "flex-start",
     flexDirection: "row",
     alignItems: "center",
@@ -2480,15 +2561,18 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   locationSearchModuleSuggestionText: {
+    marginVertical: 2,
     color: "white",
     fontSize: 15,
     width: "85%",
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
+    fontWeight: "bold",
   },
-  locationSearchModuleScrollHint:{
+  locationSearchModuleScrollHint: {
     position: "absolute",
     bottom: 0,
     alignSelf: "center",
     alignItems: "center",
-    
-  }
+  },
 });
