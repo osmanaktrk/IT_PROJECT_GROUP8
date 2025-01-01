@@ -141,7 +141,7 @@ const SignUpScreen = ({ navigation }) => {
         console.error("Error updating displayName:", error.message);
         Alert.alert("Error", "Failed to update username. Please try again.");
         return;
-      }
+      };
 
       try {
         
@@ -157,7 +157,7 @@ const SignUpScreen = ({ navigation }) => {
         console.log("User data saved successfully in Realtime Database");
       } catch (error) {
         console.error("Error saving user data to Realtime Database:", error);
-      }
+      };
 
 
       // Send email verification

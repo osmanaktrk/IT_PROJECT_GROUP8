@@ -33,9 +33,16 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { firebaseAuth, firestoreDB } from "../../FirebaseConfig";
+import {
+  firebaseAuth,
+  firestoreDB,
+  firebaseRealDB,
+} from "../../FirebaseConfig";
 import { signOut } from "firebase/auth";
 import { getDocs, collection } from "firebase/firestore";
+import { getDatabase, ref, set, update, remove, get } from "firebase/database";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from "uuid";
 import { useLoader } from "../LoaderContextPage";
 import polyline from "@mapbox/polyline";
 import debounce from "lodash.debounce";
@@ -112,49 +119,6 @@ export default function App({ navigation }) {
     longitudeDelta: 0.005,
   });
 
-  useEffect(() => {
-    const updateDatabase = async () => {
-      await ParkingSpacesSqliteService.updateSQLiteWithAvailableRecords();
-      await ParkingSpacesSqliteService.updateSQLiteWithUnavailableRecords();
-    };
-
-    if (isSynchronizationActive) {
-      setIsSynchronizationActive(false);
-      updateDatabase();
-      console.log("update started");
-    }
-  }, [isSynchronizationActive]);
-
-  // useEffect(() => {
-
-  //   const syncFirestoreToSQLite = async () => {
-  //     await ParkingSpacesSqliteService.syncFirestoreToSQLite();
-  //   };
-
-  //   if(!isSynchronizationActive){
-
-  //     syncFirestoreToSQLite();
-  //     setIsSynchronizationActive(true);
-  //     console.log("guncelleme çalisti");
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const uploadFirestore = async ()=>{
-  //     try {
-  //       console.log("upload basladi");
-  //       await FireBaseUploader.initializeFirebaseUploader();
-  //       console.log("upload bitti");
-  //       // console.log("timestamp", new Date().toISOString());
-  //     } catch (error) {
-  //       console.log("firebase ubload basarisiz", error);
-  //     }
-  //   };
-
-  //   uploadFirestore();
-
-  // }, []);
-
   const mapRef = useRef(null);
   const slideAnim = useRef(
     new Animated.Value(-Dimensions.get("window").width * 0.6)
@@ -174,10 +138,167 @@ export default function App({ navigation }) {
 
   const moduleHeights = {
     navigationModule: screenHeight * 0.2,
-    updateLocationModule: screenHeight * 0.41,
+    updateLocationModule: screenHeight * 0.45,
     thanksModule: screenHeight * 0.41,
     locationSelectedModule: screenHeight * 0.4,
   };
+
+  // realtime database kullanici ekleme deneme fonksiyonu, çalisiyor
+  useEffect(() => {
+    // const saveUserDataToRealtimeDatabase = async () => {
+    //   try {
+    //     const user = firebaseAuth.currentUser; // Aktif kullanıcıyı al
+    //     const userRef = ref(firebaseRealDB, `users/${user.uid}`); // Kullanıcı için bir yol belirle
+    //     // Kullanıcı verilerini kaydet
+    //     await set(userRef, {
+    //       username: user.displayName, // Kullanıcının kullanıcı adı
+    //       email: user.email, // Kullanıcının e-posta adresi
+    //       createdAt: new Date().toISOString(), // Kullanıcı oluşturulma zamanı
+    //       score: 0, // Başlangıç skoru
+    //     });
+    //     console.log("User data saved successfully in Realtime Database");
+    //   } catch (error) {
+    //     console.error("Error saving user data to Realtime Database:", error);
+    //   }
+    // };
+    // saveUserDataToRealtimeDatabase();
+    // addHistoryRecord(50.8503, 4.3517);
+    // deleteHistoryRecord("b474f8ed-ec48-4096-9766-e827dfc4dc93");
+    // fetchHistoryRecords();
+
+  }, []);
+
+
+
+  // const addHistoryRecord = async (latitude, longitude) => {
+  //   try {
+  //     const user = firebaseAuth.currentUser;
+  //     const uniqueKey = uuidv4();
+
+
+
+
+
+
+  //     const historyRef = ref(
+  //       firebaseRealDB,
+  //       `users/${user.uid}/history/${uniqueKey}`
+  //     );
+
+  //     await set(historyRef, {
+  //       latitude: latitude,
+  //       longitude: longitude,
+  //       timestamp: new Date().toISOString(),
+  //     });
+
+  //     console.log("History record added successfully.");
+  //   } catch (error) {
+  //     console.error("Error adding history record:", error);
+  //   }
+  // };
+
+
+
+  const addHistoryRecord = async (latitude, longitude) => {
+    try {
+      const user = firebaseAuth.currentUser;
+      
+      const historyRef = ref(firebaseRealDB, `users/${user.uid}/history`);
+  
+   
+      const snapshot = await get(historyRef);
+  
+      if (snapshot.exists()) {
+        const allRecords = snapshot.val();
+  
+        
+        const recordExists = Object.values(allRecords).some(
+          (record) =>
+            record.latitude === latitude && record.longitude === longitude
+        );
+  
+        if (recordExists) {
+          Alert.alert("Duplicate Entry", "This location already exists in your history.");
+          return;
+        }
+      }
+  
+     
+      const uniqueKey = uuidv4();
+      const newRecordRef = ref(firebaseRealDB, `users/${user.uid}/history/${uniqueKey}`);
+  
+      await set(newRecordRef, {
+        latitude: latitude,
+        longitude: longitude,
+        timestamp: new Date().toISOString(),
+      });
+  
+      console.log("History record added successfully.");
+      Alert.alert("Success", "New location added to your history!");
+    } catch (error) {
+      console.error("Error adding history record:", error);
+      Alert.alert("Error", "Failed to add location to history.");
+    }
+  };
+
+  const updateHistoryRecord = async (recordId, latitude, longitude) => {
+    try {
+      const user = firebaseAuth.currentUser;
+      const historyRef = ref(
+        firebaseRealDB,
+        `users/${user.uid}/history/${recordId}`
+      );
+      const updatedData = {
+        latitude: latitude,
+        longitude: longitude,
+        timestamp: new Date().toISOString(),
+      };
+
+      await update(historyRef, updatedData);
+
+      console.log("History record updated successfully.");
+    } catch (error) {
+      console.error("Error updating history record:", error);
+    }
+  };
+
+  const fetchHistoryRecords = async () => {
+    try {
+      const user = firebaseAuth.currentUser;
+      const historyRef = ref(firebaseRealDB, `users/${user.uid}/history`);
+      const snapshot = await get(historyRef);
+  
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const recordsWithIds = Object.entries(data).map(([id, record]) => ({
+          id, 
+          ...record, 
+        }));
+        console.log("Fetched history records:", recordsWithIds);
+        return recordsWithIds;
+      } else {
+        console.log("No history records found.");
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching history records:", error);
+      return [];
+    }
+  };
+
+  const deleteHistoryRecord = async (recordId) => {
+    try {
+      const user = firebaseAuth.currentUser;
+      const historyRef = ref(firebaseRealDB, `users/${user.uid}/history/${recordId}`);
+      await remove(historyRef);
+  
+      Alert.alert("Success", "History record deleted successfully.");
+      console.log("History record deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting history record:", error);
+    }
+  };
+
 
   const openModule = (moduleName) => {
     setActiveModule(moduleName);
@@ -202,11 +323,18 @@ export default function App({ navigation }) {
         break;
       case "updateLocationModule":
         setSelectedParkingLocation({});
-
         break;
       case "locationSelectedModule":
         setSelectedLocationCircle(null);
-
+        break;
+      case "allModules":
+        clearInterval(navigationIntervalId);
+        setNavigationStepsInstruction("");
+        setRouteCoordinates([]);
+        setRouteInfo({});
+        setIsAligningHeading(false);
+        setSelectedParkingLocation({});
+        setSelectedLocationCircle(null);
         break;
     }
 
@@ -240,17 +368,110 @@ export default function App({ navigation }) {
     },
   });
 
-  //clear all databases
-  const deleteDatabases = async () => {
+  //update SQLite database
+  const updateDatabaseFromFirestore = async () => {
+    if (isSynchronizationActive) {
+      Alert.alert(
+        "Update in Progress",
+        "Please wait while the update completes."
+      );
+      return;
+    }
+
+    setIsSynchronizationActive(true);
+    Alert.alert(
+      "Update Started",
+      "The database update has started. Please wait... You will be notified once the update is complete."
+    );
+
     try {
-      await ParkAndRideSqliteService.deleteDatabase();
-      await PublicParkingSqliteService.deleteDatabase();
-      await ParkingSpacesSqliteService.deleteDatabase();
-      console.log("Databases deleted successfully.");
+      await ParkingSpacesSqliteService.updateSQLiteWithAvailableRecords();
+      await ParkingSpacesSqliteService.updateSQLiteWithUnavailableRecords();
+      Alert.alert(
+        "Update Complete",
+        "The database has been successfully updated."
+      );
     } catch (error) {
-      Alert.alert("Error", `Database deleting failed: ${error.message}`);
+      console.log(`Database update failed: ${error.message}`);
+      Alert.alert("Error", "Database update failed please try again later.");
+    } finally {
+      setIsSynchronizationActive(false);
     }
   };
+
+  useEffect(() => {
+    const initializeParkAndRide = async () => {
+      try {
+        showLoader();
+
+        const parkAndRideData =
+          await ParkAndRideSqliteService.fetchSelectedData();
+        setPark_and_ride(parkAndRideData);
+        // console.log("park_and_ride", park_and_ride);
+        // console.log("park_and_ride initialized successfully.");
+      } catch (error) {
+        console.error("ParkAndRide initialization failed:", error);
+      } finally {
+        hideLoader();
+      }
+    };
+    if (isParkAndRideDatabaseInitialized) {
+      initializeParkAndRide();
+    }
+  }, [isParkAndRideDatabaseInitialized]);
+
+  useEffect(() => {
+    const initializePublicParking = async () => {
+      try {
+        showLoader();
+
+        const publicParkingData =
+          await PublicParkingSqliteService.fetchSelectedData();
+        setPublic_parking(publicParkingData);
+        // console.log("public_parking", public_parking);
+        // console.log("public_parking initialized successfully.");
+      } catch (error) {
+        console.error("PublicParking initialization failed:", error);
+      } finally {
+        hideLoader();
+      }
+    };
+
+    if (isPublicParkingDatabaseInitialized) {
+      initializePublicParking();
+    }
+  }, [isPublicParkingDatabaseInitialized]);
+
+  useEffect(() => {
+    const fetchVisibleParkingSpaces = async () => {
+      try {
+        showLoader();
+
+        if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
+          const visibleParkingSpaces =
+            await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
+          setOn_street_parking(visibleParkingSpaces);
+          // console.log("visible data", visibleParkingSpaces);
+          // console.log("park_and_ride", park_and_ride);
+          // console.log("public_parking", public_parking);
+          // console.log("gorunur data eklendi");
+        }
+
+        // console.log("ParkingSpaces initialized successfully.");
+      } catch (error) {
+        console.error(
+          "fetchVisibleParkingSpaces initialization failed:",
+          error
+        );
+      } finally {
+        hideLoader();
+      }
+    };
+
+    if (isParkingSpacesDatabaseInitialized) {
+      fetchVisibleParkingSpaces();
+    }
+  }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
 
   const handleMapRefresher = () => {
     setIsParkAndRideDatabaseInitialized(false);
@@ -258,9 +479,8 @@ export default function App({ navigation }) {
     setIsPublicParkingDatabaseInitialized(false);
     setRouteCoordinates([]);
     setRouteInfo({});
-    closeModule();
+    closeModule("allModules");
     setNavigationIntervalId(null);
-    isSynchronizationActive(true)
   };
 
   const initializePublicParkingDatabase = async () => {
@@ -334,18 +554,21 @@ export default function App({ navigation }) {
   useEffect(() => {
     if (!isPublicParkingDatabaseInitialized) {
       initializePublicParkingDatabase();
+      setIsPublicParkingDatabaseInitialized(true);
     }
   }, [isPublicParkingDatabaseInitialized]);
 
   useEffect(() => {
     if (!isParkAndRideDatabaseInitialized) {
       initializeParkAndRideDatabase();
+      setIsParkAndRideDatabaseInitialized(true);
     }
   }, [isParkAndRideDatabaseInitialized]);
 
   useEffect(() => {
     if (!isParkingSpacesDatabaseInitialized) {
       initializeParkingSpacesDatabase();
+      setIsParkingSpacesDatabaseInitialized(true);
     }
   }, [isParkingSpacesDatabaseInitialized]);
 
@@ -561,8 +784,6 @@ export default function App({ navigation }) {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     };
-
-    
 
     // openLocationSelectedModule();
 
@@ -917,7 +1138,6 @@ export default function App({ navigation }) {
             "The latest data has been retrieved successfully. Please tap on the map to view it."
           );
         } else {
-          
           Alert.alert(
             "No Nearby Available Parking Spots",
             "Unfortunately, we couldn't find a available parking spot near your searched location. Please try searching in a different area."
@@ -925,12 +1145,10 @@ export default function App({ navigation }) {
           setSearchedLocationSuggections("");
         }
         // console.log("result lenght", result.length);
-
       } catch (error) {
         console.log("error firestore fetch", error);
       }
-              hideLoader();
-
+      hideLoader();
     };
 
     if (getLiveLocationsSelectedArea && selectedLocationCircle) {
@@ -941,7 +1159,7 @@ export default function App({ navigation }) {
 
   const openLocationSelectedModule = () => {
     openModule("locationSelectedModule");
-    
+
     // calculateRegionForDistance(item);
   };
 
@@ -1016,82 +1234,6 @@ export default function App({ navigation }) {
   // useEffect(() => {
   //   fetchSpots();
   // }, []);
-
-  useEffect(() => {
-    const initializeParkAndRide = async () => {
-      try {
-        showLoader();
-
-        const parkAndRideData =
-          await ParkAndRideSqliteService.fetchSelectedData();
-        setPark_and_ride(parkAndRideData);
-        // console.log("park_and_ride", park_and_ride);
-        // console.log("park_and_ride initialized successfully.");
-      } catch (error) {
-        console.error("ParkAndRide initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-    if (isParkAndRideDatabaseInitialized) {
-      initializeParkAndRide();
-    }
-  }, [isParkAndRideDatabaseInitialized]);
-
-  useEffect(() => {
-    const initializePublicParking = async () => {
-      try {
-        showLoader();
-
-        const publicParkingData =
-          await PublicParkingSqliteService.fetchSelectedData();
-        setPublic_parking(publicParkingData);
-        // console.log("public_parking", public_parking);
-        // console.log("public_parking initialized successfully.");
-      } catch (error) {
-        console.error("PublicParking initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-
-    if (isPublicParkingDatabaseInitialized) {
-      initializePublicParking();
-    }
-  }, [isPublicParkingDatabaseInitialized]);
-
-  useEffect(() => {
-    const fetchVisibleParkingSpaces = async () => {
-      try {
-        showLoader();
-
-        if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
-          const visibleParkingSpaces =
-            await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
-          setOn_street_parking(visibleParkingSpaces);
-          // console.log("visible data", visibleParkingSpaces);
-          // console.log("park_and_ride", park_and_ride);
-          // console.log("public_parking", public_parking);
-          // console.log("gorunur data eklendi");
-        } else {
-          // console.log("lokasyonlari gormek için haritayi yakinlastir");
-        }
-
-        // console.log("ParkingSpaces initialized successfully.");
-      } catch (error) {
-        console.error(
-          "fetchVisibleParkingSpaces initialization failed:",
-          error
-        );
-      } finally {
-        hideLoader();
-      }
-    };
-
-    if (isParkingSpacesDatabaseInitialized) {
-      fetchVisibleParkingSpaces();
-    }
-  }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
 
   //Update document
 
@@ -1233,58 +1375,58 @@ export default function App({ navigation }) {
             )}
           </View>
 
-          {/* <Animated.View
-          style={[
-            styles.accountMenu,
-            { transform: [{ translateX: slideAnim }] },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={toggleAccountMenu}
+          <Animated.View
+            style={[
+              styles.accountMenu,
+              { transform: [{ translateX: slideAnim }] },
+            ]}
           >
-            <View style={styles.closeButtonContainer}>
-              <Ionicons name="close" size={24} color="white" />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={toggleAccountMenu}
+            >
+              <View style={styles.closeButtonContainer}>
+                <Ionicons name="close" size={24} color="white" />
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.topSection}>
+              <Text style={styles.accountText}>User Menu</Text>
             </View>
-          </TouchableOpacity>
 
-          <View style={styles.topSection}>
-            <Text style={styles.accountText}>User Menu</Text>
-          </View>
+            <View style={styles.avatarContainer}>
+              <Image
+                source={require("../../assets/Profile.png")}
+                style={styles.avatar}
+              />
+            </View>
 
-          <View style={styles.avatarContainer}>
-            <Image
-              source={require("../../assets/Profile.png")}
-              style={styles.avatar}
-            />
-          </View>
-
-          <View style={styles.middleSection}>
-            <TouchableOpacity style={styles.menuButton}>
-              <Text style={styles.menuButtonText}>Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => navigation.navigate("TestProfilePage")}
-            >
-              <Text style={styles.menuButtonText}>Update Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
-              <Text style={styles.menuButtonText}>My Points</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
-              <Text style={styles.menuButtonText}>Terms & Conditions</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.bottomSection}>
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={handleLogout}
-            >
-              <Text style={styles.logoutButtonText}>Log out</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View> */}
+            <View style={styles.middleSection}>
+              <TouchableOpacity style={styles.menuButton}>
+                <Text style={styles.menuButtonText}>Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuButton}
+                onPress={() => navigation.navigate("TestProfilePage")}
+              >
+                <Text style={styles.menuButtonText}>Update Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuButton}>
+                <Text style={styles.menuButtonText}>My Points</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuButton}>
+                <Text style={styles.menuButtonText}>Terms & Conditions</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.bottomSection}>
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={handleLogout}
+              >
+                <Text style={styles.logoutButtonText}>Log out</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
 
           <MapView
             ref={mapRef}
@@ -1331,7 +1473,7 @@ export default function App({ navigation }) {
                 image={require("../../assets/parking40.png")}
                 onPress={() => openNavigationModule(item)}
                 opacity={1}
-              ></Marker>  
+              ></Marker>
             ))}
 
             {park_and_ride.map((item, index) => (
@@ -1384,8 +1526,8 @@ export default function App({ navigation }) {
                       item.status === "unknown"
                         ? "gray"
                         : item.status === "available"
-                        ? "gray"
-                        : "gray"
+                        ? "green"
+                        : "red"
                     }
                     opacity={1}
                     onPress={() => handleParkingMarker(item)}
@@ -1698,9 +1840,14 @@ export default function App({ navigation }) {
 
                 <TouchableOpacity
                   style={styles.mapRefreshButton}
-                  onPress={deleteDatabases}
+                  onPress={updateDatabaseFromFirestore}
                 >
-                  <MaterialIcons name="delete" size={24} color="black" />
+                  <MaterialCommunityIcons
+                    name="database-arrow-down"
+                    size={24}
+                    color="black"
+                  />
+                 
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -1829,6 +1976,14 @@ export default function App({ navigation }) {
                     )}
                   </View>
                 </View>
+                <TouchableOpacity
+                  style={styles.updateLocationModuleHistoryButton}
+                  onPress={ ()=> addHistoryRecord(selectedParkingLocation.latitude, selectedParkingLocation.longitude)}
+                >
+                  <Text style={styles.updateLocationModuleHistoryButtonText}>
+                    Save This Location
+                  </Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.updateLocationModuleCloseButton}
                   onPress={closeUpdateLocationModule}
@@ -2035,10 +2190,10 @@ const styles = StyleSheet.create({
   },
   accountMenu: {
     position: "absolute",
-    top: 0,
+    top: 115,
     bottom: 0,
     left: 0,
-    width: "60%",
+
     backgroundColor: "#fff",
     zIndex: 2,
     padding: 20,
@@ -2440,9 +2595,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 5,
     backgroundColor: "#B2DDF9",
+    margin:5,
   },
   updateLocationModuleCloseButtonText: {
     color: "red",
+    fontSize: 17,
+  },
+  updateLocationModuleHistoryButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 5,
+    backgroundColor: "#B2DDF9",
+    margin:5,
+  },
+  updateLocationModuleHistoryButtonText: {
+    color: "black",
     fontSize: 17,
   },
   updateLocationTextContainer: {

@@ -39,8 +39,8 @@ export const directionsServise = async (
     const data = response.data;
     return data;
   } catch (error) {
-    console.error("Error in directionServise:", error.message);
-    throw error;
+    console.error("Error in directionServise:", error);
+    
   }
 
   // sample output
@@ -230,12 +230,12 @@ export const directionsServiseJson = async (
     return data;
   } catch (error) {
     
-    console.error("Error in directionServise:", error.message);
+    console.error("Error in directionServise:", error);
     if (error.response) {
       console.error("Response data:", error.response.data);
       console.error("Response status:", error.response.status);
     }
-    throw error;
+    
   }
 
   // sample output
@@ -404,8 +404,8 @@ export const matrixService = async (locations) => {
 
     return data;
   } catch (error) {
-    console.error("Error in calculateDrivingMatrix:", error.message);
-    throw error;
+    console.error("Error in calculateDrivingMatrix:", error);
+    
   }
 
   // sample data
@@ -519,7 +519,7 @@ export const forwardGeocodeService = async (address) => {
     return data;
   } catch (error) {
     console.error("Error in forwardGeocodeService:", error.message);
-    throw error;
+    
   }
 
   // sample data
@@ -749,7 +749,7 @@ export const geocodeAutocompleteService = async (address) => {
     return data;
   } catch (error) {
     console.error("Error in geocodeAutocompleteService:", error.message);
-    throw error;
+    
   }
 
   // sample data
@@ -931,7 +931,7 @@ export const reverseGeocodeService = async (longitude, latitude) => {
     return response.data;
   } catch (error) {
     console.error("Error in reverseGeocodeService:", error.message);
-    throw error;
+    
   }
 
   // sample data

@@ -35,7 +35,7 @@ export const setupSQLiteDatabase = async () => {
   // const dbPath = `${SQLite.defaultDatabaseDirectory}/on_street_supply_pt.db`;
 
   const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
-  console.log("path", dbPath);
+  // console.log("path", dbPath);
 
   if (!pathExists) {
     await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true });
@@ -466,8 +466,8 @@ export const fetchLocationsFromFirestoreWithCenter = async (
   try {
     const center = [latitude, longitude];
 
-    console.log("center", center);
-    console.log("mesafe", radiusInMeters);
+    // console.log("center", center);
+    // console.log("mesafe", radiusInMeters);
     const bounds = geofire.geohashQueryBounds(center, radiusInMeters);
     const results = [];
 
@@ -514,9 +514,7 @@ export const fetchLocationsFromFirestoreWithCenter = async (
             userID,
             timestamp
           );
-          console.log(
-            "firebase den alinan veriler sqlite database guncellendi"
-          );
+         
         } catch (error) {
           console.log("firebaseden alinan veriler guncellenemedi", error);
         }
@@ -525,7 +523,7 @@ export const fetchLocationsFromFirestoreWithCenter = async (
       });
     }
 
-    console.log("Filtered Locations success:", results.length);
+    // console.log("Filtered Locations success:", results.length);
     return results;
   } catch (error) {
     console.error("Error fetching locations:", error);
