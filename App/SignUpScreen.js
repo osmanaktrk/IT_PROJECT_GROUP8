@@ -16,15 +16,14 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import { firebaseAuth } from "../FirebaseConfig";
+import { firebaseAuth, firebaseRealDB, firestoreDB } from "../FirebaseConfig";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { firestoreDB } from "../FirebaseConfig"; // Import Firestore database instance
-import { doc, setDoc } from "firebase/firestore"; // Import Firestore methods
+import { doc, setDoc } from "firebase/firestore";
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -130,6 +129,7 @@ const SignUpScreen = ({ navigation }) => {
       );
       const user = userCredential.user;
 
+      
       try {
         // Update the display name for the user
         await updateProfile(user, {
@@ -143,12 +143,22 @@ const SignUpScreen = ({ navigation }) => {
         return;
       }
 
-      // Save the user data to Firestore
-      await setDoc(doc(firestoreDB, "users", user.uid), {
-        username: username, // Save username in Firestore
-        email: email, // Save email in Firestore
-        createdAt: new Date().toISOString(), // Add a timestamp
-      });
+      try {
+        
+         // Save the user data to Realtime Database
+        const userRef = ref(firebaseRealDB, `users/${user.uid}`); 
+        await set(userRef, {
+          username: username, 
+          email: email, 
+          createdAt: new Date().toISOString(), 
+          score: 0, 
+        });
+    
+        console.log("User data saved successfully in Realtime Database");
+      } catch (error) {
+        console.error("Error saving user data to Realtime Database:", error);
+      }
+
 
       // Send email verification
       await sendEmailVerification(user);
@@ -156,6 +166,8 @@ const SignUpScreen = ({ navigation }) => {
         "Success",
         `Hello ${user.displayName}, welcome. Your account has been created. Please verify your email before logging in.`
       );
+
+
 
       // Sign out the user until email is verified
       navigation.replace("VerifyEmailScreen");
