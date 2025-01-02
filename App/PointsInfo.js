@@ -1,53 +1,73 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function PointsInfo({ navigation }) {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
-      <Text style={styles.header}>How to Earn Points</Text>
+    <SafeAreaProvider>
+      <SafeAreaView>
+        <ScrollView contentContainerStyle={styles.container}>
+          {/* Header */}
+          <Text style={styles.header}>How to Earn Points</Text>
 
-      {/* Beschrijving van manieren om punten te verdienen */}
-      <View style={styles.infoSection}>
-        <Text style={styles.pointHeader}>1. Marking a Parking Spot as Taken</Text>
-        <Text style={styles.pointDescription}>
-          - Earn 1 point by confirming that you have occupied a parking spot.{"\n"}
-          - Make sure the location is accurate to help others.
-        </Text>
-      </View>
+          {/* Beschrijving van manieren om punten te verdienen */}
+          <View style={styles.infoSection}>
+            <Text style={styles.pointHeader}>
+              1. Marking a Parking Spot as Taken
+            </Text>
+            <Text style={styles.pointDescription}>
+              - Earn 1 point by confirming that you have occupied a parking
+              spot.{"\n"}- Make sure the location is accurate to help others.
+            </Text>
+          </View>
 
-      <View style={styles.infoSection}>
-        <Text style={styles.pointHeader}>2. Marking a Parking Spot as Vacant</Text>
-        <Text style={styles.pointDescription}>
-          - Earn 1 point by indicating that you have vacated a parking spot.{"\n"}
-          - This helps other users find available parking more easily.
-        </Text>
-      </View>
+          <View style={styles.infoSection}>
+            <Text style={styles.pointHeader}>
+              2. Marking a Parking Spot as Vacant
+            </Text>
+            <Text style={styles.pointDescription}>
+              - Earn 1 point by indicating that you have vacated a parking spot.
+              {"\n"}- This helps other users find available parking more easily.
+            </Text>
+          </View>
 
-      <View style={styles.infoSection}>
-        <Text style={styles.pointHeader}>3. Reporting Incorrect Information</Text>
-        <Text style={styles.pointDescription}>
-          - Earn 3 points for reporting incorrect parking spot information.{"\n"}
-          - Reports will be verified before awarding points.
-        </Text>
-      </View>
+          <View style={styles.infoSection}>
+            <Text style={styles.pointHeader}>
+              3. Reporting Incorrect Information
+            </Text>
+            <Text style={styles.pointDescription}>
+              - Earn 3 points for reporting incorrect parking spot information.
+              {"\n"}- Reports will be verified before awarding points.
+            </Text>
+          </View>
 
-      <View style={styles.infoSection}>
-        <Text style={styles.pointHeader}>4. !!  Referring a Friend (OPTIONEEL)  !!</Text>
-        <Text style={styles.pointDescription}>
-          - Earn 5 points for each friend you refer who signs up and uses the app.{"\n"}
-          - Share your unique referral code to get started.
-        </Text>
-      </View>
+          <View style={styles.infoSection}>
+            <Text style={styles.pointHeader}>
+              4. !! Referring a Friend (OPTIONEEL) !!
+            </Text>
+            <Text style={styles.pointDescription}>
+              - Earn 5 points for each friend you refer who signs up and uses
+              the app.{"\n"}- Share your unique referral code to get started.
+            </Text>
+          </View>
 
-      {/* Terugknop */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.backButtonText}>Back to menu</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          {/* Terugknop */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.backButtonText}>Back to menu</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

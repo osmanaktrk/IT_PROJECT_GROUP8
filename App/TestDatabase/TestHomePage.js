@@ -41,7 +41,8 @@ import {
 import { signOut } from "firebase/auth";
 import { getDocs, collection } from "firebase/firestore";
 import { getDatabase, ref, set, update, remove, get } from "firebase/database";
-import 'react-native-get-random-values';
+import NetInfo from "@react-native-community/netinfo";
+import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { useLoader } from "../LoaderContextPage";
 import polyline from "@mapbox/polyline";
@@ -68,7 +69,8 @@ export default function App({ navigation }) {
   const [park_and_ride, setPark_and_ride] = useState([]);
   const [public_parking, setPublic_parking] = useState([]);
   const [on_street_parking, setOn_street_parking] = useState([]);
-
+  const [showUsersPoints, setShowUsersPoints] = useState(false);
+  const [usersPoints, setUsersPoints] = useState(0);
   const [
     isParkingSpacesDatabaseInitialized,
     setIsParkingSpacesDatabaseInitialized,
@@ -165,20 +167,12 @@ export default function App({ navigation }) {
     // addHistoryRecord(50.8503, 4.3517);
     // deleteHistoryRecord("b474f8ed-ec48-4096-9766-e827dfc4dc93");
     // fetchHistoryRecords();
-
   }, []);
-
-
 
   // const addHistoryRecord = async (latitude, longitude) => {
   //   try {
   //     const user = firebaseAuth.currentUser;
   //     const uniqueKey = uuidv4();
-
-
-
-
-
 
   //     const historyRef = ref(
   //       firebaseRealDB,
@@ -197,42 +191,65 @@ export default function App({ navigation }) {
   //   }
   // };
 
-
-
   const addHistoryRecord = async (latitude, longitude) => {
     try {
       const user = firebaseAuth.currentUser;
-      
+
       const historyRef = ref(firebaseRealDB, `users/${user.uid}/history`);
-  
-   
+
+      const netInfo = await NetInfo.fetch();
+
+      if (!netInfo.isConnected) {
+        Alert.alert(
+          "Offline Mode",
+          "No internet connection. Your changes will sync when you are back online."
+        );
+        const uniqueKey = uuidv4();
+        const newRecordRef = ref(
+          firebaseRealDB,
+          `users/${user.uid}/history/${uniqueKey}`
+        );
+
+        await set(newRecordRef, {
+          latitude: latitude,
+          longitude: longitude,
+          timestamp: new Date().toISOString(),
+        });
+
+        return;
+      }
+
       const snapshot = await get(historyRef);
-  
+
       if (snapshot.exists()) {
         const allRecords = snapshot.val();
-  
-        
+
         const recordExists = Object.values(allRecords).some(
           (record) =>
             record.latitude === latitude && record.longitude === longitude
         );
-  
+
         if (recordExists) {
-          Alert.alert("Duplicate Entry", "This location already exists in your history.");
+          Alert.alert(
+            "Duplicate Entry",
+            "This location already exists in your history."
+          );
           return;
         }
       }
-  
-     
+
       const uniqueKey = uuidv4();
-      const newRecordRef = ref(firebaseRealDB, `users/${user.uid}/history/${uniqueKey}`);
-  
+      const newRecordRef = ref(
+        firebaseRealDB,
+        `users/${user.uid}/history/${uniqueKey}`
+      );
+
       await set(newRecordRef, {
         latitude: latitude,
         longitude: longitude,
         timestamp: new Date().toISOString(),
       });
-  
+
       console.log("History record added successfully.");
       Alert.alert("Success", "New location added to your history!");
     } catch (error) {
@@ -267,12 +284,12 @@ export default function App({ navigation }) {
       const user = firebaseAuth.currentUser;
       const historyRef = ref(firebaseRealDB, `users/${user.uid}/history`);
       const snapshot = await get(historyRef);
-  
+
       if (snapshot.exists()) {
         const data = snapshot.val();
         const recordsWithIds = Object.entries(data).map(([id, record]) => ({
-          id, 
-          ...record, 
+          id,
+          ...record,
         }));
         console.log("Fetched history records:", recordsWithIds);
         return recordsWithIds;
@@ -289,9 +306,12 @@ export default function App({ navigation }) {
   const deleteHistoryRecord = async (recordId) => {
     try {
       const user = firebaseAuth.currentUser;
-      const historyRef = ref(firebaseRealDB, `users/${user.uid}/history/${recordId}`);
+      const historyRef = ref(
+        firebaseRealDB,
+        `users/${user.uid}/history/${recordId}`
+      );
       await remove(historyRef);
-  
+
       Alert.alert("Success", "History record deleted successfully.");
       console.log("History record deleted successfully.");
     } catch (error) {
@@ -299,6 +319,24 @@ export default function App({ navigation }) {
     }
   };
 
+  const fetchUserPoints = async () => {
+    try {
+      const user = firebaseAuth.currentUser;
+
+      const scoreRef = ref(firebaseRealDB, `users/${user.uid}/score`);
+      const snapshot = await get(scoreRef);
+
+      if (!snapshot.exists()) {
+        console.warn("No score data found for the current user.");
+        setUsersPoints(0);
+      }
+
+      setUsersPoints(snapshot.val());
+    } catch (error) {
+      console.error("Error fetching user points:", error.message);
+      setUsersPoints(0);
+    }
+  };
 
   const openModule = (moduleName) => {
     setActiveModule(moduleName);
@@ -1381,49 +1419,122 @@ export default function App({ navigation }) {
               { transform: [{ translateX: slideAnim }] },
             ]}
           >
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={toggleAccountMenu}
-            >
-              <View style={styles.closeButtonContainer}>
-                <Ionicons name="close" size={24} color="white" />
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.topSection}>
-              <Text style={styles.accountText}>User Menu</Text>
+            <View style={styles.accountMenuTopSection}>
+              <Text style={styles.accountMenuTopSectionText}>User Menu</Text>
             </View>
 
-            <View style={styles.avatarContainer}>
+            {/* <View style={styles.avatarContainer}>
               <Image
                 source={require("../../assets/Profile.png")}
                 style={styles.avatar}
               />
+            </View> */}
+            <View style={styles.accountMenuUsernameSection}>
+              <Text style={styles.accountMenuUsernameSectionText}>Welcome</Text>
+              <Text style={styles.accountMenuUsernameSectionText}>
+                {firebaseAuth.currentUser.displayName}
+              </Text>
             </View>
 
-            <View style={styles.middleSection}>
-              <TouchableOpacity style={styles.menuButton}>
-                <Text style={styles.menuButtonText}>Profile</Text>
-              </TouchableOpacity>
+            {!showUsersPoints && (
+              <View style={styles.accountMenuMiddleSection}>
+                <TouchableOpacity
+                  style={styles.accountMenuMiddleSectionMenuButton}
+                  onPress={() => navigation.navigate("UpdateProfile")}
+                >
+                  <Text style={styles.accountMenuMiddleSectionMenuButtonText}>
+                    Update Profile
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.accountMenuMiddleSectionMenuButton}
+                  onPress={() => {
+                    setShowUsersPoints(true);
+                    fetchUserPoints();
+                  }}
+                >
+                  <Text style={styles.accountMenuMiddleSectionMenuButtonText}>
+                    My Points
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.accountMenuMiddleSectionMenuButton}
+                  onPress={() => navigation.navigate("HistoryScreen")}
+                >
+                  <Text style={styles.accountMenuMiddleSectionMenuButtonText}>
+                    History
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.accountMenuMiddleSectionMenuButton}
+                >
+                  <Text 
+                  style={styles.accountMenuMiddleSectionMenuButtonText}
+                  onPress={() => navigation.navigate("TermsAndConditions")}
+                  >
+                    Terms & Conditions
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {showUsersPoints && (
+              <View style={styles.accountMenuMiddleSection}>
+                <View style={styles.accountMenuShowUserPoints}>
+                  <View style={styles.accountMenuShowUserPointsIconContainer}>
+                    <FontAwesome name="star" size={50} color="#e4e71e" />
+                  </View>
+
+                  <View style={styles.accountMenuShowUserPointsTextContainer}>
+                    <Text style={styles.accountMenuShowUserPointsText}>
+                      {usersPoints}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.accountMenuPointsInfoContainer}>
+                  <Text style={styles.accountMenuPointsInfoText}>
+                    More info about the points system{" "}
+                    <Text
+                      style={styles.accountMenuPointsInfoTextLink}
+                      onPress={() => navigation.navigate("PointsInfo")}
+                    >
+                      click here
+                    </Text>
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.accountMenuMiddleSectionMenuButton}
+                  onPress={() => setShowUsersPoints(false)}
+                >
+                  <Text style={styles.accountMenuMiddleSectionMenuButtonText}>
+                    Back to Menu
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <View style={styles.accountMenuBottomSection}>
               <TouchableOpacity
-                style={styles.menuButton}
-                onPress={() => navigation.navigate("TestProfilePage")}
-              >
-                <Text style={styles.menuButtonText}>Update Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuButton}>
-                <Text style={styles.menuButtonText}>My Points</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuButton}>
-                <Text style={styles.menuButtonText}>Terms & Conditions</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.bottomSection}>
-              <TouchableOpacity
-                style={styles.logoutButton}
+                style={styles.accountMenuLogoutButton}
                 onPress={handleLogout}
               >
-                <Text style={styles.logoutButtonText}>Log out</Text>
+                <Text style={styles.accountMenuLogoutButtonText}>Log out</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.accountMenuCloseButton}
+                onPress={toggleAccountMenu}
+              >
+                {/* <View style={styles.closeButtonContainer}>
+                <Ionicons name="close" size={24} color="white" />
+              </View> */}
+
+                <Text style={styles.accountMenuCloseButtonText}>Close</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -1847,7 +1958,6 @@ export default function App({ navigation }) {
                     size={24}
                     color="black"
                   />
-                 
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -1978,7 +2088,12 @@ export default function App({ navigation }) {
                 </View>
                 <TouchableOpacity
                   style={styles.updateLocationModuleHistoryButton}
-                  onPress={ ()=> addHistoryRecord(selectedParkingLocation.latitude, selectedParkingLocation.longitude)}
+                  onPress={() =>
+                    addHistoryRecord(
+                      selectedParkingLocation.latitude,
+                      selectedParkingLocation.longitude
+                    )
+                  }
                 >
                   <Text style={styles.updateLocationModuleHistoryButtonText}>
                     Save This Location
@@ -2190,64 +2305,118 @@ const styles = StyleSheet.create({
   },
   accountMenu: {
     position: "absolute",
-    top: 115,
+    top: 120,
     bottom: 0,
     left: 0,
-
     backgroundColor: "#fff",
-    zIndex: 2,
+    zIndex: 1,
     padding: 20,
     elevation: 5,
+    width: screenWidth * 0.6,
   },
-  closeButtonContainer: {
-    borderColor: "red",
-    padding: 2,
-    borderWidth: 2,
-    borderRadius: 8,
-    backgroundColor: "red",
-  },
-  closeRouteInfoButton: {
-    alignSelf: "flex-end",
-    marginBottom: 20,
-  },
-  topSection: {
+
+  // closeRouteInfoButton: {
+  //   alignSelf: "flex-end",
+  //   marginBottom: 20,
+  // },
+  accountMenuTopSection: {
     marginBottom: 20,
     alignItems: "center",
+    borderBottomWidth: 2,
   },
-  avatarContainer: {
-    marginBottom: 20,
-    alignItems: "center",
-    width: "100%",
+  accountMenuTopSectionText: {
+    fontSize: 20,
+    margin: 5,
+  },
+  accountMenuUsernameSection: {
     justifyContent: "center",
+    alignItems: "center",
+    margin: 10,
+    borderBottomWidth: 2,
   },
-  avatar: {
-    width: "80%",
-    height: 150,
-    borderRadius: 20,
+  accountMenuUsernameSectionText: {
+    margin: 3,
+    fontSize: 16,
   },
-  middleSection: {
+  // avatarContainer: {
+  //   marginBottom: 20,
+  //   alignItems: "center",
+  //   width: "100%",
+  //   justifyContent: "center",
+  // },
+  // avatar: {
+  //   width: "80%",
+  //   height: 150,
+  //   borderRadius: 20,
+  // },
+  accountMenuMiddleSection: {
     flex: 1,
+    marginTop: 60,
   },
-  bottomSection: {
+  accountMenuBottomSection: {
     alignItems: "center",
   },
-  menuButton: {
+  accountMenuMiddleSectionMenuButton: {
     padding: 15,
     borderRadius: 5,
     marginVertical: 5,
     backgroundColor: "#f0f0f0",
     alignItems: "center",
   },
-  menuButtonText: {
+  accountMenuMiddleSectionMenuButtonText: {
     fontSize: 16,
     fontWeight: "bold",
   },
-  logoutButton: {
+  accountMenuShowUserPoints: {
+    flexDirection: "row",
+    alignContent: "space-between",
+    justifyContent: "center",
+  },
+  accountMenuShowUserPointsIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 10,
+  },
+  accountMenuShowUserPointsTextContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 10,
+  },
+  accountMenuShowUserPointsText: {
+    fontSize: 40,
+    fontWeight: "bold",
+    color: "black",
+  },
+  accountMenuPointsInfoContainer:{
+    justifyContent: "center",
+    alignItems: "center", 
+    margin: 10,
+  },
+  accountMenuPointsInfoText:{
+    textAlign: "center",
+  },
+  accountMenuPointsInfoTextLink:{
+    color: "blue",
+    textDecorationLine: "underline",
+  },
+  accountMenuLogoutButton: {
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
+    margin: 5,
   },
-  logoutButtonText: {
+  accountMenuLogoutButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  accountMenuCloseButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+    margin: 5,
+  },
+
+  accountMenuCloseButtonText: {
     color: "#fff",
     fontWeight: "bold",
   },
@@ -2255,22 +2424,22 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  showZoomMessageContainer: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: [{ translateX: -150 }, { translateY: -50 }],
-    backgroundColor: "rgba(0,0,0,0.7)",
-    padding: 15,
-    borderRadius: 10,
-    zIndex: 1000,
-    width: 300,
-  },
-  showZoomMessageText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: 16,
-  },
+  // showZoomMessageContainer: {
+  //   position: "absolute",
+  //   top: "50%",
+  //   left: "50%",
+  //   transform: [{ translateX: -150 }, { translateY: -50 }],
+  //   backgroundColor: "rgba(0,0,0,0.7)",
+  //   padding: 15,
+  //   borderRadius: 10,
+  //   zIndex: 1,
+  //   width: 300,
+  // },
+  // showZoomMessageText: {
+  //   color: "white",
+  //   textAlign: "center",
+  //   fontSize: 16,
+  // },
   suggestionsContainer: {
     marginTop: 10,
     backgroundColor: "#fff",
@@ -2355,7 +2524,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     marginBottom: 100,
-    zIndex: 10,
+    zIndex: 1,
   },
   routeInfoText: {
     fontSize: 14,
@@ -2366,7 +2535,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -10,
     right: -10,
-    zIndex: 10,
+    zIndex: 1,
   },
 
   //module styla buradan basliyor---------------------
@@ -2595,7 +2764,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 5,
     backgroundColor: "#B2DDF9",
-    margin:5,
+    margin: 5,
   },
   updateLocationModuleCloseButtonText: {
     color: "red",
@@ -2606,7 +2775,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 5,
     backgroundColor: "#B2DDF9",
-    margin:5,
+    margin: 5,
   },
   updateLocationModuleHistoryButtonText: {
     color: "black",
