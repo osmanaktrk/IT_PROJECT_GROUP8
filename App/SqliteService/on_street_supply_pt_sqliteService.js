@@ -56,6 +56,8 @@ export const setupSQLiteDatabase = async () => {
   return true;
 };
 
+const db = SQLite.openDatabaseSync("on_street_supply_pt.db");
+
 export const createDatabase = async () => {
   const db = await SQLite.openDatabaseAsync("on_street_supply_pt.db");
   return db;
@@ -63,7 +65,7 @@ export const createDatabase = async () => {
 
 // fetch all data from the SQLite database
 export const fetchAllData = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   const result = await db.getAllAsync("SELECT * FROM on_street_supply_pt");
   return result;
 };
@@ -71,7 +73,7 @@ export const fetchAllData = async () => {
 // fetch data from the SQLite database based on the visible region
 
 export const fetchVisibleData = async (region, expansionFactor = 1.5) => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
 
   const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
   const expandedLatitudeDelta = latitudeDelta * expansionFactor;
@@ -145,7 +147,7 @@ const updateLocationDataSQLiteDatabase = async (
   userID,
   timestamp
 ) => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
 
   try {
     console.log(status, userID, timestamp, latitude, longitude);
@@ -185,11 +187,13 @@ export const updateLocationStatus = async (
   longitude,
   status,
   userID,
-  setOfflineModeActive
+  result
 ) => {
   const timestamp = new Date().toISOString();
 
   const isOnline = await checkInternetConnection();
+
+  result.networt = isOnline;
 
   try {
     await updateLocationDataSQLiteDatabase(
@@ -200,6 +204,7 @@ export const updateLocationStatus = async (
       timestamp
     );
 
+    result.sqlite = true;
     console.log("SQLite update successful");
   } catch (error) {
     console.log("Error updating SQLite database:", error);
@@ -207,7 +212,6 @@ export const updateLocationStatus = async (
 
   if (isOnline) {
     try {
-      // Firestore güncellemesi
       await updateLocationDataFirebase(
         latitude,
         longitude,
@@ -215,14 +219,14 @@ export const updateLocationStatus = async (
         userID,
         timestamp
       );
+      result.firestore = true;
+
       console.log("Firestore update successful");
     } catch (error) {
       console.error("Firestore update error:", error);
     }
   } else {
-    setOfflineModeActive(true);
     console.log("No internet connection. Changes will sync later.");
-    Alert.alert("No internet connection.", "Changes will sync later.");
     const docRef = doc(
       firestoreDB,
       "on_street_supply_pt",
@@ -232,13 +236,11 @@ export const updateLocationStatus = async (
       status,
       userID,
       timestamp,
-    }); // Kuyruğa ekler, bağlantı geldiğinde işler
+    });
+    result.firestore = true;
 
     console.log("Changes queued to Firestore");
   }
-
-
-
 };
 
 export const fetchStatusDataFromFirestore = async (status, batchSize = 100) => {
@@ -290,7 +292,7 @@ export const fetchStatusDataFromFirestore = async (status, batchSize = 100) => {
 };
 
 export const updateSQLiteWithAvailableRecords = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
 
   try {
     const availableData = await fetchStatusDataFromFirestore("available");
@@ -345,7 +347,7 @@ export const updateSQLiteWithAvailableRecords = async () => {
 };
 
 export const updateSQLiteWithUnavailableRecords = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
 
   try {
     const unavailableData = await fetchStatusDataFromFirestore("unavailable");
@@ -404,7 +406,7 @@ export const updateSQLiteWithUnavailableRecords = async () => {
 };
 
 export const syncFirestoreToSQLite = async (batchSize = 100) => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
 
   console.log("Syncing Firestore to SQLite started...");
 
@@ -514,12 +516,9 @@ export const fetchLocationsFromFirestoreWithCenter = async (
             userID,
             timestamp
           );
-         
         } catch (error) {
           console.log("firebaseden alinan veriler guncellenemedi", error);
         }
-
-    
       });
     }
 
@@ -532,13 +531,13 @@ export const fetchLocationsFromFirestoreWithCenter = async (
 
 // clear the SQLite database
 export const clearDatabase = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   await db.execAsync(`DROP TABLE IF EXISTS on_street_supply_pt`);
   console.log("on_street_supply_pt Database cleared");
 };
 
 export const deleteDatabase = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   await db.closeAsync();
   await SQLite.deleteDatabaseAsync("on_street_supply_pt.db");
   console.log("on_street_supply_pt Database deleted");
@@ -550,7 +549,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
     showLoader();
 
     const databaseInitialResult = await setupSQLiteDatabase();
-    const db = await createDatabase();
+    // const db = await createDatabase();
 
     const result = await db.getAllAsync(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='on_street_supply_pt';"
@@ -561,7 +560,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
         "on_street_supply_pt Database not initialized. Initializing now..."
       );
       await setupSQLiteDatabase();
-      const db = await createDatabase();
+      // const db = await createDatabase();
       console.log("on_street_supply_pt insert Database.");
     } else {
       console.log("on_street_supply_pt Database already initialized.");

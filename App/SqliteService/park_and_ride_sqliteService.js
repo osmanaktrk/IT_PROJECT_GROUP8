@@ -30,6 +30,8 @@ export const setupSQLiteDatabase = async () => {
   return true;
 };
 
+
+const db = SQLite.openDatabaseSync("park_and_ride.db");
 export const createDatabase = async () => {
   const db = await SQLite.openDatabaseAsync("park_and_ride.db");
   return db;
@@ -37,14 +39,14 @@ export const createDatabase = async () => {
 
 //fetch all data from the SQLite database
 export const fetchAllData = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   const result = await db.getAllAsync("SELECT * FROM park_and_ride");
 
   return result;
 };
 
 export const fetchSelectedData = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   const result = await db.getAllAsync(
     "SELECT latitude, longitude, name_du, capacity_car, status, timestamp FROM park_and_ride"
   );
@@ -53,7 +55,7 @@ export const fetchSelectedData = async () => {
 
 // fetch data from the SQLite database based on the visible region
 export const fetchVisibleData = async (region, expansionFactor = 1.5) => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
   const expandedLatitudeDelta = latitudeDelta * expansionFactor;
   const expandedLongitudeDelta = longitudeDelta * expansionFactor;
@@ -73,13 +75,13 @@ export const fetchVisibleData = async (region, expansionFactor = 1.5) => {
 
 // clear the SQLite database
 export const clearDatabase = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   await db.execAsync(`DROP TABLE IF EXISTS park_and_ride`);
   console.log("park_and_ride Database cleared");
 };
 
 export const deleteDatabase = async () => {
-  const db = await createDatabase();
+  // const db = await createDatabase();
   await db.closeAsync();
   await SQLite.deleteDatabaseAsync("park_and_ride.db");
   console.log("park_and_ride Database deleted");
@@ -91,7 +93,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
   try {
     showLoader();
     const databaseInitialResult = await setupSQLiteDatabase();
-    const db = await createDatabase();
+    // const db = await createDatabase();
 
     const result = await db.getAllAsync(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='park_and_ride';"
@@ -102,7 +104,7 @@ export const initializeDatabase = async (showLoader, hideLoader) => {
         "park_and_ride Database not initialized. Initializing now..."
       );
       await setupSQLiteDatabase();
-      const db = await createDatabase();
+      // const db = await createDatabase();
 
       console.log("park_and_ride insert Database.");
     } else {

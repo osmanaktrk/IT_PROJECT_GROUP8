@@ -58,17 +58,16 @@ const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
 const liveLocationsDistance = 300; //meters
 
-export default function App({ navigation }) {
-  const [offlineModeActive, setOfflineModeActive] = useState(false);
+export default function HomePage({ navigation }) {
   const [isSynchronizationActive, setIsSynchronizationActive] = useState(false);
   const [userCurrentLocation, setUserCurrentLocation] = useState(null);
   const [userLocationHeading, setUserLocationHeading] = useState(0);
-  const [spotsDatabase, setSpotsDatabase] = useState([]);
+  // const [spotsDatabase, setSpotsDatabase] = useState([]);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const { showLoader, hideLoader } = useLoader();
-  const [park_and_ride, setPark_and_ride] = useState([]);
-  const [public_parking, setPublic_parking] = useState([]);
-  const [on_street_parking, setOn_street_parking] = useState([]);
+  const [park_and_ride, setPark_and_ride] = useState(null);
+  const [public_parking, setPublic_parking] = useState(null);
+  const [on_street_parking, setOn_street_parking] = useState(null);
   const [showUsersPoints, setShowUsersPoints] = useState(false);
   const [usersPoints, setUsersPoints] = useState(0);
   const [
@@ -87,8 +86,10 @@ export default function App({ navigation }) {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [routeSteps, setRouteSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
+
   const [routeInfo, setRouteInfo] = useState({});
-  const [navigationStarted, setNavigationStarted] = useState(false);
+
+  // const [navigationStarted, setNavigationStarted] = useState(false);
   const [navigationStepsInstnstruction, setNavigationStepsInstruction] =
     useState("");
   const [navigationIntervalId, setNavigationIntervalId] = useState(null);
@@ -99,20 +100,16 @@ export default function App({ navigation }) {
   const [isSearched, setIsSearched] = useState(false);
   const [selectedParkingLocation, setSelectedParkingLocation] = useState({});
   const [directionRegio, setDirectionRegio] = useState({});
+
   const [selectedLocationCircle, setSelectedLocationCircle] = useState(null);
+
   const [getLiveLocationsSelectedArea, setGetLiveLocationsSelectedArea] =
     useState(false);
 
-  const [firebaseFetchedLocations, setFirebaseFetchedLocations] = useState([]);
-  const [searchedLocationSuggections, setSearchedLocationSuggections] =
-    useState([]);
-
-  const [initialRegion, setInitialRegion] = useState({
-    latitude: 50.8503,
-    longitude: 4.3517,
-    latitudeDelta: 0.005,
-    longitudeDelta: 0.005,
-  });
+  // const [firebaseFetchedLocations, setFirebaseFetchedLocations] = useState([]);
+  let firebaseFetchedLocations = [];
+  // const [searchedLocationSuggections, setSearchedLocationSuggections] = useState([]);
+  let searchedLocationSuggections = [];
 
   const [region, setRegion] = useState({
     latitude: 50.8503,
@@ -145,29 +142,34 @@ export default function App({ navigation }) {
     locationSelectedModule: screenHeight * 0.4,
   };
 
+  const checkInternetConnection = async () => {
+    const state = await NetInfo.fetch();
+    return state.isConnected;
+  };
+
   // realtime database kullanici ekleme deneme fonksiyonu, çalisiyor
-  useEffect(() => {
-    // const saveUserDataToRealtimeDatabase = async () => {
-    //   try {
-    //     const user = firebaseAuth.currentUser; // Aktif kullanıcıyı al
-    //     const userRef = ref(firebaseRealDB, `users/${user.uid}`); // Kullanıcı için bir yol belirle
-    //     // Kullanıcı verilerini kaydet
-    //     await set(userRef, {
-    //       username: user.displayName, // Kullanıcının kullanıcı adı
-    //       email: user.email, // Kullanıcının e-posta adresi
-    //       createdAt: new Date().toISOString(), // Kullanıcı oluşturulma zamanı
-    //       score: 0, // Başlangıç skoru
-    //     });
-    //     console.log("User data saved successfully in Realtime Database");
-    //   } catch (error) {
-    //     console.error("Error saving user data to Realtime Database:", error);
-    //   }
-    // };
-    // saveUserDataToRealtimeDatabase();
-    // addHistoryRecord(50.8503, 4.3517);
-    // deleteHistoryRecord("b474f8ed-ec48-4096-9766-e827dfc4dc93");
-    // fetchHistoryRecords();
-  }, []);
+  // useEffect(() => {
+  //   // const saveUserDataToRealtimeDatabase = async () => {
+  //   //   try {
+  //   //     const user = firebaseAuth.currentUser; // Aktif kullanıcıyı al
+  //   //     const userRef = ref(firebaseRealDB, `users/${user.uid}`); // Kullanıcı için bir yol belirle
+  //   //     // Kullanıcı verilerini kaydet
+  //   //     await set(userRef, {
+  //   //       username: user.displayName, // Kullanıcının kullanıcı adı
+  //   //       email: user.email, // Kullanıcının e-posta adresi
+  //   //       createdAt: new Date().toISOString(), // Kullanıcı oluşturulma zamanı
+  //   //       score: 0, // Başlangıç skoru
+  //   //     });
+  //   //     console.log("User data saved successfully in Realtime Database");
+  //   //   } catch (error) {
+  //   //     console.error("Error saving user data to Realtime Database:", error);
+  //   //   }
+  //   // };
+  //   // saveUserDataToRealtimeDatabase();
+  //   // addHistoryRecord(50.8503, 4.3517);
+  //   // deleteHistoryRecord("b474f8ed-ec48-4096-9766-e827dfc4dc93");
+  //   // fetchHistoryRecords();
+  // }, []);
 
   // const addHistoryRecord = async (latitude, longitude) => {
   //   try {
@@ -437,68 +439,55 @@ export default function App({ navigation }) {
     }
   };
 
+  // useEffect(() => {
+  //   const initializeParkAndRide = async () => {
+  //     try {
+  //       showLoader();
+
+  //       const parkAndRideData =
+  //         await ParkAndRideSqliteService.fetchSelectedData();
+  //       setPark_and_ride(parkAndRideData);
+  //       // console.log("park_and_ride", park_and_ride);
+  //       // console.log("park_and_ride initialized successfully.");
+  //     } catch (error) {
+  //       console.error("ParkAndRide initialization failed:", error);
+  //     } finally {
+  //       hideLoader();
+  //     }
+  //   };
+  //   if (isParkAndRideDatabaseInitialized) {
+  //     initializeParkAndRide();
+  //   }
+  // }, [isParkAndRideDatabaseInitialized]);
+  // useEffect(() => {
+  //   if (!isParkAndRideDatabaseInitialized) {
+  //     initializeParkAndRideDatabase();
+  //     setIsParkAndRideDatabaseInitialized(true);
+  //   }
+  // }, [isParkAndRideDatabaseInitialized]);
+
   useEffect(() => {
-    const initializeParkAndRide = async () => {
+    const initializeParkAndRideDatabaseAndFetchData = async () => {
       try {
         showLoader();
 
+        // Eğer veritabanı henüz başlatılmamışsa başlat
+        if (!isParkAndRideDatabaseInitialized) {
+          await initializeParkAndRideDatabase();
+          setIsParkAndRideDatabaseInitialized(true);
+        }
+
+        // Veriler çekiliyor
         const parkAndRideData =
           await ParkAndRideSqliteService.fetchSelectedData();
         setPark_and_ride(parkAndRideData);
-        // console.log("park_and_ride", park_and_ride);
-        // console.log("park_and_ride initialized successfully.");
-      } catch (error) {
-        console.error("ParkAndRide initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-    if (isParkAndRideDatabaseInitialized) {
-      initializeParkAndRide();
-    }
-  }, [isParkAndRideDatabaseInitialized]);
 
-  useEffect(() => {
-    const initializePublicParking = async () => {
-      try {
-        showLoader();
-
-        const publicParkingData =
-          await PublicParkingSqliteService.fetchSelectedData();
-        setPublic_parking(publicParkingData);
-        // console.log("public_parking", public_parking);
-        // console.log("public_parking initialized successfully.");
-      } catch (error) {
-        console.error("PublicParking initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-
-    if (isPublicParkingDatabaseInitialized) {
-      initializePublicParking();
-    }
-  }, [isPublicParkingDatabaseInitialized]);
-
-  useEffect(() => {
-    const fetchVisibleParkingSpaces = async () => {
-      try {
-        showLoader();
-
-        if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
-          const visibleParkingSpaces =
-            await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
-          setOn_street_parking(visibleParkingSpaces);
-          // console.log("visible data", visibleParkingSpaces);
-          // console.log("park_and_ride", park_and_ride);
-          // console.log("public_parking", public_parking);
-          // console.log("gorunur data eklendi");
-        }
-
-        // console.log("ParkingSpaces initialized successfully.");
+        console.log(
+          "ParkAndRide database initialized and data fetched successfully."
+        );
       } catch (error) {
         console.error(
-          "fetchVisibleParkingSpaces initialization failed:",
+          "Error initializing or fetching ParkAndRide data:",
           error
         );
       } finally {
@@ -506,9 +495,138 @@ export default function App({ navigation }) {
       }
     };
 
-    if (isParkingSpacesDatabaseInitialized) {
-      fetchVisibleParkingSpaces();
-    }
+    initializeParkAndRideDatabaseAndFetchData();
+  }, [isParkAndRideDatabaseInitialized]);
+
+  // useEffect(() => {
+  //   const initializePublicParking = async () => {
+  //     try {
+  //       showLoader();
+
+  //       const publicParkingData =
+  //         await PublicParkingSqliteService.fetchSelectedData();
+  //       setPublic_parking(publicParkingData);
+  //       // console.log("public_parking", public_parking);
+  //       // console.log("public_parking initialized successfully.");
+  //     } catch (error) {
+  //       console.error("PublicParking initialization failed:", error);
+  //     } finally {
+  //       hideLoader();
+  //     }
+  //   };
+
+  //   if (isPublicParkingDatabaseInitialized) {
+  //     initializePublicParking();
+  //   }
+  // }, [isPublicParkingDatabaseInitialized]);
+
+  // useEffect(() => {
+  //   if (!isPublicParkingDatabaseInitialized) {
+  //     initializePublicParkingDatabase();
+  //     setIsPublicParkingDatabaseInitialized(true);
+  //   }
+  // }, [isPublicParkingDatabaseInitialized]);
+
+  useEffect(() => {
+    const initializePublicParkingDatabaseAndFetchData = async () => {
+      try {
+        showLoader();
+
+        // Eğer veritabanı henüz başlatılmamışsa başlat
+        if (!isPublicParkingDatabaseInitialized) {
+          await initializePublicParkingDatabase();
+          setIsPublicParkingDatabaseInitialized(true);
+        }
+
+        // Veriler zaten başlatılmışsa al
+        const publicParkingData =
+          await PublicParkingSqliteService.fetchSelectedData();
+        setPublic_parking(publicParkingData);
+
+        console.log(
+          "Public parking database initialized and data fetched successfully."
+        );
+      } catch (error) {
+        console.error(
+          "Error initializing or fetching public parking data:",
+          error
+        );
+      } finally {
+        hideLoader();
+      }
+    };
+
+    initializePublicParkingDatabaseAndFetchData();
+  }, [isPublicParkingDatabaseInitialized]);
+
+  // useEffect(() => {
+  //   const fetchVisibleParkingSpaces = async () => {
+  //     try {
+  //       showLoader();
+
+  //       if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
+  //         const visibleParkingSpaces =
+  //           await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
+  //         setOn_street_parking(visibleParkingSpaces);
+  //         // console.log("visible data", visibleParkingSpaces);
+  //         // console.log("park_and_ride", park_and_ride);
+  //         // console.log("public_parking", public_parking);
+  //         // console.log("gorunur data eklendi");
+  //       }
+
+  //       // console.log("ParkingSpaces initialized successfully.");
+  //     } catch (error) {
+  //       console.error(
+  //         "fetchVisibleParkingSpaces initialization failed:",
+  //         error
+  //       );
+  //     } finally {
+  //       hideLoader();
+  //     }
+  //   };
+
+  //   if (isParkingSpacesDatabaseInitialized) {
+  //     fetchVisibleParkingSpaces();
+  //   }
+  // }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
+
+  // useEffect(() => {
+  //   if (!isParkingSpacesDatabaseInitialized) {
+  //     initializeParkingSpacesDatabase();
+  //     setIsParkingSpacesDatabaseInitialized(true);
+  //   }
+  // }, [isParkingSpacesDatabaseInitialized]);
+
+  useEffect(() => {
+    const initializeAndFetchParkingSpaces = async () => {
+      try {
+        showLoader();
+
+        // Eğer veritabanı başlatılmamışsa başlat
+        if (!isParkingSpacesDatabaseInitialized) {
+          await initializeParkingSpacesDatabase();
+          setIsParkingSpacesDatabaseInitialized(true);
+          
+        }
+
+        // Eğer veritabanı başlatıldıysa ve uygun bölge koşulları sağlanıyorsa veri çek
+        if (isParkingSpacesDatabaseInitialized) {
+          if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
+            const visibleParkingSpaces =
+              await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
+            setOn_street_parking(visibleParkingSpaces);
+            console.log("Visible parking spaces fetched successfully.");
+            // console.log(visibleParkingSpaces);
+          }
+        }
+      } catch (error) {
+        console.error("Error initializing or fetching parking spaces:", error);
+      } finally {
+        hideLoader();
+      }
+    };
+
+    initializeAndFetchParkingSpaces();
   }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
 
   const handleMapRefresher = () => {
@@ -588,27 +706,6 @@ export default function App({ navigation }) {
       hideLoader();
     }
   };
-
-  useEffect(() => {
-    if (!isPublicParkingDatabaseInitialized) {
-      initializePublicParkingDatabase();
-      setIsPublicParkingDatabaseInitialized(true);
-    }
-  }, [isPublicParkingDatabaseInitialized]);
-
-  useEffect(() => {
-    if (!isParkAndRideDatabaseInitialized) {
-      initializeParkAndRideDatabase();
-      setIsParkAndRideDatabaseInitialized(true);
-    }
-  }, [isParkAndRideDatabaseInitialized]);
-
-  useEffect(() => {
-    if (!isParkingSpacesDatabaseInitialized) {
-      initializeParkingSpacesDatabase();
-      setIsParkingSpacesDatabaseInitialized(true);
-    }
-  }, [isParkingSpacesDatabaseInitialized]);
 
   const fetchUserLocation = async () => {
     try {
@@ -1135,7 +1232,8 @@ export default function App({ navigation }) {
         }
       }
 
-      setSearchedLocationSuggections(results);
+      // setSearchedLocationSuggections(results);
+      searchedLocationSuggections = results;
 
       // console.log("Updated Location Suggestions:", results);
     } catch (error) {
@@ -1151,7 +1249,8 @@ export default function App({ navigation }) {
       console.log("selectedLocationCircle", selectedLocationCircle);
       console.log("liveLocationsDistance", liveLocationsDistance);
 
-      setFirebaseFetchedLocations([]);
+      // setFirebaseFetchedLocations([]);
+      firebaseFetchedLocations = [];
 
       showLoader();
       try {
@@ -1167,7 +1266,8 @@ export default function App({ navigation }) {
         //   "ilk timestamp",
         //   new Date(result[0].timestamp).toLocaleString()
         // );
-        setFirebaseFetchedLocations(result);
+        // setFirebaseFetchedLocations(result);
+        firebaseFetchedLocations = result;
         if (result.length > 0) {
           await handleFirebaseFetchedLocations(result);
           openLocationSelectedModule();
@@ -1180,7 +1280,8 @@ export default function App({ navigation }) {
             "No Nearby Available Parking Spots",
             "Unfortunately, we couldn't find a available parking spot near your searched location. Please try searching in a different area."
           );
-          setSearchedLocationSuggections("");
+          // setSearchedLocationSuggections("");
+          searchedLocationSuggections = [];
         }
         // console.log("result lenght", result.length);
       } catch (error) {
@@ -1237,20 +1338,59 @@ export default function App({ navigation }) {
   };
 
   const handleUpdateLocation = async (status) => {
+    const isOnline = await checkInternetConnection();
+
+    if (!isOnline) {
+      Alert.alert(
+        "No Internet Connection",
+        "Changes will sync once the internet connection is restored."
+      );
+
+      closeUpdateLocationModule();
+      handleThanksModule();
+    }
+
+    const result = {
+      sqlite: false,
+      firestore: false,
+      networt: false,
+    };
+
     const userID = firebaseAuth.currentUser.uid;
     const latitude = selectedParkingLocation.latitude;
     const longitude = selectedParkingLocation.longitude;
 
-    await ParkingSpacesSqliteService.updateLocationStatus(
-      latitude,
-      longitude,
-      status,
-      userID,
-      setOfflineModeActive
-    );
-    setIsParkingSpacesDatabaseInitialized(false);
-    closeUpdateLocationModule();
-    handleThanksModule();
+    try {
+      await ParkingSpacesSqliteService.updateLocationStatus(
+        latitude,
+        longitude,
+        status,
+        userID,
+        result
+      );
+
+      if (result.sqlite && result.firestore) {
+        Alert.alert(
+          "Success",
+          "Location status has been updated successfully."
+        );
+      } else {
+        Alert.alert(
+          "Error",
+          "Failed to update location status in one or more systems. Please try again later."
+        );
+      }
+
+      setIsParkingSpacesDatabaseInitialized(false);
+      closeUpdateLocationModule();
+      handleThanksModule();
+    } catch (error) {
+      console.error("Error updating location status:", error);
+      Alert.alert(
+        "Error",
+        "An unexpected error occurred while updating the location status."
+      );
+    }
   };
 
   // const fetchSpots = async () => {
@@ -1471,9 +1611,9 @@ export default function App({ navigation }) {
                 <TouchableOpacity
                   style={styles.accountMenuMiddleSectionMenuButton}
                 >
-                  <Text 
-                  style={styles.accountMenuMiddleSectionMenuButtonText}
-                  onPress={() => navigation.navigate("TermsAndConditions")}
+                  <Text
+                    style={styles.accountMenuMiddleSectionMenuButtonText}
+                    onPress={() => navigation.navigate("TermsAndConditions")}
                   >
                     Terms & Conditions
                   </Text>
@@ -1545,7 +1685,6 @@ export default function App({ navigation }) {
             initialRegion={region}
             // region={region}
             onRegionChangeComplete={setRegion}
-            showsTraffic={true}
           >
             {userCurrentLocation && (
               <Marker
@@ -1572,7 +1711,7 @@ export default function App({ navigation }) {
             />
           ))} */}
 
-            {public_parking.map((item, index) => (
+            {public_parking && public_parking.map((item, index) => (
               <Marker
                 key={index}
                 coordinate={{
@@ -1587,7 +1726,7 @@ export default function App({ navigation }) {
               ></Marker>
             ))}
 
-            {park_and_ride.map((item, index) => (
+            {park_and_ride && park_and_ride.map((item, index) => (
               <Marker
                 key={index}
                 coordinate={{
@@ -1616,7 +1755,7 @@ export default function App({ navigation }) {
                 />
               ))}
 
-            {!navigationIntervalId &&
+            {on_street_parking && !navigationIntervalId &&
               on_street_parking
                 .filter(
                   (item) =>
@@ -2387,15 +2526,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "black",
   },
-  accountMenuPointsInfoContainer:{
+  accountMenuPointsInfoContainer: {
     justifyContent: "center",
-    alignItems: "center", 
+    alignItems: "center",
     margin: 10,
   },
-  accountMenuPointsInfoText:{
+  accountMenuPointsInfoText: {
     textAlign: "center",
   },
-  accountMenuPointsInfoTextLink:{
+  accountMenuPointsInfoTextLink: {
     color: "blue",
     textDecorationLine: "underline",
   },
