@@ -24,8 +24,8 @@ export const setupSQLiteDatabase = async () => {
     }
 
     const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
-    console.log("SQLite directory exists:", pathExists);
-    console.log("Database path:", dbPath);
+    // console.log("SQLite directory exists:", pathExists);
+    // console.log("Database path:", dbPath);
 
     if (!pathExists) {
       await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true });

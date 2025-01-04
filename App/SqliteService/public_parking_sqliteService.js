@@ -13,8 +13,8 @@ export const setupSQLiteDatabase = async () => {
     //  const sqliteDir = SQLite.defaultDatabaseDirectory;
     //  const dbPath = `${SQLite.defaultDatabaseDirectory}/public_parking.db`;
 
-    console.log("SQLite directory:", sqliteDir);
-    console.log("Database path:", dbPath);
+    // console.log("SQLite directory:", sqliteDir);
+    // console.log("Database path:", dbPath);
 
     const public_parking = await AsyncStorage.getItem("public_parking");
 

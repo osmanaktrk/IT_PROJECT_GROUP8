@@ -49,8 +49,8 @@ export const setupSQLiteDatabase = async () => {
       console.log("FileSystem.documentDirectory is not accessible.");
     }
 
-    console.log("Database directory:", sqliteDir);
-    console.log("Database file path:", dbPath);
+    // console.log("Database directory:", sqliteDir);
+    // console.log("Database file path:", dbPath);
 
     const pathExists = (await FileSystem.getInfoAsync(sqliteDir)).exists;
 
