@@ -77,37 +77,37 @@ const SignUpScreen = ({ navigation }) => {
     //*********** Password Verification will remain as a comment temporarily ***********
 
     // Password Validation
-    // if (password.length < 6) {
-    //   setModalMessage("Your password must be at least 6 characters long.");
-    //   setModalVisible(true);
-    //   return;
-    // }
-    // if (!/[A-Z]/.test(password)) {
-    //   setModalMessage(
-    //     "Your password must contain at least one uppercase letter."
-    //   );
-    //   setModalVisible(true);
-    //   return;
-    // }
-    // if (!/[a-z]/.test(password)) {
-    //   setModalMessage(
-    //     "Your password must contain at least one lowercase letter."
-    //   );
-    //   setModalVisible(true);
-    //   return;
-    // }
-    // if (!/[0-9]/.test(password)) {
-    //   setModalMessage("Your password must contain at least one number.");
-    //   setModalVisible(true);
-    //   return;
-    // }
-    // if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    //   setModalMessage(
-    //     "Your password must contain at least one special character."
-    //   );
-    //   setModalVisible(true);
-    //   return;
-    // }
+    if (password.length < 6) {
+      setModalMessage("Your password must be at least 6 characters long.");
+      setModalVisible(true);
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setModalMessage(
+        "Your password must contain at least one uppercase letter."
+      );
+      setModalVisible(true);
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setModalMessage(
+        "Your password must contain at least one lowercase letter."
+      );
+      setModalVisible(true);
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setModalMessage("Your password must contain at least one number.");
+      setModalVisible(true);
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setModalMessage(
+        "Your password must contain at least one special character."
+      );
+      setModalVisible(true);
+      return;
+    }
 
     //*********** Password Verification will remain as a comment temporarily ***********
 
