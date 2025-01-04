@@ -99,10 +99,10 @@ export default function HomePage({ navigation }) {
   const [getLiveLocationsSelectedArea, setGetLiveLocationsSelectedArea] =
     useState(false);
 
-  // const [firebaseFetchedLocations, setFirebaseFetchedLocations] = useState([]);
-  let firebaseFetchedLocations = [];
-  // const [searchedLocationSuggections, setSearchedLocationSuggections] = useState([]);
-  let searchedLocationSuggections = [];
+  const [firebaseFetchedLocations, setFirebaseFetchedLocations] = useState([]);
+  // let firebaseFetchedLocations = [];
+  const [searchedLocationSuggections, setSearchedLocationSuggections] = useState([]);
+  // let searchedLocationSuggections = [];
 
   const [region, setRegion] = useState({
     latitude: 50.8503,
@@ -1303,8 +1303,9 @@ export default function HomePage({ navigation }) {
         }
       }
 
-      // setSearchedLocationSuggections(results);
-      searchedLocationSuggections = results;
+      setSearchedLocationSuggections(results);
+      // searchedLocationSuggections = results;
+      console.log( "searchedLocationSuggections", searchedLocationSuggections);
 
       // console.log("Updated Location Suggestions:", results);
     } catch (error) {
@@ -1320,8 +1321,8 @@ export default function HomePage({ navigation }) {
       // console.log("selectedLocationCircle", selectedLocationCircle);
       // console.log("liveLocationsDistance", liveLocationsDistance);
 
-      // setFirebaseFetchedLocations([]);
-      firebaseFetchedLocations = [];
+      setFirebaseFetchedLocations([]);
+      // firebaseFetchedLocations = [];
 
       showLoader();
       try {
@@ -1337,8 +1338,9 @@ export default function HomePage({ navigation }) {
         //   "ilk timestamp",
         //   new Date(result[0].timestamp).toLocaleString()
         // );
-        // setFirebaseFetchedLocations(result);
-        firebaseFetchedLocations = result;
+        setFirebaseFetchedLocations(result);
+        // firebaseFetchedLocations = result;
+        // console.log(firebaseFetchedLocations);
         if (result.length > 0) {
           await handleFirebaseFetchedLocations(result);
           openLocationSelectedModule();
@@ -1351,8 +1353,8 @@ export default function HomePage({ navigation }) {
             "No Nearby Available Parking Spots",
             "Unfortunately, we couldn't find a available parking spot near your searched location. Please try searching in a different area."
           );
-          // setSearchedLocationSuggections("");
-          searchedLocationSuggections = [];
+          setSearchedLocationSuggections([]);
+          // searchedLocationSuggections = [];
         }
         // console.log("result lenght", result.length);
       } catch (error) {
@@ -2333,7 +2335,7 @@ export default function HomePage({ navigation }) {
             )}
 
 
-            {/* activeModule === "endNavigationModule" */}
+            
             {activeModule === "endNavigationModule" && (
               <View style={styles.endNavigationModuleContainer}>
                 <View style={styles.endNavigationModuleHandle} />
@@ -2440,7 +2442,7 @@ export default function HomePage({ navigation }) {
                         <FlatList
                           data={searchedLocationSuggections}
                           keyExtractor={(item, index) => index}
-                          renderItem={({ item }) => (
+                          renderItem={({ item} ) => (
                             <TouchableOpacity
                               style={
                                 styles.locationSearchModuleSuggestionContainer
