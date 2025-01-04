@@ -21,6 +21,10 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
 } from "firebase/auth";
+import { firebaseAuth, firebaseRealDB } from "../FirebaseConfig";
+import { getDatabase, ref, set, update, remove, get } from "firebase/database";
+import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function UpdateProfile({ navigation }) {
   const [username, setUsername] = useState("");
@@ -32,11 +36,15 @@ export default function UpdateProfile({ navigation }) {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle visibility for confirm password
   const [currentPasswordVisible, setCurrentPasswordVisible] = useState(false); // Toggle visibility for current password
 
+  const currentUser = firebaseAuth.currentUser;
+
+  const checkInternetConnection = async () => {
+    const state = await NetInfo.fetch();
+    return state.isConnected;
+  };
+
   // Fetch the currently logged-in user's displayName
   useEffect(() => {
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
     if (currentUser) {
       const displayName = currentUser.displayName || "User"; // Default displayName
       // Capitalize the first letter of the username
@@ -46,28 +54,30 @@ export default function UpdateProfile({ navigation }) {
 
   // Handle Save Username
   const handleSaveUsername = async () => {
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
-    if (!currentPassword.trim()) {
-      Alert.alert("Error", "Please enter your current password.");
-      return;
-    }
-
     if (!newUsername.trim()) {
       Alert.alert("Error", "Please enter a new username.");
       return;
     }
 
     try {
-      const credential = EmailAuthProvider.credential(
-        currentUser.email,
-        currentPassword
-      );
-      await reauthenticateWithCredential(currentUser, credential);
+      const isOnline = await checkInternetConnection();
 
+      if (!isOnline) {
+        Alert.alert(
+          "No Internet Connection",
+          "Changes will sync once the internet connection is restored."
+        );
+      }
+
+      const usernameRef = ref(
+        firebaseRealDB,
+        `users/${currentUser.uid}/username`
+      );
       await updateProfile(currentUser, { displayName: newUsername });
+      await set(usernameRef, newUsername);
+
       setUsername(newUsername.charAt(0).toUpperCase() + newUsername.slice(1));
+      setNewUsername("");
       Alert.alert("Success", "Your username has been updated!");
     } catch (error) {
       console.error("Error updating username:", error);
@@ -89,23 +99,55 @@ export default function UpdateProfile({ navigation }) {
       Alert.alert("Error", "Please enter a new password.");
       return;
     }
-
-    if (newPassword.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters long.");
-      return;
-    }
-
     if (newPassword !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
       return;
     }
 
-    try {
-      const credential = EmailAuthProvider.credential(
-        currentUser.email,
-        currentPassword
+    // Password Validation
+    if (newPassword.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters long.");
+      return;
+    };
+
+    if (!/[A-Z]/.test(newPassword)) {
+      Alert.alert(
+        "Error",
+        "Password must contain at least one uppercase letter."
       );
-      await reauthenticateWithCredential(currentUser, credential);
+      return;
+    };
+
+    if (!/[a-z]/.test(newPassword)) {
+      Alert.alert(
+        "Error",
+        "Password must contain at least one lowercase letter."
+      );
+      return;
+    };
+
+    if (!/[0-9]/.test(newPassword)) {
+      Alert.alert("Error", "Password must contain at least one number.");
+      return;
+    };
+
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+      Alert.alert(
+        "Error",
+        "Password must contain at least one special character."
+      );
+      return;
+    };
+
+    try {
+      const isOnline = await checkInternetConnection();
+
+      if (!isOnline) {
+        Alert.alert(
+          "No Internet Connection",
+          "Changes will sync once the internet connection is restored."
+        );
+      }
 
       await updatePassword(currentUser, newPassword);
       Alert.alert("Success", "Your password has been updated!");
@@ -116,7 +158,18 @@ export default function UpdateProfile({ navigation }) {
   };
 
   // Handle Delete Account
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
+
+    const isOnline = await checkInternetConnection();
+
+      if (!isOnline) {
+        Alert.alert(
+          "No Internet Connection",
+          "Please check the internet connection."
+        );
+        return;
+      };
+
     Alert.alert(
       "Confirm Delete",
       "Are you sure you want to delete your account? This action cannot be undone.",
@@ -129,33 +182,40 @@ export default function UpdateProfile({ navigation }) {
           text: "Yes",
           onPress: async () => {
             try {
-              const auth = getAuth();
-              const currentUser = auth.currentUser;
-
+              
               if (!currentPassword.trim()) {
                 Alert.alert(
                   "Error",
                   "Please enter your current password to delete your account."
                 );
                 return;
-              }
-
+              };
+              const userRef = ref(
+                firebaseRealDB,
+                `users/${currentUser.uid}`
+              );
               const credential = EmailAuthProvider.credential(
                 currentUser.email,
                 currentPassword
               );
+
               await reauthenticateWithCredential(currentUser, credential);
 
               await deleteUser(currentUser);
+              await remove(userRef);
+              await AsyncStorage.clear();
+
               Alert.alert("Account Deleted", "Your account has been deleted.");
-              navigation.replace("LoginSignupChoiceScreen");
+              navigation.replace("FrontPage");
             } catch (error) {
               console.error("Error deleting account:", error);
-              Alert.alert(
-                "Error",
-                "There was an issue deleting your account. Please try again."
-              );
-            }
+              if (error.code === "auth/wrong-password") {
+                Alert.alert("Error", "The current password you entered is incorrect.");
+              } else {
+                Alert.alert("Error", "There was an issue deleting your account. Please try again.");
+              };
+              
+            };
           },
         },
       ]
@@ -173,6 +233,28 @@ export default function UpdateProfile({ navigation }) {
           Hello {username}, you can change your username and password here.
         </Text>
 
+        {/* Username Input */}
+        <View style={styles.inputContainer}>
+          <FontAwesome name="user" size={hp(3)} color="#B0BEC5" />
+          <TextInput
+            // placeholder="New Username"
+            placeholder={`${
+              currentUser?.displayName || "User"
+            }, enter your new username`}
+            placeholderTextColor="#B0BEC5"
+            style={styles.input}
+            value={newUsername}
+            onChangeText={setNewUsername}
+            autoCapitalize="none"
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={handleSaveUsername}
+        >
+          <Text style={styles.saveButtonText}>Save Username</Text>
+        </TouchableOpacity>
+
         {/* Current Password Input */}
         <View style={styles.inputContainer}>
           <FontAwesome name="lock" size={hp(3)} color="#B0BEC5" />
@@ -183,6 +265,7 @@ export default function UpdateProfile({ navigation }) {
             value={currentPassword}
             onChangeText={setCurrentPassword}
             secureTextEntry={!currentPasswordVisible}
+            autoCapitalize="none"
           />
           <TouchableOpacity
             onPress={() => setCurrentPasswordVisible(!currentPasswordVisible)}
@@ -195,21 +278,6 @@ export default function UpdateProfile({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Username Input */}
-        <View style={styles.inputContainer}>
-          <FontAwesome name="user" size={hp(3)} color="#B0BEC5" />
-          <TextInput
-            placeholder="New Username"
-            placeholderTextColor="#B0BEC5"
-            style={styles.input}
-            value={newUsername}
-            onChangeText={setNewUsername}
-          />
-        </View>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSaveUsername}>
-          <Text style={styles.saveButtonText}>Save Username</Text>
-        </TouchableOpacity>
-
         {/* New Password Input */}
         <View style={styles.inputContainer}>
           <FontAwesome name="lock" size={hp(3)} color="#B0BEC5" />
@@ -220,8 +288,11 @@ export default function UpdateProfile({ navigation }) {
             value={newPassword}
             onChangeText={setNewPassword}
             secureTextEntry={!passwordVisible}
+            autoCapitalize="none"
           />
-          <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+          <TouchableOpacity
+            onPress={() => setPasswordVisible(!passwordVisible)}
+          >
             <Ionicons
               name={passwordVisible ? "eye-off" : "eye"}
               size={hp(3)}
@@ -240,6 +311,7 @@ export default function UpdateProfile({ navigation }) {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!confirmPasswordVisible}
+            autoCapitalize="none"
           />
           <TouchableOpacity
             onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
@@ -251,7 +323,10 @@ export default function UpdateProfile({ navigation }) {
             />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSavePassword}>
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={handleSavePassword}
+        >
           <Text style={styles.saveButtonText}>Save Password</Text>
         </TouchableOpacity>
 
@@ -298,7 +373,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4),
     marginVertical: hp(1.5),
     width: "90%",
-    height: hp(7),
+    height: hp(6),
   },
   input: {
     flex: 1,
@@ -308,11 +383,11 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: "#424242",
-    paddingVertical: hp(2),
+    paddingVertical: hp(1.5),
     borderRadius: wp(7),
     width: "90%",
     alignItems: "center",
-    marginTop: 20,
+    marginVertical: 10,
     borderColor: "#B2DDF9",
     borderWidth: 1,
   },
@@ -322,12 +397,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   deleteAccount: {
-    marginTop: hp(2),
+    backgroundColor: "red",
+    paddingVertical: hp(1.5),
+    borderRadius: wp(7),
+    width: "90%",
     alignItems: "center",
+    marginVertical: 10,
+    borderColor: "#B2DDF9",
+    borderWidth: 1,
   },
   deleteAccountText: {
     color: "#B2DDF9",
-    fontSize: hp(2),
+    fontSize: hp(2.5),
     textDecorationLine: "underline",
+    fontWeight: "bold",
   },
 });
