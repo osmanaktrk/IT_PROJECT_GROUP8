@@ -93,7 +93,7 @@ export default function HomePage({ navigation }) {
   const [isSearched, setIsSearched] = useState(false);
   const [selectedParkingLocation, setSelectedParkingLocation] = useState({});
   const [directionRegio, setDirectionRegio] = useState({});
-
+  const [navigationItem, setNavigationItem] = useState({});
   const [selectedLocationCircle, setSelectedLocationCircle] = useState(null);
 
   const [getLiveLocationsSelectedArea, setGetLiveLocationsSelectedArea] =
@@ -133,6 +133,8 @@ export default function HomePage({ navigation }) {
     updateLocationModule: screenHeight * 0.45,
     thanksModule: screenHeight * 0.41,
     locationSelectedModule: screenHeight * 0.4,
+    endNavigationModule: screenHeight * 0.45,
+    afterNavigationModule: screenHeight * 0.4,
   };
 
   const checkInternetConnection = async () => {
@@ -383,6 +385,8 @@ export default function HomePage({ navigation }) {
         break;
       case "locationSelectedModule":
         setSelectedLocationCircle(null);
+        break;
+      case "endNavigationModule":
         break;
       case "allModules":
         clearInterval(navigationIntervalId);
@@ -1094,6 +1098,22 @@ export default function HomePage({ navigation }) {
                 { duration: 500 }
               );
             }
+
+            if (currentStepIndex === routeSteps.length - 1) {
+              console.log("Navigation completed!");
+              setNavigationStepsInstruction(
+                "You have arrived at your destination."
+              );
+              if (isNavigationSoundOn) {
+                Speech.speak("You have arrived at your destination.");
+              }
+
+              navigationSubscription?.remove;
+              setNavigationIntervalId(null);
+              setIsAligningHeading(false);
+              closeNavigationModule();
+              openEndNavigationModule();
+            }
           }
         );
 
@@ -1106,6 +1126,8 @@ export default function HomePage({ navigation }) {
       console.log("User location or route steps not available");
     }
   };
+
+
 
   const closeNavigationModule = () => {
     // clearInterval(navigationIntervalId);
@@ -1128,8 +1150,40 @@ export default function HomePage({ navigation }) {
     // console.log("Route reset!");
   };
 
+  const openEndNavigationModule = () => {
+
+    openModule("endNavigationModule");
+  };
+
+  const endNavigationModuleFreeButton = () => {
+    closeModule("endNavigationModule");
+    openModule("afterNavigationModule");
+  };
+
+  const endNavigationModuleOccupaidButton = () => {
+
+  
+    
+    const item = { coordinates : [userCurrentLocation.longitude, userCurrentLocation.latitude] };
+
+    setSelectedLocationCircle(item);
+    setGetLiveLocationsSelectedArea(true);
+    closeModule("endNavigationModule");
+
+  };
+
+  const afterNavigationModuleOccupaidButton = async () => {
+
+    closeModule("afterNavigationModule");
+    handleThanksModule();
+
+    await handleUpdateLocation("unavailable");
+
+  };
   const openNavigationModule = (item) => {
-    // console.log(item);
+
+    // setSelectedParkingLocation(item);
+    console.log("item", item);
     if (item.latitude && item.longitude) {
       handleDirection(item.longitude, item.latitude);
     } else {
@@ -1263,8 +1317,8 @@ export default function HomePage({ navigation }) {
 
   useEffect(() => {
     const fetchLiveLocations = async () => {
-      console.log("selectedLocationCircle", selectedLocationCircle);
-      console.log("liveLocationsDistance", liveLocationsDistance);
+      // console.log("selectedLocationCircle", selectedLocationCircle);
+      // console.log("liveLocationsDistance", liveLocationsDistance);
 
       // setFirebaseFetchedLocations([]);
       firebaseFetchedLocations = [];
@@ -2278,6 +2332,43 @@ export default function HomePage({ navigation }) {
               </View>
             )}
 
+
+            {/* activeModule === "endNavigationModule" */}
+            {activeModule === "endNavigationModule" && (
+              <View style={styles.endNavigationModuleContainer}>
+                <View style={styles.endNavigationModuleHandle} />
+                <View style={styles.endNavigationModuleIcon}>
+                  <FontAwesome name="question-circle" size={70} color="gray" />
+                </View>
+                <View style={styles.endNavigationModuleTextContainer}>
+                  <Text style={styles.endNavigationModuleText}>
+                    Please report the parking availability. If the spot is
+                    occupied, we will assist you in finding another one.
+                  </Text>
+                </View>
+
+                <View style={styles.endNavigationModuleButtonsContainer}>
+                  <TouchableOpacity 
+                  style={styles.endNavigationModuleButton}
+                  onPress={endNavigationModuleFreeButton}
+                  >
+                    <Text style={styles.endNavigationModuleButtonText}>
+                      Free
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                  style={styles.endNavigationModuleButton}
+                  onPress={endNavigationModuleOccupaidButton}
+                  >
+                    <Text style={styles.endNavigationModuleButtonText}>
+                      Occupaid
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
             {activeModule === "navigationModule" && (
               <View style={styles.navigationModuleContainer}>
                 <View style={styles.navigationModuleHandle} />
@@ -2304,6 +2395,35 @@ export default function HomePage({ navigation }) {
                   >
                     <Text style={styles.navigationCancelButtonText}>
                       Cancel
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {activeModule === "afterNavigationModule" && (
+              <View style={styles.afterNavigationModuleContainer}>
+                <View style={styles.afterNavigationModuleHandle} />
+                <View style={styles.afterNavigationModuleIcon}>
+                  <FontAwesome name="check" size={50} color="gray" />
+                </View>
+                <View style={styles.afterNavigationModuleTextContainer}>
+                  <Text style={styles.afterNavigationModuleGreatText}>
+                    Great!
+                  </Text>
+                  <Text style={styles.afterNavigationModuleText}>
+                    You've found a free spot. Update the availability to
+                    'occupied' so others know it's taken
+                  </Text>
+                </View>
+
+                <View style={styles.afterNavigationModuleButtonsContainer}>
+                  <TouchableOpacity 
+                  style={styles.afterNavigationModuleButton}
+                  onPress={afterNavigationModuleOccupaidButton}
+                  >
+                    <Text style={styles.afterNavigationModuleButtonText}>
+                      Occupaid
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -3032,5 +3152,128 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignSelf: "center",
     alignItems: "center",
+  },
+  endNavigationModuleContainer: {
+    backgroundColor: "#2a2a2a95",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  endNavigationModuleHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: "#ccc",
+    borderRadius: 2.5,
+    alignSelf: "center",
+    marginBottom: 10,
+  },
+  endNavigationModuleIcon: {
+    backgroundColor: "#B2DDF9",
+    borderRadius: 100,
+    padding: 10,
+    marginVertical: 20,
+  },
+  endNavigationModuleTextContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  endNavigationModuleText: {
+    color: "#B2DDF9",
+    fontSize: 20,
+    textAlign: "center",
+  },
+  endNavigationModuleButtonsContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 50,
+  },
+  endNavigationModuleButton: {
+    padding: 5,
+    margin: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+    width: 150,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#B2DDF9",
+  },
+  endNavigationModuleButtonText: {
+    color: "black",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  afterNavigationModuleContainer: {
+    backgroundColor: "#2a2a2a95",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  afterNavigationModuleHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: "#ccc",
+    borderRadius: 2.5,
+    alignSelf: "center",
+    marginBottom: 10,
+  },
+  afterNavigationModuleIcon: {
+    backgroundColor: "#B2DDF9",
+    borderRadius: 100,
+    padding: 10,
+    marginVertical: 10,
+  },
+  afterNavigationModuleTextContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  afterNavigationModuleGreatText: {
+    color: "#B2DDF9",
+    fontSize: 30,
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  afterNavigationModuleText: {
+    color: "white",
+    fontSize: 20,
+    textAlign: "center",
+  },
+  afterNavigationModuleButtonsContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 50,
+  },
+  afterNavigationModuleButton: {
+    padding: 5,
+    margin: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+    width: 150,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#B2DDF9",
+  },
+  afterNavigationModuleButtonText: {
+    color: "black",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
