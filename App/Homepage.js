@@ -101,7 +101,8 @@ export default function HomePage({ navigation }) {
 
   const [firebaseFetchedLocations, setFirebaseFetchedLocations] = useState([]);
   // let firebaseFetchedLocations = [];
-  const [searchedLocationSuggections, setSearchedLocationSuggections] = useState([]);
+  const [searchedLocationSuggections, setSearchedLocationSuggections] =
+    useState([]);
   // let searchedLocationSuggections = [];
 
   const [region, setRegion] = useState({
@@ -387,6 +388,8 @@ export default function HomePage({ navigation }) {
         setSelectedLocationCircle(null);
         break;
       case "endNavigationModule":
+        break;
+      case "afterNavigationModule":
         break;
       case "allModules":
         clearInterval(navigationIntervalId);
@@ -1127,8 +1130,6 @@ export default function HomePage({ navigation }) {
     }
   };
 
-
-
   const closeNavigationModule = () => {
     // clearInterval(navigationIntervalId);
     // setNavigationIntervalId("");
@@ -1151,7 +1152,6 @@ export default function HomePage({ navigation }) {
   };
 
   const openEndNavigationModule = () => {
-
     openModule("endNavigationModule");
   };
 
@@ -1161,27 +1161,25 @@ export default function HomePage({ navigation }) {
   };
 
   const endNavigationModuleOccupaidButton = () => {
-
-  
-    
-    const item = { coordinates : [userCurrentLocation.longitude, userCurrentLocation.latitude] };
+    const item = {
+      coordinates: [
+        userCurrentLocation.longitude,
+        userCurrentLocation.latitude,
+      ],
+    };
 
     setSelectedLocationCircle(item);
     setGetLiveLocationsSelectedArea(true);
     closeModule("endNavigationModule");
-
   };
 
   const afterNavigationModuleOccupaidButton = async () => {
-
     closeModule("afterNavigationModule");
     handleThanksModule();
 
     await handleUpdateLocation("unavailable");
-
   };
   const openNavigationModule = (item) => {
-
     // setSelectedParkingLocation(item);
     console.log("item", item);
     if (item.latitude && item.longitude) {
@@ -1305,7 +1303,7 @@ export default function HomePage({ navigation }) {
 
       setSearchedLocationSuggections(results);
       // searchedLocationSuggections = results;
-      console.log( "searchedLocationSuggections", searchedLocationSuggections);
+      console.log("searchedLocationSuggections", searchedLocationSuggections);
 
       // console.log("Updated Location Suggestions:", results);
     } catch (error) {
@@ -1926,177 +1924,9 @@ export default function HomePage({ navigation }) {
           )} */}
           </MapView>
 
-          {/* <Animated.View
-          style={[{ transform: [{ translateY: rightCornerTranslateY }] }]}
-        >
-          <View style={styles.rightcornerButtonsContainer}>
-            <TouchableOpacity
-              style={styles.alignHeadingButton}
-              onPress={() => setIsAligningHeading(!isAligningHeading)}
-            >
-              <MaterialIcons
-                name={isAligningHeading ? "navigation" : "explore"}
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
+          
 
-            <TouchableOpacity
-              style={styles.mapRefreshButton}
-              onPress={deleteDatabases}
-            >
-              <MaterialIcons name="delete" size={24} color="black" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.mapRefreshButton}
-              onPress={handleMapRefresher}
-            >
-              <Ionicons name="refresh" size={24} color="black" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.navigationSoundButton}
-              onPress={() => setIsNavigationSoundOn(!isNavigationSoundOn)}
-            >
-              <Ionicons
-                name={
-                  isNavigationSoundOn
-                    ? "volume-high-outline"
-                    : "volume-mute-outline"
-                }
-                size={24}
-                color={"black"}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.locationButton}
-              onPress={goToUserLocation}
-            >
-              <MaterialIcons name="my-location" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
-        </Animated.View> */}
-
-          {/* {activeModule === "updateLocationModul" && (
-            <Animated.View
-              style={[
-                styles.updateLocationModuleContainer,
-                { transform: [{ translateY }] },
-              ]}
-              {...panResponder.panHandlers}
-            >
-              <View style={styles.updateLocationModuleHandle} />
-
-              <View style={styles.updateLocationModuleStatusQuestionContainer}>
-                <View
-                  style={
-                    styles.updateLocationModuleStatusQuestionImageContainer
-                  }
-                >
-                  <FontAwesome
-                    name="question-circle"
-                    size={100}
-                    color="#43a0de"
-                  />
-                  <FontAwesome5 name="praying-hands" size={24} color="black" />
-                </View>
-
-                <View
-                  style={styles.updateLocationModuleStatusQuestionTextContainer}
-                >
-                  <Text style={styles.updateLocationModuleStatusQuestionText}>
-                    Please report the parking availability.
-                  </Text>
-                </View>
-              </View>
-
-              <View
-                style={[
-                  styles.updateLocationModuleStatusContainer,
-                  {
-                    backgroundColor:
-                      selectedParkingLocation.status === "available"
-                        ? "green"
-                        : selectedParkingLocation.status === "unavailable"
-                        ? "red"
-                        : "gray",
-                  },
-                ]}
-              >
-                <View style={styles.updateLocationModuleStatusTextContainer}>
-                  <Text style={styles.updateLocationModuleStatusText}>
-                    Status: {selectedParkingLocation.status}
-                  </Text>
-                  <Text style={styles.updateLocationModuleStatusTimestamp}>
-                    Last Change:
-                    {` ${new Date(
-                      selectedParkingLocation.timestamp
-                    ).toLocaleString()}`}
-                  </Text>
-                </View>
-
-                <View style={styles.updateLocationModuleUpdateButtonsContainer}>
-                  <TouchableOpacity
-                    style={styles.updateLocationModuleUpdateAvailableButton}
-                  >
-                    <Text
-                      style={
-                        styles.updateLocationModuleUpdateAvailableButtonText
-                      }
-                    >
-                      Free
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.updateLocationModuleUpdateUnavailableButton}
-                  >
-                    <Text
-                      style={
-                        styles.updateLocationModuleUpdateUnavailableButtonText
-                      }
-                    >
-                      Occupaid
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.getDitectionContainer}>
-              <View style={styles.getDitectionTextContainer}>
-                <View style={styles.updateLocationTextContainer}>
-                  <Text style={styles.updateLocationModalText}>
-                    Distance: {routeInfo.distance} km
-                  </Text>
-                  <Text style={styles.updateLocationModalText}>
-                    Duration: {routeInfo.duration} mins
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-              <View style={styles.updateLocationModalButtons}>
-              <TouchableOpacity
-                style={styles.navigationStartButton}
-                onPress={openNavigationModule}
-              >
-                <Text style={styles.navigationStartButtonText}>
-                  Get Directions
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.navigationCancelButton}
-                onPress={setActiveModule("")}
-              >
-                <Text style={styles.navigationCancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-
-            </View>
-            </Animated.View>
-          )} */}
+          
 
           <Animated.View
             pointerEvents="box-none"
@@ -2334,8 +2164,6 @@ export default function HomePage({ navigation }) {
               </View>
             )}
 
-
-            
             {activeModule === "endNavigationModule" && (
               <View style={styles.endNavigationModuleContainer}>
                 <View style={styles.endNavigationModuleHandle} />
@@ -2350,18 +2178,18 @@ export default function HomePage({ navigation }) {
                 </View>
 
                 <View style={styles.endNavigationModuleButtonsContainer}>
-                  <TouchableOpacity 
-                  style={styles.endNavigationModuleButton}
-                  onPress={endNavigationModuleFreeButton}
+                  <TouchableOpacity
+                    style={styles.endNavigationModuleButton}
+                    onPress={endNavigationModuleFreeButton}
                   >
                     <Text style={styles.endNavigationModuleButtonText}>
                       Free
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity 
-                  style={styles.endNavigationModuleButton}
-                  onPress={endNavigationModuleOccupaidButton}
+                  <TouchableOpacity
+                    style={styles.endNavigationModuleButton}
+                    onPress={endNavigationModuleOccupaidButton}
                   >
                     <Text style={styles.endNavigationModuleButtonText}>
                       Occupaid
@@ -2420,9 +2248,9 @@ export default function HomePage({ navigation }) {
                 </View>
 
                 <View style={styles.afterNavigationModuleButtonsContainer}>
-                  <TouchableOpacity 
-                  style={styles.afterNavigationModuleButton}
-                  onPress={afterNavigationModuleOccupaidButton}
+                  <TouchableOpacity
+                    style={styles.afterNavigationModuleButton}
+                    onPress={afterNavigationModuleOccupaidButton}
                   >
                     <Text style={styles.afterNavigationModuleButtonText}>
                       Occupaid
@@ -2442,7 +2270,7 @@ export default function HomePage({ navigation }) {
                         <FlatList
                           data={searchedLocationSuggections}
                           keyExtractor={(item, index) => index}
-                          renderItem={({ item} ) => (
+                          renderItem={({ item }) => (
                             <TouchableOpacity
                               style={
                                 styles.locationSearchModuleSuggestionContainer
@@ -2668,22 +2496,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  // showZoomMessageContainer: {
-  //   position: "absolute",
-  //   top: "50%",
-  //   left: "50%",
-  //   transform: [{ translateX: -150 }, { translateY: -50 }],
-  //   backgroundColor: "rgba(0,0,0,0.7)",
-  //   padding: 15,
-  //   borderRadius: 10,
-  //   zIndex: 1,
-  //   width: 300,
-  // },
-  // showZoomMessageText: {
-  //   color: "white",
-  //   textAlign: "center",
-  //   fontSize: 16,
-  // },
   suggestionsContainer: {
     marginTop: 10,
     backgroundColor: "#fff",
