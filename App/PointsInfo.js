@@ -48,16 +48,6 @@ export default function PointsInfo({ navigation }) {
             </Text>
           </View>
 
-          <View style={styles.infoSection}>
-            <Text style={styles.pointHeader}>
-              4. !! Referring a Friend (OPTIONEEL) !!
-            </Text>
-            <Text style={styles.pointDescription}>
-              - Earn 5 points for each friend you refer who signs up and uses
-              the app.{"\n"}- Share your unique referral code to get started.
-            </Text>
-          </View>
-
           {/* Terugknop */}
           <TouchableOpacity
             style={styles.backButton}
