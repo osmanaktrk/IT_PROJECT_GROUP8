@@ -18,7 +18,7 @@ Spotable is a mobile application designed to help users find available parking s
 
 ## Insallation and Setup
 1. Clone the repository
-git clone https://github.com/your-repo-link.git
+git clone https://github.com/osmanaktrk/IT_PROJECT_GROUP8.git
 
 2. Install Dependencies
 npm install
