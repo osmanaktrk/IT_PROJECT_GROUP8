@@ -8,6 +8,28 @@
 
 Spotable is a mobile application designed to help users find available parking spaces efficiently through an interactive map. The app is community-driven, enabling users to report and view free spaces in real-time, with unique features such as filtering for accessible parking spots. 
 
+## Features
+- Interactive Map: Display rael-time parking spaces.
+- Community Contributions: Users can report free or ocupied spaces.
+- History Page: View and managed recently visited locations.
+- Markers: Improved user experience with visually distinct markers.
+- Live Location Tracking: Allows user to see their real-time position on the map.
+- Database Integration: Secure and efficient data handling using Firestore.
+
+## Insallation and Setup
+1. Clone the repository
+git clone https://github.com/your-repo-link.git
+
+2. Install Dependencies
+npm install
+
+3. Run the App
+npm start
+
+4. Expo needed for running the application.
+
+## Screenshots
+Interactive Map: 
 
 <img src="https://github.com/user-attachments/assets/07bf3f6f-46e1-4024-b733-b6ff24a8b460" alt="Simulator Screenshot" width="500" />
 
@@ -77,3 +99,16 @@ Spotable is a mobile application designed to help users find available parking s
 
 <img src="https://github.com/user-attachments/assets/3385af60-e01b-4b1b-8c82-3bde1d3faac3" alt="Simulator Screenshot" width="500" />
 
+
+## Tecnhologies Used
+- Frontend: React Native
+- Backend: Firebase Firestore
+- Authentication: Firebase Athentication
+- Real-Time Updates: Firestore and Expo Location Services
+
+## Contributors
+- Van Trimpont Milan
+- Adrien Goksel
+- Almtlek Samia
+- Aktürk Osman
+- Al-Mahnash Weiam
