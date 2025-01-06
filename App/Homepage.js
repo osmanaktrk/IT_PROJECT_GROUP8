@@ -52,7 +52,7 @@ const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
 const liveLocationsDistance = 300; //meters
 
-export default function HomePage({ route,navigation }) {
+export default function HomePage({ route, navigation }) {
   const [isSynchronizationActive, setIsSynchronizationActive] = useState(false);
   const [userCurrentLocation, setUserCurrentLocation] = useState(null);
   const [userLocationHeading, setUserLocationHeading] = useState(0);
@@ -95,7 +95,7 @@ export default function HomePage({ route,navigation }) {
   const [directionRegio, setDirectionRegio] = useState({});
   const [navigationItem, setNavigationItem] = useState({});
   const [selectedLocationCircle, setSelectedLocationCircle] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null); 
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const [getLiveLocationsSelectedArea, setGetLiveLocationsSelectedArea] =
     useState(false);
@@ -142,52 +142,6 @@ export default function HomePage({ route,navigation }) {
     const state = await NetInfo.fetch();
     return state.isConnected;
   };
-
-  // realtime database kullanici ekleme deneme fonksiyonu, çalisiyor
-  // useEffect(() => {
-  //   // const saveUserDataToRealtimeDatabase = async () => {
-  //   //   try {
-  //   //     const user = firebaseAuth.currentUser; // Aktif kullanıcıyı al
-  //   //     const userRef = ref(firebaseRealDB, `users/${user.uid}`); // Kullanıcı için bir yol belirle
-  //   //     // Kullanıcı verilerini kaydet
-  //   //     await set(userRef, {
-  //   //       username: user.displayName, // Kullanıcının kullanıcı adı
-  //   //       email: user.email, // Kullanıcının e-posta adresi
-  //   //       createdAt: new Date().toISOString(), // Kullanıcı oluşturulma zamanı
-  //   //       score: 0, // Başlangıç skoru
-  //   //     });
-  //   //     console.log("User data saved successfully in Realtime Database");
-  //   //   } catch (error) {
-  //   //     console.error("Error saving user data to Realtime Database:", error);
-  //   //   }
-  //   // };
-  //   // saveUserDataToRealtimeDatabase();
-  //   // addHistoryRecord(50.8503, 4.3517);
-  //   // deleteHistoryRecord("b474f8ed-ec48-4096-9766-e827dfc4dc93");
-  //   // fetchHistoryRecords();
-  // }, []);
-
-  // const addHistoryRecord = async (latitude, longitude) => {
-  //   try {
-  //     const user = firebaseAuth.currentUser;
-  //     const uniqueKey = uuidv4();
-
-  //     const historyRef = ref(
-  //       firebaseRealDB,
-  //       `users/${user.uid}/history/${uniqueKey}`
-  //     );
-
-  //     await set(historyRef, {
-  //       latitude: latitude,
-  //       longitude: longitude,
-  //       timestamp: new Date().toISOString(),
-  //     });
-
-  //     console.log("History record added successfully.");
-  //   } catch (error) {
-  //     console.error("Error adding history record:", error);
-  //   }
-  // };
 
   const addHistoryRecord = async (latitude, longitude) => {
     try {
@@ -336,6 +290,10 @@ export default function HomePage({ route,navigation }) {
     }
   };
 
+  useEffect(() => {
+    fetchUserPoints();
+  }, []);
+
   const updateUserPoints = async (pointsToAdd) => {
     try {
       const user = firebaseAuth.currentUser;
@@ -452,13 +410,11 @@ export default function HomePage({ route,navigation }) {
           const latitude = location.coords.latitude;
           const longitude = location.coords.longitude;
 
-          // Kullanıcı konumunu güncelle
           setUserCurrentLocation({
             latitude,
             longitude,
           });
 
-          // Haritayı güncel konuma taşı
           if (mapRef.current) {
             mapRef.current.animateToRegion({ latitude, longitude }, 1000);
           }
@@ -1063,7 +1019,7 @@ export default function HomePage({ route,navigation }) {
   //The function that takes the distance of the location selected by the user from the map
   // and decides whether to direct it to the navigation module or to the location's status update module.
 
-  const handleParkingMarker = (item) => {
+  const handleParkingMarker = async (item) => {
     setSelectedParkingLocation(item);
 
     const distance = calculateDistance(item.latitude, item.longitude);
@@ -1076,24 +1032,26 @@ export default function HomePage({ route,navigation }) {
     } else {
       // openUpdateLocationModule(item);
 
-      openNavigationModule(item);
+      await openNavigationModule(item);
       // console.log(item);
     }
   };
 
   //Opens the navigation module and focuses the map on the drawn path.
-  const openNavigationModule = (item) => {
+  const openNavigationModule = async (item) => {
     // setSelectedParkingLocation(item);
-    console.log("item", item);
+    // console.log("item", item);
     if (item.latitude && item.longitude) {
-      handleDirection(item.longitude, item.latitude);
+      await handleDirection(item.longitude, item.latitude);
+      openModule("navigationModule");
     } else {
-      handleDirection(item.coordinates[0], item.coordinates[1]);
+      await handleDirection(item.coordinates[0], item.coordinates[1]);
+      openModule("navigationModule");
     }
 
-    openModule("navigationModule");
-    mapRef.current.animateToRegion(directionRegio, 1000);
+    // mapRef.current.animateToRegion(directionRegio, 1000);
   };
+
   const closeNavigationModule = () => {
     // clearInterval(navigationIntervalId);
     // setNavigationIntervalId("");
@@ -1101,6 +1059,7 @@ export default function HomePage({ route,navigation }) {
     // setRouteCoordinates([]);
     // setRouteInfo({});
     closeModule("navigationModule");
+    setSelectedLocation(null);
     // setIsAligningHeading(false);
 
     // if (userCurrentLocation) {
@@ -1175,7 +1134,10 @@ export default function HomePage({ route,navigation }) {
           };
 
           setDirectionRegio(newRegion);
-          mapRef.current.animateToRegion(newRegion, 1000);
+
+          if (mapRef.current) {
+            mapRef.current.animateToRegion(newRegion, 1000);
+          }
         }
 
         // console.log(routeInfo);
@@ -1292,27 +1254,40 @@ export default function HomePage({ route,navigation }) {
     }
   };
 
+  // Receive location data from the history page
+  useEffect(() => {
+    fetchUserLocation();
+    // setSelectedLocation(null);
+    if (route.params?.selectedLocation) {
+      const data = route.params.selectedLocation;
+      setSelectedLocation(route.params.selectedLocation);
+      // const { latitude, longitude } = data;
 
-// Receive location data from the history page
-useEffect(() => {
-  if (route.params?.selectedLocation) {
-    setSelectedLocation(route.params.selectedLocation);
-    const { latitude, longitude } = route.params.selectedLocation;
-
-    // Update the map for the specified location
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude,
-          longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        1000
-      );
+      // Update the map for the specified location
+      // if (mapRef.current) {
+      //   mapRef.current.animateToRegion(
+      //     {
+      //       latitude: latitude,
+      //       longitude: longitude,
+      //       latitudeDelta: 0.001,
+      //       longitudeDelta: 0.001,
+      //     },
+      //     1000
+      //   );
+      // }
     }
-  }
-}, [route.params?.selectedLocation]);
+  }, [route.params?.selectedLocation]);
+
+  useEffect(() => {
+    if (route.params?.selectedLocation && userCurrentLocation) {
+      
+      const item = route.params?.selectedLocation;
+      setSelectedParkingLocation(item);
+      handleDirection(item.longitude, item.latitude);
+      openModule("navigationModule");
+    
+    }
+  }, [route.params?.selectedLocation, userCurrentLocation]);
 
   //Functions that ask the status of the location the user has arrived at after navigation,
   // and searches for other locations for the user if the location the user has arrived at is occupied.
@@ -1459,8 +1434,6 @@ useEffect(() => {
       Alert.alert("Logout Failed", `Error: ${error.message}`);
     }
   };
-
-  
 
   return (
     <SafeAreaProvider>
@@ -1697,32 +1670,20 @@ useEffect(() => {
               </Marker>
             )}
 
-            {/* {spotsDatabase.map((spot) => (
-            <Marker
-              key={spot.id}
-              coordinate={{
-                latitude: spot.latitude,
-                longitude: spot.longitude,
-              }}
-              title={spot.title}
-              pinColor={spot.status === "available" ? "green" : "red"}
-            />
-          ))} */}
+            {/* Marker for the selected location from the history page*/}
 
-          
-{/* Marker for the selected location from the history page*/}
-{selectedLocation && (
-              <Marker
-                coordinate={{
+            {selectedLocation && (
+              <Circle
+                center={{
                   latitude: selectedLocation.latitude,
                   longitude: selectedLocation.longitude,
                 }}
-                pinColor="blue" 
-                title="Selected Location"
-                description="Location from History"
-                onPress={() => handleParkingMarker(selectedLocation)} // استخدام نفس الدالة
+                radius={20}
+                strokeColor="blue"
+                fillColor="blue"
               />
             )}
+
             {public_parking &&
               public_parking.map((item, index) => (
                 <Marker
@@ -1738,15 +1699,6 @@ useEffect(() => {
                   opacity={1}
                 ></Marker>
               ))}
-              {selectedLocation && (
-        <Marker
-          coordinate={{
-            latitude: selectedLocation.latitude,
-            longitude: selectedLocation.longitude,
-          }}
-          pinColor="blue"
-        />
-      )}
 
             {park_and_ride &&
               park_and_ride.map((item, index) => (
