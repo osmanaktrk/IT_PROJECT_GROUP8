@@ -432,304 +432,7 @@ export default function HomePage({ navigation }) {
     },
   });
 
-  //update SQLite database
-  const updateDatabaseFromFirestore = async () => {
-    if (isSynchronizationActive) {
-      Alert.alert(
-        "Update in Progress",
-        "Please wait while the update completes."
-      );
-      return;
-    }
-
-    setIsSynchronizationActive(true);
-    Alert.alert(
-      "Update Started",
-      "The database update has started. Please wait... You will be notified once the update is complete."
-    );
-
-    try {
-      await ParkingSpacesSqliteService.updateSQLiteWithAvailableRecords();
-      await ParkingSpacesSqliteService.updateSQLiteWithUnavailableRecords();
-      Alert.alert(
-        "Update Complete",
-        "The database has been successfully updated."
-      );
-    } catch (error) {
-      console.log(`Database update failed: ${error.message}`);
-      Alert.alert("Error", "Database update failed please try again later.");
-    } finally {
-      setIsSynchronizationActive(false);
-    }
-  };
-
-  useEffect(() => {
-    const initializeParkAndRide = async () => {
-      try {
-        showLoader();
-
-        const parkAndRideData =
-          await ParkAndRideSqliteService.fetchSelectedData();
-        setPark_and_ride(parkAndRideData);
-        // console.log("park_and_ride", park_and_ride);
-        // console.log("park_and_ride initialized successfully.");
-      } catch (error) {
-        console.error("ParkAndRide initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-    if (isParkAndRideDatabaseInitialized) {
-      initializeParkAndRide();
-    }
-  }, [isParkAndRideDatabaseInitialized]);
-  useEffect(() => {
-    if (!isParkAndRideDatabaseInitialized) {
-      initializeParkAndRideDatabase();
-      // setIsParkAndRideDatabaseInitialized(true);
-    }
-  }, [isParkAndRideDatabaseInitialized]);
-
-  // useEffect(() => {
-  //   const initializeParkAndRideDatabaseAndFetchData = async () => {
-  //     try {
-  //       showLoader();
-
-  //       // Eğer veritabanı henüz başlatılmamışsa başlat
-  //       if (!isParkAndRideDatabaseInitialized) {
-  //         await initializeParkAndRideDatabase();
-  //         setIsParkAndRideDatabaseInitialized(true);
-  //       }
-
-  //       // Veriler çekiliyor
-  //       const parkAndRideData =
-  //         await ParkAndRideSqliteService.fetchSelectedData();
-  //       setPark_and_ride(parkAndRideData);
-
-  //       console.log(
-  //         "ParkAndRide database initialized and data fetched successfully."
-  //       );
-  //     } catch (error) {
-  //       console.error(
-  //         "Error initializing or fetching ParkAndRide data:",
-  //         error
-  //       );
-  //     } finally {
-  //       hideLoader();
-  //     }
-  //   };
-
-  //   initializeParkAndRideDatabaseAndFetchData();
-  // }, [isParkAndRideDatabaseInitialized]);
-
-  useEffect(() => {
-    const initializePublicParking = async () => {
-      try {
-        showLoader();
-
-        const publicParkingData =
-          await PublicParkingSqliteService.fetchSelectedData();
-        setPublic_parking(publicParkingData);
-        // console.log("public_parking", public_parking);
-        // console.log("public_parking initialized successfully.");
-      } catch (error) {
-        console.error("PublicParking initialization failed:", error);
-      } finally {
-        hideLoader();
-      }
-    };
-
-    if (isPublicParkingDatabaseInitialized) {
-      initializePublicParking();
-    }
-  }, [isPublicParkingDatabaseInitialized]);
-
-  useEffect(() => {
-    if (!isPublicParkingDatabaseInitialized) {
-      initializePublicParkingDatabase();
-      // setIsPublicParkingDatabaseInitialized(true);
-    }
-  }, [isPublicParkingDatabaseInitialized]);
-
-  // useEffect(() => {
-  //   const initializePublicParkingDatabaseAndFetchData = async () => {
-  //     try {
-  //       showLoader();
-
-  //       // Eğer veritabanı henüz başlatılmamışsa başlat
-  //       if (!isPublicParkingDatabaseInitialized) {
-  //         await initializePublicParkingDatabase();
-  //         setIsPublicParkingDatabaseInitialized(true);
-  //       }
-
-  //       // Veriler zaten başlatılmışsa al
-  //       const publicParkingData =
-  //         await PublicParkingSqliteService.fetchSelectedData();
-  //       setPublic_parking(publicParkingData);
-
-  //       console.log(
-  //         "Public parking database initialized and data fetched successfully."
-  //       );
-  //     } catch (error) {
-  //       console.error(
-  //         "Error initializing or fetching public parking data:",
-  //         error
-  //       );
-  //     } finally {
-  //       hideLoader();
-  //     }
-  //   };
-
-  //   initializePublicParkingDatabaseAndFetchData();
-  // }, [isPublicParkingDatabaseInitialized]);
-
-  useEffect(() => {
-    const fetchVisibleParkingSpaces = async () => {
-      try {
-        showLoader();
-
-        if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
-          const visibleParkingSpaces =
-            await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
-          setOn_street_parking(visibleParkingSpaces);
-          // console.log("visible data", visibleParkingSpaces);
-          // console.log("park_and_ride", park_and_ride);
-          // console.log("public_parking", public_parking);
-          // console.log("gorunur data eklendi");
-        }
-
-        // console.log("ParkingSpaces initialized successfully.");
-      } catch (error) {
-        console.error(
-          "fetchVisibleParkingSpaces initialization failed:",
-          error
-        );
-      } finally {
-        hideLoader();
-      }
-    };
-
-    if (isParkingSpacesDatabaseInitialized) {
-      fetchVisibleParkingSpaces();
-    }
-  }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
-
-  useEffect(() => {
-    if (!isParkingSpacesDatabaseInitialized) {
-      initializeParkingSpacesDatabase();
-      // setIsParkingSpacesDatabaseInitialized(true);
-    }
-  }, [isParkingSpacesDatabaseInitialized]);
-
-  // useEffect(() => {
-  //   const initializeAndFetchParkingSpaces = async () => {
-  //     try {
-  //       showLoader();
-
-  //       // Eğer veritabanı başlatılmamışsa başlat
-  //       if (!isParkingSpacesDatabaseInitialized) {
-  //         await initializeParkingSpacesDatabase();
-  //         setIsParkingSpacesDatabaseInitialized(true);
-
-  //       }
-
-  //       // Eğer veritabanı başlatıldıysa ve uygun bölge koşulları sağlanıyorsa veri çek
-  //       if (isParkingSpacesDatabaseInitialized) {
-  //         if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
-  //           const visibleParkingSpaces =
-  //             await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
-  //           setOn_street_parking(visibleParkingSpaces);
-  //           console.log("Visible parking spaces fetched successfully.");
-  //           // console.log(visibleParkingSpaces);
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.error("Error initializing or fetching parking spaces:", error);
-  //     } finally {
-  //       hideLoader();
-  //     }
-  //   };
-
-  //   initializeAndFetchParkingSpaces();
-  // }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
-
-  const handleMapRefresher = () => {
-    setIsParkAndRideDatabaseInitialized(false);
-    setIsParkingSpacesDatabaseInitialized(false);
-    setIsPublicParkingDatabaseInitialized(false);
-    setRouteCoordinates([]);
-    setRouteInfo({});
-    closeModule("allModules");
-    setNavigationIntervalId(null);
-  };
-
-  const initializePublicParkingDatabase = async () => {
-    try {
-      showLoader();
-      // await PublicParkingSqliteService.deleteDatabase();
-      const result = await PublicParkingSqliteService.initializeDatabase(
-        showLoader,
-        hideLoader
-      );
-      setIsPublicParkingDatabaseInitialized(result);
-
-      if (result) {
-        console.log("PublicParking database initialized successfully.");
-      } else {
-        console.log("PublicParking database not initialized.");
-      }
-    } catch (error) {
-      setIsPublicParkingDatabaseInitialized(false);
-      console.error("PublicParking database initialization failed:", error);
-    } finally {
-      hideLoader();
-    }
-  };
-
-  const initializeParkAndRideDatabase = async () => {
-    try {
-      showLoader();
-      // await ParkAndRideSqliteService.deleteDatabase();
-      const result = await ParkAndRideSqliteService.initializeDatabase(
-        showLoader,
-        hideLoader
-      );
-      setIsParkAndRideDatabaseInitialized(result);
-
-      if (result) {
-        console.log("ParkAndRide database initialized successfully.");
-      } else {
-        console.log("ParkAndRide database not initialized.");
-      }
-    } catch (error) {
-      setIsParkAndRideDatabaseInitialized(false);
-      console.error("ParkAndRide database initialization failed:", error);
-    } finally {
-      hideLoader();
-    }
-  };
-
-  const initializeParkingSpacesDatabase = async () => {
-    try {
-      showLoader();
-      // await ParkingSpacesSqliteService.deleteDatabase();
-      const result = await ParkingSpacesSqliteService.initializeDatabase(
-        showLoader,
-        hideLoader
-      );
-      setIsParkingSpacesDatabaseInitialized(result);
-      if (result) {
-        console.log("ParkingSpaces database initialized successfully.");
-      } else {
-        console.log("ParkingSpaces database not initialized.");
-      }
-    } catch (error) {
-      setIsParkingSpacesDatabaseInitialized(false);
-      console.error("ParkingSpaces database initialization failed:", error);
-    } finally {
-      hideLoader();
-    }
-  };
+  //fetchUserLocation
 
   const fetchUserLocation = async () => {
     try {
@@ -777,6 +480,22 @@ export default function HomePage({ navigation }) {
       }
     };
   }, []);
+
+  //goToUserLocation button
+
+  const goToUserLocation = () => {
+    if (userCurrentLocation) {
+      mapRef.current?.animateToRegion({
+        ...userCurrentLocation,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+    } else {
+      console.log("User location not available");
+    }
+  };
+
+  //to rotate the map in the user's direction
 
   const startAligningMapToUserHeading = async () => {
     try {
@@ -831,17 +550,223 @@ export default function HomePage({ navigation }) {
     }
   }, [isAligningHeading]);
 
-  const goToUserLocation = () => {
-    if (userCurrentLocation) {
-      mapRef.current?.animateToRegion({
-        ...userCurrentLocation,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      });
-    } else {
-      console.log("User location not available");
+  //update SQLite database from Firestore
+  const updateDatabaseFromFirestore = async () => {
+    if (isSynchronizationActive) {
+      Alert.alert(
+        "Update in Progress",
+        "Please wait while the update completes."
+      );
+      return;
+    }
+
+    setIsSynchronizationActive(true);
+    Alert.alert(
+      "Update Started",
+      "The database update has started. Please wait... You will be notified once the update is complete."
+    );
+
+    try {
+      await ParkingSpacesSqliteService.updateSQLiteWithAvailableRecords();
+      await ParkingSpacesSqliteService.updateSQLiteWithUnavailableRecords();
+      Alert.alert(
+        "Update Complete",
+        "The database has been successfully updated."
+      );
+    } catch (error) {
+      console.log(`Database update failed: ${error.message}`);
+      Alert.alert("Error", "Database update failed please try again later.");
+    } finally {
+      setIsSynchronizationActive(false);
     }
   };
+
+  // reload the parking data from SQLite database
+  const handleMapRefresher = () => {
+    setIsParkAndRideDatabaseInitialized(false);
+    setIsParkingSpacesDatabaseInitialized(false);
+    setIsPublicParkingDatabaseInitialized(false);
+    setRouteCoordinates([]);
+    setRouteInfo({});
+    closeModule("allModules");
+    setNavigationIntervalId(null);
+  };
+
+  //ParkAndRideDatabaseInitialize
+
+  const initializeParkAndRideDatabase = async () => {
+    try {
+      showLoader();
+      // await ParkAndRideSqliteService.deleteDatabase();
+      const result = await ParkAndRideSqliteService.initializeDatabase(
+        showLoader,
+        hideLoader
+      );
+      setIsParkAndRideDatabaseInitialized(result);
+
+      if (result) {
+        console.log("ParkAndRide database initialized successfully.");
+      } else {
+        console.log("ParkAndRide database not initialized.");
+      }
+    } catch (error) {
+      setIsParkAndRideDatabaseInitialized(false);
+      console.error("ParkAndRide database initialization failed:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
+  useEffect(() => {
+    const initializeParkAndRide = async () => {
+      try {
+        showLoader();
+
+        const parkAndRideData =
+          await ParkAndRideSqliteService.fetchSelectedData();
+        setPark_and_ride(parkAndRideData);
+        // console.log("park_and_ride", park_and_ride);
+        // console.log("park_and_ride initialized successfully.");
+      } catch (error) {
+        console.error("ParkAndRide initialization failed:", error);
+      } finally {
+        hideLoader();
+      }
+    };
+    if (isParkAndRideDatabaseInitialized) {
+      initializeParkAndRide();
+    }
+  }, [isParkAndRideDatabaseInitialized]);
+
+  useEffect(() => {
+    if (!isParkAndRideDatabaseInitialized) {
+      initializeParkAndRideDatabase();
+      // setIsParkAndRideDatabaseInitialized(true);
+    }
+  }, [isParkAndRideDatabaseInitialized]);
+
+  //PublicParkingDatabaseInitialize
+
+  const initializePublicParkingDatabase = async () => {
+    try {
+      showLoader();
+      // await PublicParkingSqliteService.deleteDatabase();
+      const result = await PublicParkingSqliteService.initializeDatabase(
+        showLoader,
+        hideLoader
+      );
+      setIsPublicParkingDatabaseInitialized(result);
+
+      if (result) {
+        console.log("PublicParking database initialized successfully.");
+      } else {
+        console.log("PublicParking database not initialized.");
+      }
+    } catch (error) {
+      setIsPublicParkingDatabaseInitialized(false);
+      console.error("PublicParking database initialization failed:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
+  useEffect(() => {
+    const initializePublicParking = async () => {
+      try {
+        showLoader();
+
+        const publicParkingData =
+          await PublicParkingSqliteService.fetchSelectedData();
+        setPublic_parking(publicParkingData);
+        // console.log("public_parking", public_parking);
+        // console.log("public_parking initialized successfully.");
+      } catch (error) {
+        console.error("PublicParking initialization failed:", error);
+      } finally {
+        hideLoader();
+      }
+    };
+
+    if (isPublicParkingDatabaseInitialized) {
+      initializePublicParking();
+    }
+  }, [isPublicParkingDatabaseInitialized]);
+
+  useEffect(() => {
+    if (!isPublicParkingDatabaseInitialized) {
+      initializePublicParkingDatabase();
+      // setIsPublicParkingDatabaseInitialized(true);
+    }
+  }, [isPublicParkingDatabaseInitialized]);
+
+  //ParkingSpacesDatabaseInitialize 260.000
+
+  const initializeParkingSpacesDatabase = async () => {
+    try {
+      showLoader();
+      // await ParkingSpacesSqliteService.deleteDatabase();
+      const result = await ParkingSpacesSqliteService.initializeDatabase(
+        showLoader,
+        hideLoader
+      );
+      setIsParkingSpacesDatabaseInitialized(result);
+      if (result) {
+        console.log("ParkingSpaces database initialized successfully.");
+      } else {
+        console.log("ParkingSpaces database not initialized.");
+      }
+    } catch (error) {
+      setIsParkingSpacesDatabaseInitialized(false);
+      console.error("ParkingSpaces database initialization failed:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
+  useEffect(() => {
+    const fetchVisibleParkingSpaces = async () => {
+      try {
+        showLoader();
+
+        if (region.latitudeDelta <= 0.015 && region.longitudeDelta <= 0.015) {
+          const visibleParkingSpaces =
+            await ParkingSpacesSqliteService.fetchVisibleData(region, 2);
+          setOn_street_parking(visibleParkingSpaces);
+          // console.log("visible data", visibleParkingSpaces);
+          // console.log("park_and_ride", park_and_ride);
+          // console.log("public_parking", public_parking);
+          // console.log("gorunur data eklendi");
+        }
+
+        // console.log("ParkingSpaces initialized successfully.");
+      } catch (error) {
+        console.error(
+          "fetchVisibleParkingSpaces initialization failed:",
+          error
+        );
+      } finally {
+        hideLoader();
+      }
+    };
+
+    if (isParkingSpacesDatabaseInitialized) {
+      fetchVisibleParkingSpaces();
+    }
+  }, [region, isParkingSpacesDatabaseInitialized, routeCoordinates]);
+
+  useEffect(() => {
+    if (!isParkingSpacesDatabaseInitialized) {
+      initializeParkingSpacesDatabase();
+      // setIsParkingSpacesDatabaseInitialized(true);
+    }
+  }, [isParkingSpacesDatabaseInitialized]);
+
+  //If the address entered by the user is a real location,
+  // it goes directly to that location and draws a circle around the location the user is looking for,
+  // using the data it receives from Firestore.
+  //If the address entered by the user is not a real location,
+  // suggestions related to the address the user is looking for are presented to the user and after the selection is made,
+  // a circle is drawn around the selection and current data is retrieved from Firesore.
 
   const handleSearch = async () => {
     if (!searchText) {
@@ -927,6 +852,8 @@ export default function HomePage({ navigation }) {
     setIsSearched(true);
   };
 
+  //The function that performs the operations of drawing a circle and
+  // getting data from Firestore when the suggestions that come after the search are selected.
   const handleSuggestionSelect = (item) => {
     if (searchedSuggestions.length < 1) {
       return;
@@ -954,6 +881,241 @@ export default function HomePage({ navigation }) {
     setSearchText("");
   };
 
+  const openLocationSelectedModule = () => {
+    openModule("locationSelectedModule");
+
+    // calculateRegionForDistance(item);
+  };
+
+  const closeLocationSearchModule = () => {
+    // setSelectedLocationCircle(null);
+    closeModule("locationSelectedModule");
+  };
+
+  //Function to get a data from Firestore using geohash around the searched area.
+
+  useEffect(() => {
+    const fetchLiveLocations = async () => {
+      // console.log("selectedLocationCircle", selectedLocationCircle);
+      // console.log("liveLocationsDistance", liveLocationsDistance);
+
+      setFirebaseFetchedLocations([]);
+      // firebaseFetchedLocations = [];
+
+      showLoader();
+      try {
+        const result =
+          await ParkingSpacesSqliteService.fetchLocationsFromFirestoreWithCenter(
+            selectedLocationCircle.coordinates[1],
+            selectedLocationCircle.coordinates[0],
+            liveLocationsDistance
+          );
+
+        // console.log("result firestore", result);
+        // console.log(
+        //   "ilk timestamp",
+        //   new Date(result[0].timestamp).toLocaleString()
+        // );
+        setFirebaseFetchedLocations(result);
+        // firebaseFetchedLocations = result;
+        // console.log(firebaseFetchedLocations);
+        if (result.length > 0) {
+          await handleFirebaseFetchedLocations(result);
+          openLocationSelectedModule();
+          Alert.alert(
+            "Data Update",
+            "The latest data has been retrieved successfully. Please tap on the map to view it."
+          );
+        } else {
+          Alert.alert(
+            "No Nearby Available Parking Spots",
+            "Unfortunately, we couldn't find a available parking spot near your searched location. Please try searching in a different area."
+          );
+          setSearchedLocationSuggections([]);
+          // searchedLocationSuggections = [];
+        }
+        // console.log("result lenght", result.length);
+      } catch (error) {
+        console.log("error firestore fetch", error);
+      }
+      hideLoader();
+    };
+
+    if (getLiveLocationsSelectedArea && selectedLocationCircle) {
+      fetchLiveLocations();
+      setGetLiveLocationsSelectedArea(false);
+    }
+  }, [getLiveLocationsSelectedArea]);
+
+  //The function of making the data coming from Firestore ready for the user
+  // and converting it into an address that the user can understand,
+  // sorting it according to distance and presenting it to the user.
+
+  const handleFirebaseFetchedLocations = async (fetchedItems) => {
+    try {
+      const fetchedLocations = fetchedItems.map((data) => [
+        data.longitude,
+        data.latitude,
+      ]);
+      const allLocations = [
+        [userCurrentLocation.longitude, userCurrentLocation.latitude],
+        ...fetchedLocations,
+      ];
+
+      const result = await OpenRouteServise.matrixService(allLocations);
+
+      // console.log(result);
+      const sortedSuggestions = result.distances
+        .map((distance, index) => {
+          if (index === 0) return null;
+
+          return {
+            latitude: allLocations[index][1],
+            longitude: allLocations[index][0],
+            distance: distance[0],
+            duration: result.durations[index][0],
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.distance - b.distance);
+
+      const results = [];
+
+      for (const item of sortedSuggestions) {
+        // console.log("item: ", item);
+        try {
+          const data = await OpenRouteServise.reverseGeocodeService(
+            item.longitude,
+            item.latitude
+          );
+          const address =
+            data.features[0]?.properties?.name || "Unknown Address";
+
+          results.push({
+            latitude: item.latitude,
+            longitude: item.longitude,
+            distance: item.distance,
+            duration: item.duration,
+            address: address,
+          });
+        } catch (error) {
+          console.error(
+            "Error fetching address for item:",
+            item,
+            error.response?.data || error.message
+          );
+          results.push({
+            ...item,
+            address: "Error Fetching Address",
+          });
+        }
+      }
+
+      setSearchedLocationSuggections(results);
+      // searchedLocationSuggections = results;
+      console.log("searchedLocationSuggections", searchedLocationSuggections);
+
+      // console.log("Updated Location Suggestions:", results);
+    } catch (error) {
+      console.error("Error in handleFirebaseFetchedLocations:", error.message);
+    }
+  };
+
+  //Haversine Formula: A mathematical formula used to measure the distance
+  // between two locations as the crow flies. A function that calculates
+  // the distance of a location selected by the user on a map.
+
+  const calculateDistance = (latitude, longitude) => {
+    const toRadians = (degree) => (degree * Math.PI) / 180;
+
+    const R = 6371 * 1000;
+    const dLat = toRadians(userCurrentLocation.latitude - latitude);
+    const dLon = toRadians(userCurrentLocation.longitude - longitude);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(latitude)) *
+        Math.cos(toRadians(userCurrentLocation.latitude)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return distance;
+  };
+
+  const calculateRegionForDistance = (item) => {
+    const latitude = item.coordinates[1];
+    const longitude = item.coordinates[0];
+    const R = 6371 * 1000;
+
+    const delta = (liveLocationsDistance / R) * (180 / Math.PI);
+
+    const newRegion = {
+      latitude: latitude,
+      longitude: longitude,
+      latitudeDelta: 0.001,
+      longitudeDelta: 0.001,
+    };
+  };
+
+  //The function that takes the distance of the location selected by the user from the map
+  // and decides whether to direct it to the navigation module or to the location's status update module.
+
+  const handleParkingMarker = (item) => {
+    setSelectedParkingLocation(item);
+
+    const distance = calculateDistance(item.latitude, item.longitude);
+    // console.log("distance", Math.floor(distance));
+    // closeLocationSearchModule();
+    setSelectedLocationCircle(null);
+
+    if (distance <= 200) {
+      openUpdateLocationModule(item);
+    } else {
+      // openUpdateLocationModule(item);
+
+      openNavigationModule(item);
+      // console.log(item);
+    }
+  };
+
+  //Opens the navigation module and focuses the map on the drawn path.
+  const openNavigationModule = (item) => {
+    // setSelectedParkingLocation(item);
+    console.log("item", item);
+    if (item.latitude && item.longitude) {
+      handleDirection(item.longitude, item.latitude);
+    } else {
+      handleDirection(item.coordinates[0], item.coordinates[1]);
+    }
+
+    openModule("navigationModule");
+    mapRef.current.animateToRegion(directionRegio, 1000);
+  };
+  const closeNavigationModule = () => {
+    // clearInterval(navigationIntervalId);
+    // setNavigationIntervalId("");
+    // setNavigationStepsInstruction("");
+    // setRouteCoordinates([]);
+    // setRouteInfo({});
+    closeModule("navigationModule");
+    // setIsAligningHeading(false);
+
+    // if (userCurrentLocation) {
+    //   mapRef.current?.animateToRegion({
+    //     ...userCurrentLocation,
+    //     latitudeDelta: 0.005,
+    //     longitudeDelta: 0.005,
+    //   });
+    // } else {
+    //   console.log("User location not available");
+    // }
+    // console.log("Route reset!");
+  };
+
+  //Function that calculates distance, route and time when the navigation module is opened.
   const handleDirection = async (destinationLongitude, destinationLatitude) => {
     if (
       !userCurrentLocation ||
@@ -1130,27 +1292,8 @@ export default function HomePage({ navigation }) {
     }
   };
 
-  const closeNavigationModule = () => {
-    // clearInterval(navigationIntervalId);
-    // setNavigationIntervalId("");
-    // setNavigationStepsInstruction("");
-    // setRouteCoordinates([]);
-    // setRouteInfo({});
-    closeModule("navigationModule");
-    // setIsAligningHeading(false);
-
-    // if (userCurrentLocation) {
-    //   mapRef.current?.animateToRegion({
-    //     ...userCurrentLocation,
-    //     latitudeDelta: 0.005,
-    //     longitudeDelta: 0.005,
-    //   });
-    // } else {
-    //   console.log("User location not available");
-    // }
-    // console.log("Route reset!");
-  };
-
+  //Functions that ask the status of the location the user has arrived at after navigation,
+  // and searches for other locations for the user if the location the user has arrived at is occupied.
   const openEndNavigationModule = () => {
     openModule("endNavigationModule");
   };
@@ -1179,19 +1322,9 @@ export default function HomePage({ navigation }) {
 
     await handleUpdateLocation("unavailable");
   };
-  const openNavigationModule = (item) => {
-    // setSelectedParkingLocation(item);
-    console.log("item", item);
-    if (item.latitude && item.longitude) {
-      handleDirection(item.longitude, item.latitude);
-    } else {
-      handleDirection(item.coordinates[0], item.coordinates[1]);
-    }
 
-    openModule("navigationModule");
-    mapRef.current.animateToRegion(directionRegio, 1000);
-  };
-
+  //A function that allows the user to update the status of a location
+  // if user is closer than 200 meters from the location they selected on the map.
   const openUpdateLocationModule = (item) => {
     setSelectedParkingLocation(item);
     openModule("updateLocationModule");
@@ -1200,214 +1333,6 @@ export default function HomePage({ navigation }) {
     // setSelectedParkingLocation({});
     closeModule("updateLocationModule");
   };
-
-  //Haversine Formula
-  const calculateDistance = (latitude, longitude) => {
-    const toRadians = (degree) => (degree * Math.PI) / 180;
-
-    const R = 6371 * 1000;
-    const dLat = toRadians(userCurrentLocation.latitude - latitude);
-    const dLon = toRadians(userCurrentLocation.longitude - longitude);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(latitude)) *
-        Math.cos(toRadians(userCurrentLocation.latitude)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-
-    return distance;
-  };
-
-  //kullanicinin konumu ve seçtigi lokasyonun arasindaki mesafeye gore sesim yapma
-  const handleParkingMarker = (item) => {
-    setSelectedParkingLocation(item);
-
-    const distance = calculateDistance(item.latitude, item.longitude);
-    // console.log("distance", Math.floor(distance));
-    // closeLocationSearchModule();
-    setSelectedLocationCircle(null);
-
-    if (distance <= 200) {
-      openUpdateLocationModule(item);
-    } else {
-      // openUpdateLocationModule(item);
-
-      openNavigationModule(item);
-      // console.log(item);
-    }
-  };
-
-  const handleFirebaseFetchedLocations = async (fetchedItems) => {
-    try {
-      const fetchedLocations = fetchedItems.map((data) => [
-        data.longitude,
-        data.latitude,
-      ]);
-      const allLocations = [
-        [userCurrentLocation.longitude, userCurrentLocation.latitude],
-        ...fetchedLocations,
-      ];
-
-      const result = await OpenRouteServise.matrixService(allLocations);
-
-      // console.log(result);
-      const sortedSuggestions = result.distances
-        .map((distance, index) => {
-          if (index === 0) return null;
-
-          return {
-            latitude: allLocations[index][1],
-            longitude: allLocations[index][0],
-            distance: distance[0],
-            duration: result.durations[index][0],
-          };
-        })
-        .filter(Boolean)
-        .sort((a, b) => a.distance - b.distance);
-
-      const results = [];
-
-      for (const item of sortedSuggestions) {
-        // console.log("item: ", item);
-        try {
-          const data = await OpenRouteServise.reverseGeocodeService(
-            item.longitude,
-            item.latitude
-          );
-          const address =
-            data.features[0]?.properties?.name || "Unknown Address";
-
-          results.push({
-            latitude: item.latitude,
-            longitude: item.longitude,
-            distance: item.distance,
-            duration: item.duration,
-            address: address,
-          });
-        } catch (error) {
-          console.error(
-            "Error fetching address for item:",
-            item,
-            error.response?.data || error.message
-          );
-          results.push({
-            ...item,
-            address: "Error Fetching Address",
-          });
-        }
-      }
-
-      setSearchedLocationSuggections(results);
-      // searchedLocationSuggections = results;
-      console.log("searchedLocationSuggections", searchedLocationSuggections);
-
-      // console.log("Updated Location Suggestions:", results);
-    } catch (error) {
-      console.error("Error in handleFirebaseFetchedLocations:", error.message);
-    }
-  };
-
-  //--------------------------------------------------------
-  //firesrore fetch
-
-  useEffect(() => {
-    const fetchLiveLocations = async () => {
-      // console.log("selectedLocationCircle", selectedLocationCircle);
-      // console.log("liveLocationsDistance", liveLocationsDistance);
-
-      setFirebaseFetchedLocations([]);
-      // firebaseFetchedLocations = [];
-
-      showLoader();
-      try {
-        const result =
-          await ParkingSpacesSqliteService.fetchLocationsFromFirestoreWithCenter(
-            selectedLocationCircle.coordinates[1],
-            selectedLocationCircle.coordinates[0],
-            liveLocationsDistance
-          );
-
-        // console.log("result firestore", result);
-        // console.log(
-        //   "ilk timestamp",
-        //   new Date(result[0].timestamp).toLocaleString()
-        // );
-        setFirebaseFetchedLocations(result);
-        // firebaseFetchedLocations = result;
-        // console.log(firebaseFetchedLocations);
-        if (result.length > 0) {
-          await handleFirebaseFetchedLocations(result);
-          openLocationSelectedModule();
-          Alert.alert(
-            "Data Update",
-            "The latest data has been retrieved successfully. Please tap on the map to view it."
-          );
-        } else {
-          Alert.alert(
-            "No Nearby Available Parking Spots",
-            "Unfortunately, we couldn't find a available parking spot near your searched location. Please try searching in a different area."
-          );
-          setSearchedLocationSuggections([]);
-          // searchedLocationSuggections = [];
-        }
-        // console.log("result lenght", result.length);
-      } catch (error) {
-        console.log("error firestore fetch", error);
-      }
-      hideLoader();
-    };
-
-    if (getLiveLocationsSelectedArea && selectedLocationCircle) {
-      fetchLiveLocations();
-      setGetLiveLocationsSelectedArea(false);
-    }
-  }, [getLiveLocationsSelectedArea]);
-
-  const openLocationSelectedModule = () => {
-    openModule("locationSelectedModule");
-
-    // calculateRegionForDistance(item);
-  };
-
-  const closeLocationSearchModule = () => {
-    // setSelectedLocationCircle(null);
-    closeModule("locationSelectedModule");
-  };
-
-  // const calculateRegionForDistance = (item) => {
-  //   const latitude = item.coordinates[1];
-  //   const longitude = item.coordinates[0];
-  //   const R = 6371 * 1000;
-
-  //   const delta = (liveLocationsDistance / R) * (180 / Math.PI);
-
-  //   const newRegion = {
-  //     latitude: latitude,
-  //     longitude: longitude,
-  //     latitudeDelta: 0.001,
-  //     longitudeDelta: 0.001,
-  //   };
-  // };
-
-  const handleBackgroundPress = () => {
-    // closeNavigationModule();
-    // closeUpdateLocationModule();
-    closeSearch();
-  };
-
-  const handleThanksModule = () => {
-    setTimeout(() => {
-      openModule("thanksModule");
-      setTimeout(() => {
-        closeModule();
-      }, 2000);
-    }, 500);
-  };
-
   const handleUpdateLocation = async (status) => {
     const isOnline = await checkInternetConnection();
 
@@ -1477,6 +1402,21 @@ export default function HomePage({ navigation }) {
     }
   };
 
+  const handleBackgroundPress = () => {
+    // closeNavigationModule();
+    // closeUpdateLocationModule();
+    closeSearch();
+  };
+
+  const handleThanksModule = () => {
+    setTimeout(() => {
+      openModule("thanksModule");
+      setTimeout(() => {
+        closeModule();
+      }, 2000);
+    }, 500);
+  };
+
   const toggleAccountMenu = () => {
     Animated.timing(slideAnim, {
       toValue: showAccountMenu ? -Dimensions.get("window").width * 0.6 : 0,
@@ -1486,7 +1426,7 @@ export default function HomePage({ navigation }) {
     }).start(() => setShowAccountMenu(!showAccountMenu));
   };
 
-  // Çıkış yapma
+  // user logout
   const handleLogout = async () => {
     try {
       await AsyncStorage.clear();
@@ -1923,10 +1863,6 @@ export default function HomePage({ navigation }) {
             </Marker>
           )} */}
           </MapView>
-
-          
-
-          
 
           <Animated.View
             pointerEvents="box-none"
