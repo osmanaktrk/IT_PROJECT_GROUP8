@@ -52,7 +52,7 @@ const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
 const liveLocationsDistance = 300; //meters
 
-export default function HomePage({ navigation }) {
+export default function HomePage({ route,navigation }) {
   const [isSynchronizationActive, setIsSynchronizationActive] = useState(false);
   const [userCurrentLocation, setUserCurrentLocation] = useState(null);
   const [userLocationHeading, setUserLocationHeading] = useState(0);
@@ -95,10 +95,10 @@ export default function HomePage({ navigation }) {
   const [directionRegio, setDirectionRegio] = useState({});
   const [navigationItem, setNavigationItem] = useState({});
   const [selectedLocationCircle, setSelectedLocationCircle] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null); 
 
   const [getLiveLocationsSelectedArea, setGetLiveLocationsSelectedArea] =
     useState(false);
-
   const [firebaseFetchedLocations, setFirebaseFetchedLocations] = useState([]);
   // let firebaseFetchedLocations = [];
   const [searchedLocationSuggections, setSearchedLocationSuggections] =
@@ -1292,6 +1292,28 @@ export default function HomePage({ navigation }) {
     }
   };
 
+
+// Receive location data from the history page
+useEffect(() => {
+  if (route.params?.selectedLocation) {
+    setSelectedLocation(route.params.selectedLocation);
+    const { latitude, longitude } = route.params.selectedLocation;
+
+    // Update the map for the specified location
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000
+      );
+    }
+  }
+}, [route.params?.selectedLocation]);
+
   //Functions that ask the status of the location the user has arrived at after navigation,
   // and searches for other locations for the user if the location the user has arrived at is occupied.
   const openEndNavigationModule = () => {
@@ -1437,6 +1459,8 @@ export default function HomePage({ navigation }) {
       Alert.alert("Logout Failed", `Error: ${error.message}`);
     }
   };
+
+  
 
   return (
     <SafeAreaProvider>
@@ -1685,6 +1709,20 @@ export default function HomePage({ navigation }) {
             />
           ))} */}
 
+          
+{/* Marker for the selected location from the history page*/}
+{selectedLocation && (
+              <Marker
+                coordinate={{
+                  latitude: selectedLocation.latitude,
+                  longitude: selectedLocation.longitude,
+                }}
+                pinColor="blue" 
+                title="Selected Location"
+                description="Location from History"
+                onPress={() => handleParkingMarker(selectedLocation)} // استخدام نفس الدالة
+              />
+            )}
             {public_parking &&
               public_parking.map((item, index) => (
                 <Marker
@@ -1700,6 +1738,15 @@ export default function HomePage({ navigation }) {
                   opacity={1}
                 ></Marker>
               ))}
+              {selectedLocation && (
+        <Marker
+          coordinate={{
+            latitude: selectedLocation.latitude,
+            longitude: selectedLocation.longitude,
+          }}
+          pinColor="blue"
+        />
+      )}
 
             {park_and_ride &&
               park_and_ride.map((item, index) => (
