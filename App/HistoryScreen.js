@@ -85,20 +85,23 @@ export default function HistoryPage({ navigation }) {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Swipeable renderRightActions={() => renderRightActions(item.id)}>
-            <View style={styles.historyItem}>
-              <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
-              <Text style={styles.itemText}>
-  {item.name ||
-    (item.latitude && item.longitude
-      ? `${Math.abs(item.latitude).toFixed(4)}° ${
-          item.latitude >= 0 ? "N" : "S"
-        }, ${Math.abs(item.longitude).toFixed(4)}° ${
-          item.longitude >= 0 ? "E" : "W"
-        }`
-      : "Coordinates not available")}
-</Text>
-
-            </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("HomePage", { selectedLocation: item })}
+            >
+              <View style={styles.historyItem}>
+                <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
+                <Text style={styles.itemText}>
+                  {item.name ||
+                    (item.latitude && item.longitude
+                      ? `${Math.abs(item.latitude).toFixed(4)}° ${
+                          item.latitude >= 0 ? "N" : "S"
+                        }, ${Math.abs(item.longitude).toFixed(4)}° ${
+                          item.longitude >= 0 ? "E" : "W"
+                        }`
+                      : "Coordinates not available")}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </Swipeable>
         )}
       />
