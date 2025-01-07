@@ -34,3 +34,5 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+App/ApiService/openStreetMap.js
+App/Database/firebaseUploader.js
