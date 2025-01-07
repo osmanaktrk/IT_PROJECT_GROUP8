@@ -1,37 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  StyleSheet,
-  View,
-  TextInput,
-  Alert,
-  Dimensions,
-  Text,
-  Image,
-  Pressable,
-  Animated,
-  Easing,
-  TouchableOpacity,
-  FlatList,
-  StatusBar,
-  ScrollView,
-  SafeAreaView,
-  Modal,
-  PanResponder,
-  TouchableWithoutFeedback,
-} from "react-native";
+StyleSheet,View,TextInput,Alert,Dimensions,Text,Image,Pressable,Animated,Easing,TouchableOpacity,FlatList,StatusBar,ScrollView,SafeAreaView,Modal,PanResponder,TouchableWithoutFeedback,} from "react-native";
 import * as Speech from "expo-speech";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { Portal, Snackbar } from "react-native-paper";
 import MapView, { Marker, Circle, Polygon, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
-import {
-  Ionicons,
-  FontAwesome5,
-  MaterialCommunityIcons,
-  FontAwesome,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import {Ionicons,FontAwesome5,MaterialCommunityIcons,FontAwesome,MaterialIcons,} from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseAuth, firestoreDB, firebaseRealDB } from "../FirebaseConfig";
 import { signOut } from "firebase/auth";
