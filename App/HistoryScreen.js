@@ -1,163 +1,104 @@
 // Importing React and required libraries
-import React, { useEffect, useState, useRef } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
-import Swipeable from "react-native-gesture-handler/Swipeable";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  getDatabase,
-  ref,
-  onValue,
-  update,
-  get,
-  remove,
-} from "firebase/database";
+import { getDatabase, ref, onValue, update } from "firebase/database";
 import { getAuth } from "firebase/auth";
-import { firebaseAuth, firebaseRealDB } from "../FirebaseConfig";
-import * as OpenRouteServise from "./ApiService/openRouteService";
 
 // Initializing the component with state for history data and user ID
 export default function HistoryPage({ navigation }) {
   const [historyData, setHistoryData] = useState([]);
-  const swipeableRefs = useRef({});
+  const [userID, setUserID] = useState(null);
 
-  const currentUser = firebaseAuth.currentUser;
-
-  const fetchHistoryRecords = async () => {
-    try {
-      const historyRef = ref(
-        firebaseRealDB,
-        `users/${currentUser.uid}/history`
-      );
-      const snapshot = await get(historyRef);
-
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const recordsWithIds = Object.entries(data).map(([id, record]) => ({
-          id,
-          ...record,
-        }));
-
-        const results = [];
-
-        for (const item of recordsWithIds) {
-          // console.log("item: ", item);
-          try {
-            const data = await OpenRouteServise.reverseGeocodeService(
-              item.longitude,
-              item.latitude
-            );
-            const address =
-              data.features[0]?.properties?.name || "Unknown Address";
-
-            results.push({
-              ...item,
-              address: address,
-            });
-          } catch (error) {
-            console.error(
-              "Error fetching address for item:",
-              item,
-              error.response?.data || error.message
-            );
-            results.push({
-              ...item,
-              address: "Error Fetching Address",
-            });
-          }
-        }
-
-        // console.log("Fetched history records:", recordsWithIds);
-        // console.log("results adress", results);
-        setHistoryData(results);
-      } else {
-        setHistoryData(null);
-
-        console.log("No history records found.");
-      }
-    } catch (error) {
-      console.error("Error fetching history records:", error);
-      setHistoryData(null);
-    }
-  };
-
+  // Listen to authentication state and update userID
   useEffect(() => {
-    fetchHistoryRecords();
+    const auth = getAuth();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("User logged in:", user.uid);
+        setUserID(user.uid);
+      } else {
+        console.log("User not logged in.");
+        setUserID(null);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const deleteHistoryRecord = async (recordId) => {
-    try {
-      const historyRef = ref(
-        firebaseRealDB,
-        `users/${currentUser.uid}/history/${recordId}`
-      );
-      await remove(historyRef);
-      if (swipeableRefs.current[recordId]) {
-        swipeableRefs.current[recordId].close();
-      }
+  // Fetch user's history data and listen for real-time updates
+  useEffect(() => {
+    if (userID) {
+      const db = getDatabase();
+      const historyRef = ref(db, `users/${userID}/history`);
 
-      fetchHistoryRecords();
-      Alert.alert("Success", "History record deleted successfully.");
-      console.log("History record deleted successfully.");
+      const unsubscribe = onValue(historyRef, (snapshot) => {
+        const data = snapshot.val() || {};
+        console.log("Fetched data from database:", data);
+
+        const formattedData = Object.keys(data)
+          .filter((key) => !data[key].isDeleted) // Exclude deleted items
+          .map((key) => ({
+            id: key,
+            ...data[key],
+          }));
+
+        console.log("Formatted data for FlatList:", formattedData);
+        setHistoryData(formattedData);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [userID]);
+
+  // Delete a history entry by ID
+  const handleDelete = async (id) => {
+    try {
+      const db = getDatabase();
+      const itemRef = ref(db, `users/${userID}/history/${id}`);
+      console.log("Deleting item with ID:", id);
+
+      await update(itemRef, { isDeleted: true }); // Mark as deleted
+      console.log("Item deleted successfully.");
     } catch (error) {
-      console.error("Error deleting history record:", error);
+      console.error("Error deleting document:", error);
     }
   };
 
   // Swipeable action for deletion
   const renderRightActions = (id) => (
-    <TouchableOpacity
-      style={styles.deleteButton}
-      onPress={() => deleteHistoryRecord(id)}
-    >
+    <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(id)}>
       <Ionicons name="trash-outline" size={30} color="white" />
     </TouchableOpacity>
   );
+
+  if (!userID) {
+    return <Text>Loading user data...</Text>;
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Recent History</Text>
       <FlatList
         data={historyData}
-        keyExtractor={(item, index) => index}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Swipeable
-            ref={(ref) => {
-              if (ref) swipeableRefs.current[item.id] = ref;
-            }}
-            renderRightActions={() => renderRightActions(item.id)}
-          >
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("HomePage", { selectedLocation: item })
-              }
-            >
-              <View style={styles.historyItem}>
-                <Ionicons
-                  name="time-outline"
-                  size={24}
-                  color="black"
-                  style={styles.icon}
-                />
-                <Text style={styles.itemText}>
-                  {" "}
-                  {item.address ||
-                    (item.latitude && item.longitude
-                      ? `${Math.abs(item.latitude).toFixed(4)}° ${
-                          item.latitude >= 0 ? "N" : "S"
-                        }, ${Math.abs(item.longitude).toFixed(4)}° ${
-                          item.longitude >= 0 ? "E" : "W"
-                        }`
-                      : "Coordinates not available")}
-                </Text>
-              </View>
-            </TouchableOpacity>
+          <Swipeable renderRightActions={() => renderRightActions(item.id)}>
+            <View style={styles.historyItem}>
+              <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
+              <Text style={styles.itemText}>
+  {item.name ||
+    (item.latitude && item.longitude
+      ? `${Math.abs(item.latitude).toFixed(4)}° ${
+          item.latitude >= 0 ? "N" : "S"
+        }, ${Math.abs(item.longitude).toFixed(4)}° ${
+          item.longitude >= 0 ? "E" : "W"
+        }`
+      : "Coordinates not available")}
+</Text>
+
+            </View>
           </Swipeable>
         )}
       />

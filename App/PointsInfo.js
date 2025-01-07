@@ -38,6 +38,16 @@ export default function PointsInfo({ navigation }) {
             </Text>
           </View>
 
+          <View style={styles.infoSection}>
+            <Text style={styles.pointHeader}>
+              3. Reporting Incorrect Information
+            </Text>
+            <Text style={styles.pointDescription}>
+              - Earn 3 points for reporting incorrect parking spot information.
+              {"\n"}- Reports will be verified before awarding points.
+            </Text>
+          </View>
+
           {/* Terugknop */}
           <TouchableOpacity
             style={styles.backButton}
