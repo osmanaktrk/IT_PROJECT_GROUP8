@@ -2,8 +2,7 @@ import axios from "axios";
 
 //Source of all explanations: https://openrouteservice.org/dev/#/api-docs
 
-const OpenRouteServiceApiKey =
-  "5b3ce3597851110001cf62483b0c3d98d2024cd393164c786c102a82";
+const OpenRouteServiceApiKey ="";
 
 //Calculates the driving route between two points.
 // Get a basic route between two points with the profile provided.

@@ -34,14 +34,7 @@ import { getDatabase, ref, update  } from "firebase/database";
 
 // Firebase config settings
 const firebaseConfig = {
-  apiKey: "AIzaSyCDD4kKOdRXMfG5CDxvCOPgnFMSe3LaVE0",
-  authDomain: "spotable-9d53c.firebaseapp.com",
-  databaseURL: "https://spotable-9d53c-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "spotable-9d53c",
-  storageBucket: "spotable-9d53c.firebasestorage.app",
-  messagingSenderId: "84993728511",
-  appId: "1:84993728511:web:0342a4ae3a0c5b8677d1ca",
-  measurementId: "G-RBXLDM6RSY",
+  
 };
 
 // Firebase App initialize
